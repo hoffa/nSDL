@@ -78,11 +78,11 @@ typedef unsigned long uintptr_t;
 #define SDL_LOADSO_DISABLED	1
 #define SDL_THREADS_DISABLED	1
 
-/* I'll only concentrate on the video driver ATM */
+/* I'll only concentrate on the video driver at the moment */
 #define SDL_EVENTS_DISABLED 1
 #define SDL_JOYSTICK_DISABLED   1
 #define SDL_TIMERS_DISABLED 1
-#define SDL_FILE_DISABLED 1
+#define SDL_FILE_DISABLED   1
 
 /* Enable various input drivers */
 /* #define SDL_JOYSTICK_TINSPIRE	1 */

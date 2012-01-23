@@ -28,18 +28,18 @@
 #include "../../events/SDL_sysevents.h"
 #include "../../events/SDL_events_c.h"
 
-#include "SDL_nullvideo.h"
-#include "SDL_nullevents_c.h"
+#include "SDL_tinspirevideo.h"
+#include "SDL_tinspireevents_c.h"
 
-void DUMMY_PumpEvents(_THIS)
+void NSP_PumpEvents(_THIS)
 {
 	/* do nothing. */
 }
 
-void DUMMY_InitOSKeymap(_THIS)
+void NSP_InitOSKeymap(_THIS)
 {
 	/* do nothing. */
 }
 
-/* end of SDL_nullevents.c ... */
+/* end of SDL_tinspireevents.c ... */
 

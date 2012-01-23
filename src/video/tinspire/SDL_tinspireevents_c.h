@@ -21,13 +21,13 @@
 */
 #include "SDL_config.h"
 
-#include "SDL_nullvideo.h"
+#include "SDL_tinspirevideo.h"
 
 /* Variables and functions exported by SDL_sysevents.c to other parts 
    of the native video subsystem (SDL_sysvideo.c)
 */
-extern void DUMMY_InitOSKeymap(_THIS);
-extern void DUMMY_PumpEvents(_THIS);
+extern void NSP_InitOSKeymap(_THIS);
+extern void NSP_PumpEvents(_THIS);
 
-/* end of SDL_nullevents_c.h ... */
+/* end of SDL_tinspireevents_c.h ... */
 

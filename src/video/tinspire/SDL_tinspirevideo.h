@@ -21,8 +21,8 @@
 */
 #include "SDL_config.h"
 
-#ifndef _SDL_nullvideo_h
-#define _SDL_nullvideo_h
+#ifndef _SDL_tinspirevideo_h
+#define _SDL_tinspirevideo_h
 
 #include "../SDL_sysvideo.h"
 
@@ -37,4 +37,4 @@ struct SDL_PrivateVideoData {
     void *buffer;
 };
 
-#endif /* _SDL_nullvideo_h */
+#endif /* _SDL_tinspirevideo_h */
