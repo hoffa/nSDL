@@ -22,7 +22,6 @@ SOURCES = \
 	src/video/SDL_blit_A.c \
 	src/video/SDL_blit_N.c \
 	src/video/SDL_bmp.c \
-	src/video/SDL_cursor.c \
 	src/video/SDL_gamma.c \
 	src/video/SDL_pixels.c \
 	src/video/SDL_RLEaccel.c \

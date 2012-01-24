@@ -23,6 +23,8 @@
 #ifndef _SDL_config_tinspire_h
 #define _SDL_config_tinspire_h
 
+#include <os.h>
+
 /* This is a set of defines to configure the SDL features */
 
 /* General platform specific identifiers */
