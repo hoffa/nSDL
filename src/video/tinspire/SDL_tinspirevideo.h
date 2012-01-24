@@ -29,6 +29,10 @@
 /* Hidden "this" pointer for the video functions */
 #define _THIS	SDL_VideoDevice *this
 
+/* Color masks for the CX */
+#define RMASK_16	0xf800
+#define GMASK_16	0x7e0
+#define BMASK_16	0x1f
 
 /* Private display data */
 

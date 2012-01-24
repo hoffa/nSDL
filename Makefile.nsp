@@ -1,0 +1,51 @@
+CC = nspire-gcc
+AR = ar
+RANLIB = ranlib
+INCLUDE = -Iinclude
+CFLAGS = -Wall -Wextra -nostdlib -Os -marm
+
+TARGET = libSDL.a
+CONFIG_H = include/SDL_config.h
+SOURCES = \
+	src/SDL.c \
+	src/SDL_error.c \
+	src/SDL_fatal.c \
+	src/stdlib/SDL_getenv.c \
+	src/stdlib/SDL_iconv.c \
+	src/stdlib/SDL_malloc.c \
+	src/stdlib/SDL_qsort.c \
+	src/stdlib/SDL_stdlib.c \
+	src/stdlib/SDL_string.c \
+	src/video/SDL_blit.c \
+	src/video/SDL_blit_0.c \
+	src/video/SDL_blit_1.c \
+	src/video/SDL_blit_A.c \
+	src/video/SDL_blit_N.c \
+	src/video/SDL_bmp.c \
+	src/video/SDL_cursor.c \
+	src/video/SDL_gamma.c \
+	src/video/SDL_pixels.c \
+	src/video/SDL_RLEaccel.c \
+	src/video/SDL_stretch.c \
+	src/video/SDL_surface.c \
+	src/video/SDL_video.c \
+	src/video/SDL_yuv.c \
+	src/video/SDL_yuv_sw.c \
+	src/video/tinspire/SDL_tinspireevents.c \
+	src/video/tinspire/SDL_tinspirevideo.c
+OBJECTS = $(SOURCES:.c=.o)
+
+all: $(TARGET)
+
+$(TARGET): $(CONFIG_H) $(OBJECTS)
+	$(AR) crv $@ $^
+	$(RANLIB) $@
+
+.c.o:
+	$(CC) $(INCLUDE) $(CFLAGS) -c $< -o $@
+
+$(CONFIG_H):
+	cp $(CONFIG_H).default $(CONFIG_H)
+
+clean:
+	rm -f $(TARGET) $(OBJECTS)

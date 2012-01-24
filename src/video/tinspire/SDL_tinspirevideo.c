@@ -19,6 +19,7 @@
     Sam Lantinga
     slouken@libsdl.org
 */
+
 #include "SDL_config.h"
 #include "SDL_video.h"
 #include "SDL_mouse.h"
@@ -120,9 +121,9 @@ int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 	vformat->palette = NULL;
 	vformat->BitsPerPixel = 16;
 	vformat->BytesPerPixel = 2;
-	vformat->Rmask = 0xf800;
-	vformat->Gmask = 0x7e0;
-	vformat->Bmask = 0x1f;
+	vformat->Rmask = RMASK_16;
+	vformat->Gmask = GMASK_16;
+	vformat->Bmask = BMASK_16;
 	vformat->Rshift = 11;
 	vformat->Gshift = 5;
 	vformat->Bshift = 0;
@@ -145,9 +146,9 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 
 	if ( bpp > 8 ) {
 		bpp = 16;
-		Rmask = 0xf800;
-		Gmask = 0x7e0;
-		Bmask = 0x1f;
+		Rmask = RMASK_16;
+		Gmask = GMASK_16;
+		Bmask = BMASK_16;
 	} else {
 		SDL_SetError("Pixel format not supported");
 		return(NULL);

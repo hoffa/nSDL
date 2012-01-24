@@ -374,6 +374,9 @@ extern VideoBootStrap BWINDOW_bootstrap;
 #if SDL_VIDEO_DRIVER_TOOLBOX
 extern VideoBootStrap TOOLBOX_bootstrap;
 #endif
+#if SDL_VIDEO_DRIVER_TINSPIRE
+extern VideoBootStrap NSP_bootstrap;
+#endif
 #if SDL_VIDEO_DRIVER_DRAWSPROCKET
 extern VideoBootStrap DSp_bootstrap;
 #endif
