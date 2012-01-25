@@ -2,7 +2,7 @@ CC = nspire-gcc
 AR = ar
 RANLIB = ranlib
 INCLUDE = -Iinclude
-CFLAGS = -Wall -Wextra -nostdlib -Os -marm
+CFLAGS = -Wall -Wextra -nostdlib -lgcc -Os -marm
 
 TARGET = libSDL.a
 CONFIG_H = include/SDL_config.h
@@ -10,18 +10,42 @@ SOURCES = \
 	src/SDL.c \
 	src/SDL_error.c \
 	src/SDL_fatal.c \
+	src/audio/SDL_audio.c \
+	src/audio/SDL_audiocvt.c \
+	src/audio/SDL_audiodev.c \
+	src/audio/SDL_mixer.c \
+	src/audio/SDL_wave.c \
+	src/cdrom/SDL_cdrom.c \
+	src/cpuinfo/SDL_cpuinfo.c \
+	src/events/SDL_active.c \
+	src/events/SDL_events.c \
+	src/events/SDL_expose.c \
+	src/events/SDL_keyboard.c \
+	src/events/SDL_mouse.c \
+	src/events/SDL_quit.c \
+	src/events/SDL_resize.c \
+	src/file/SDL_rwops.c \
+	src/joystick/SDL_joystick.c \
 	src/stdlib/SDL_getenv.c \
 	src/stdlib/SDL_iconv.c \
 	src/stdlib/SDL_malloc.c \
 	src/stdlib/SDL_qsort.c \
 	src/stdlib/SDL_stdlib.c \
 	src/stdlib/SDL_string.c \
+	src/thread/SDL_thread.c \
+	src/thread/generic/SDL_syscond.c \
+	src/thread/generic/SDL_sysmutex.c \
+	src/thread/generic/SDL_syssem.c \
+	src/thread/generic/SDL_systhread.c \
+	src/timer/SDL_timer.c \
+	src/timer/dummy/SDL_systimer.c \
 	src/video/SDL_blit.c \
 	src/video/SDL_blit_0.c \
 	src/video/SDL_blit_1.c \
 	src/video/SDL_blit_A.c \
 	src/video/SDL_blit_N.c \
 	src/video/SDL_bmp.c \
+	src/video/SDL_cursor.c \
 	src/video/SDL_gamma.c \
 	src/video/SDL_pixels.c \
 	src/video/SDL_RLEaccel.c \
@@ -36,15 +60,13 @@ OBJECTS = $(SOURCES:.c=.o)
 
 all: $(TARGET)
 
-$(TARGET): $(CONFIG_H) $(OBJECTS)
-	$(AR) crv $@ $^
+$(TARGET): $(OBJECTS)
+	cp $(CONFIG_H).default $(CONFIG_H)
+	$(AR) cr $@ $^
 	$(RANLIB) $@
 
 .c.o:
 	$(CC) $(INCLUDE) $(CFLAGS) -c $< -o $@
-
-$(CONFIG_H):
-	cp $(CONFIG_H).default $(CONFIG_H)
 
 clean:
 	rm -f $(OBJECTS)

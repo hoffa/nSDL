@@ -117,13 +117,12 @@ VideoBootStrap NSP_bootstrap = {
 
 int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 {
-	/* Currently only supports the CX */
 	vformat->palette = NULL;
 	vformat->BitsPerPixel = 16;
 	vformat->BytesPerPixel = 2;
-	vformat->Rmask = RMASK_16;
-	vformat->Gmask = GMASK_16;
-	vformat->Bmask = BMASK_16;
+	vformat->Rmask = RMASK16;
+	vformat->Gmask = GMASK16;
+	vformat->Bmask = BMASK16;
 	vformat->Rshift = 11;
 	vformat->Gshift = 5;
 	vformat->Bshift = 0;
@@ -146,9 +145,9 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 
 	if ( bpp > 8 ) {
 		bpp = 16;
-		Rmask = RMASK_16;
-		Gmask = GMASK_16;
-		Bmask = BMASK_16;
+		Rmask = RMASK16;
+		Gmask = GMASK16;
+		Bmask = BMASK16;
 	} else {
 		SDL_SetError("Pixel format not supported");
 		return(NULL);

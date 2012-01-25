@@ -1138,8 +1138,8 @@ configure:17536: $? = 0
 configure:17554: result: yes
 configure:17474: checking for unsetenv
 configure:17530: gcc -o conftest.exe -g -O2 -I./include -D_GNU_SOURCE=1  -I./include -D_GNU_SOURCE=1   conftest.c  >&5
-C:\Users\Hoffa\AppData\Local\Temp\cce0f86j.o: In function `main':
-c:\Users\Hoffa\Code\TI-Nspire\Ndless\TI-Nspire SDL/conftest.c:80: undefined reference to `unsetenv'
+C:\Users\Hoffa\AppData\Local\Temp\cc6egl3o.o: In function `main':
+c:\Users\Hoffa\Code\TI-Nspire\C\TI-Nspire SDL/conftest.c:80: undefined reference to `unsetenv'
 collect2: ld returned 1 exit status
 configure:17536: $? = 1
 configure: failed program was:
@@ -1239,8 +1239,8 @@ configure:17554: result: yes
 configure:17474: checking for bcopy
 configure:17530: gcc -o conftest.exe -g -O2 -I./include -D_GNU_SOURCE=1  -I./include -D_GNU_SOURCE=1   conftest.c  >&5
 conftest.c:71:6: warning: conflicting types for built-in function 'bcopy' [enabled by default]
-C:\Users\Hoffa\AppData\Local\Temp\cc62vMQB.o: In function `main':
-c:\Users\Hoffa\Code\TI-Nspire\Ndless\TI-Nspire SDL/conftest.c:82: undefined reference to `bcopy'
+C:\Users\Hoffa\AppData\Local\Temp\cc2x15uD.o: In function `main':
+c:\Users\Hoffa\Code\TI-Nspire\C\TI-Nspire SDL/conftest.c:82: undefined reference to `bcopy'
 collect2: ld returned 1 exit status
 configure:17536: $? = 1
 configure: failed program was:
@@ -1352,8 +1352,8 @@ configure:17536: $? = 0
 configure:17554: result: yes
 configure:17474: checking for strlcpy
 configure:17530: gcc -o conftest.exe -g -O2 -I./include -D_GNU_SOURCE=1  -I./include -D_GNU_SOURCE=1   conftest.c  >&5
-C:\Users\Hoffa\AppData\Local\Temp\ccQlS1K0.o: In function `main':
-c:\Users\Hoffa\Code\TI-Nspire\Ndless\TI-Nspire SDL/conftest.c:86: undefined reference to `strlcpy'
+C:\Users\Hoffa\AppData\Local\Temp\ccyZVWIX.o: In function `main':
+c:\Users\Hoffa\Code\TI-Nspire\C\TI-Nspire SDL/conftest.c:86: undefined reference to `strlcpy'
 collect2: ld returned 1 exit status
 configure:17536: $? = 1
 configure: failed program was:
@@ -1449,8 +1449,8 @@ configure: failed program was:
 configure:17554: result: no
 configure:17474: checking for strlcat
 configure:17530: gcc -o conftest.exe -g -O2 -I./include -D_GNU_SOURCE=1  -I./include -D_GNU_SOURCE=1   conftest.c  >&5
-C:\Users\Hoffa\AppData\Local\Temp\ccyQ4Bbt.o: In function `main':
-c:\Users\Hoffa\Code\TI-Nspire\Ndless\TI-Nspire SDL/conftest.c:86: undefined reference to `strlcat'
+C:\Users\Hoffa\AppData\Local\Temp\ccSlWM6n.o: In function `main':
+c:\Users\Hoffa\Code\TI-Nspire\C\TI-Nspire SDL/conftest.c:86: undefined reference to `strlcat'
 collect2: ld returned 1 exit status
 configure:17536: $? = 1
 configure: failed program was:
@@ -1586,8 +1586,8 @@ configure:17536: $? = 0
 configure:17554: result: yes
 configure:17474: checking for _uitoa
 configure:17530: gcc -o conftest.exe -g -O2 -I./include -D_GNU_SOURCE=1  -I./include -D_GNU_SOURCE=1   conftest.c  >&5
-C:\Users\Hoffa\AppData\Local\Temp\ccUvlwJk.o: In function `main':
-c:\Users\Hoffa\Code\TI-Nspire\Ndless\TI-Nspire SDL/conftest.c:95: undefined reference to `_uitoa'
+C:\Users\Hoffa\AppData\Local\Temp\ccwkI8u8.o: In function `main':
+c:\Users\Hoffa\Code\TI-Nspire\C\TI-Nspire SDL/conftest.c:95: undefined reference to `_uitoa'
 collect2: ld returned 1 exit status
 configure:17536: $? = 1
 configure: failed program was:
@@ -1771,8 +1771,8 @@ configure:17536: $? = 0
 configure:17554: result: yes
 configure:17474: checking for iconv
 configure:17530: gcc -o conftest.exe -g -O2 -I./include -D_GNU_SOURCE=1  -I./include -D_GNU_SOURCE=1   conftest.c  >&5
-C:\Users\Hoffa\AppData\Local\Temp\cc0NNDhH.o: In function `main':
-c:\Users\Hoffa\Code\TI-Nspire\Ndless\TI-Nspire SDL/conftest.c:113: undefined reference to `iconv'
+C:\Users\Hoffa\AppData\Local\Temp\ccwVLX6j.o: In function `main':
+c:\Users\Hoffa\Code\TI-Nspire\C\TI-Nspire SDL/conftest.c:113: undefined reference to `iconv'
 collect2: ld returned 1 exit status
 configure:17536: $? = 1
 configure: failed program was:
@@ -1895,8 +1895,8 @@ configure: failed program was:
 configure:17554: result: no
 configure:17474: checking for sigaction
 configure:17530: gcc -o conftest.exe -g -O2 -I./include -D_GNU_SOURCE=1  -I./include -D_GNU_SOURCE=1   conftest.c  >&5
-C:\Users\Hoffa\AppData\Local\Temp\ccUGjTSa.o: In function `main':
-c:\Users\Hoffa\Code\TI-Nspire\Ndless\TI-Nspire SDL/conftest.c:113: undefined reference to `sigaction'
+C:\Users\Hoffa\AppData\Local\Temp\ccQ3CxIM.o: In function `main':
+c:\Users\Hoffa\Code\TI-Nspire\C\TI-Nspire SDL/conftest.c:113: undefined reference to `sigaction'
 collect2: ld returned 1 exit status
 configure:17536: $? = 1
 configure: failed program was:
@@ -2019,8 +2019,8 @@ configure: failed program was:
 configure:17554: result: no
 configure:17474: checking for setjmp
 configure:17530: gcc -o conftest.exe -g -O2 -I./include -D_GNU_SOURCE=1  -I./include -D_GNU_SOURCE=1   conftest.c  >&5
-C:\Users\Hoffa\AppData\Local\Temp\ccKER9nk.o: In function `main':
-c:\Users\Hoffa\Code\TI-Nspire\Ndless\TI-Nspire SDL/conftest.c:113: undefined reference to `setjmp'
+C:\Users\Hoffa\AppData\Local\Temp\ccgNJwTd.o: In function `main':
+c:\Users\Hoffa\Code\TI-Nspire\C\TI-Nspire SDL/conftest.c:113: undefined reference to `setjmp'
 collect2: ld returned 1 exit status
 configure:17536: $? = 1
 configure: failed program was:
@@ -2143,8 +2143,8 @@ configure: failed program was:
 configure:17554: result: no
 configure:17474: checking for nanosleep
 configure:17530: gcc -o conftest.exe -g -O2 -I./include -D_GNU_SOURCE=1  -I./include -D_GNU_SOURCE=1   conftest.c  >&5
-C:\Users\Hoffa\AppData\Local\Temp\cceiOKgP.o: In function `main':
-c:\Users\Hoffa\Code\TI-Nspire\Ndless\TI-Nspire SDL/conftest.c:113: undefined reference to `nanosleep'
+C:\Users\Hoffa\AppData\Local\Temp\ccSvhYUq.o: In function `main':
+c:\Users\Hoffa\Code\TI-Nspire\C\TI-Nspire SDL/conftest.c:113: undefined reference to `nanosleep'
 collect2: ld returned 1 exit status
 configure:17536: $? = 1
 configure: failed program was:
