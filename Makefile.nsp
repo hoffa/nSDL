@@ -2,7 +2,7 @@ CC = nspire-gcc
 AR = ar
 RANLIB = ranlib
 INCLUDE = -Iinclude
-CFLAGS = -Wall -Wextra -nostdlib -lgcc -Os -marm
+CFLAGS = -Wall -Wextra -nostdlib -Os -marm -lgcc
 
 TARGET = libSDL.a
 CONFIG_H = include/SDL_config.h
