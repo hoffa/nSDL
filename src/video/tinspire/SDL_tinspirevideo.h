@@ -19,6 +19,8 @@
     Sam Lantinga
     slouken@libsdl.org
 */
+#include <os.h>
+
 #include "SDL_config.h"
 
 #ifndef _SDL_tinspirevideo_h

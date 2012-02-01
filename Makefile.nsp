@@ -1,8 +1,8 @@
 CC = nspire-gcc
-AR = ar
-RANLIB = ranlib
+AR = arm-none-eabi-ar
+RANLIB = arm-none-eabi-ranlib
 INCLUDE = -Iinclude
-CFLAGS = -Wall -Wextra -nostdlib -Os -marm -lgcc
+CFLAGS = -Wall -nostdlib
 
 TARGET = libSDL.a
 CONFIG_H = include/SDL_config.h
@@ -54,6 +54,9 @@ SOURCES = \
 	src/video/SDL_video.c \
 	src/video/SDL_yuv.c \
 	src/video/SDL_yuv_sw.c \
+	src/video/dummy/SDL_nullevents.c \
+	src/video/dummy/SDL_nullmouse.c \
+	src/video/dummy/SDL_nullvideo.c \
 	src/video/tinspire/SDL_tinspireevents.c \
 	src/video/tinspire/SDL_tinspirevideo.c
 OBJECTS = $(SOURCES:.c=.o)

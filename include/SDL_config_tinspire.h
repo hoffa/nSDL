@@ -133,7 +133,8 @@
 /* #define SDL_TIMER_TINSPIRE	1 */
 
 /* Enable various video drivers */
-#define SDL_VIDEO_DRIVER_TINSPIRE	1
+/* #define SDL_VIDEO_DRIVER_TINSPIRE	1 */
+#define SDL_VIDEO_DRIVER_DUMMY	1
 
 /* Enable assembly routines */
 /* #define SDL_ASSEMBLY_ROUTINES	1 */

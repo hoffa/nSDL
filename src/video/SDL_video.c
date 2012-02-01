@@ -168,16 +168,17 @@ int SDL_VideoInit (const char *driver_name, Uint32 flags)
 		return(-1);
 	}
 #endif
-
+puts("A");
 	/* Check to make sure we don't overwrite 'current_video' */
 	if ( current_video != NULL ) {
 		SDL_VideoQuit();
 	}
-
+puts("B");
 	/* Select the proper video driver */
 	index = 0;
 	video = NULL;
 	if ( driver_name != NULL ) {
+    puts("C");
 #if 0	/* This will be replaced with a better driver selection API */
 		if ( SDL_strrchr(driver_name, ':') != NULL ) {
 			index = atoi(SDL_strrchr(driver_name, ':')+1);
@@ -192,10 +193,17 @@ int SDL_VideoInit (const char *driver_name, Uint32 flags)
 			}
 		}
 	} else {
+    puts("D");
+        puts(bootstrap[0]->name);
+        puts("D0");
 		for ( i=0; bootstrap[i]; ++i ) {
+            puts("D1");
 			if ( bootstrap[i]->available() ) {
+                puts("D2");
 				video = bootstrap[i]->create(index);
+                puts("D3");
 				if ( video != NULL ) {
+                    puts("D4");
 					break;
 				}
 			}
@@ -207,7 +215,7 @@ int SDL_VideoInit (const char *driver_name, Uint32 flags)
 	}
 	current_video = video;
 	current_video->name = bootstrap[i]->name;
-
+puts("E");
 	/* Do some basic variable initialization */
 	video->screen = NULL;
 	video->shadow = NULL;
@@ -222,7 +230,7 @@ int SDL_VideoInit (const char *driver_name, Uint32 flags)
 	SDL_memset(&video->info, 0, (sizeof video->info));
 	
 	video->displayformatalphapixel = NULL;
-
+puts("E");
 	/* Set some very sane GL defaults */
 	video->gl_config.driver_loaded = 0;
 	video->gl_config.dll_handle = NULL;
@@ -250,7 +258,7 @@ int SDL_VideoInit (const char *driver_name, Uint32 flags)
 		SDL_VideoQuit();
 		return(-1);
 	}
-
+puts("F");
 	/* Create a zero sized video surface of the appropriate format */
 	video_flags = SDL_SWSURFACE;
 	SDL_VideoSurface = SDL_CreateRGBSurface(video_flags, 0, 0,
@@ -261,7 +269,7 @@ int SDL_VideoInit (const char *driver_name, Uint32 flags)
 		return(-1);
 	}
 	SDL_PublicSurface = NULL;	/* Until SDL_SetVideoMode() */
-
+puts("G");
 #if 0 /* Don't change the current palette - may be used by other programs.
        * The application can't do anything with the display surface until
        * a video mode has been set anyway. :)
@@ -282,7 +290,7 @@ int SDL_VideoInit (const char *driver_name, Uint32 flags)
 		return(-1);
 	}
 	SDL_CursorInit(flags & SDL_INIT_EVENTTHREAD);
-
+puts("H");
 	/* We're ready to go! */
 	return(0);
 }

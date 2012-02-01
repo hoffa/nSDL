@@ -27,8 +27,6 @@
 #ifndef _SDL_platform_h
 #define _SDL_platform_h
 
-#define _TINSPIRE /* Temporary hack */
-
 #if defined(_AIX)
 #undef __AIX__
 #define __AIX__		1
