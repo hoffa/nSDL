@@ -164,8 +164,8 @@ int SDL_VideoInit (const char *driver_name, Uint32 flags)
     NSP_NL_RELOCDATA_R(bootstrap);
     NSP_NL_RELOCDATA(&bootstrap[0]->name, const char *);
     NSP_NL_RELOCDATA(&bootstrap[0]->desc, const char *);
-    NSP_NL_RELOCDATA(bootstrap[0]->available, int);
-    NSP_NL_RELOCDATA(bootstrap[0]->create, SDL_VideoDevice *);
+    //NSP_NL_RELOCDATA(bootstrap[0]->available, int);
+    //NSP_NL_RELOCDATA(bootstrap[0]->create, SDL_VideoDevice *);
     printf("bootstrap[0]->name: %s\n", bootstrap[0]->name);
 #endif /* __TINSPIRE__ */
 
