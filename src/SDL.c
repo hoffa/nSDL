@@ -86,7 +86,8 @@ int SDL_InitSubSystem(Uint32 flags)
 #if !SDL_VIDEO_DISABLED
 	/* Initialize the video/event subsystem */
 	if ( (flags & SDL_INIT_VIDEO) && !(SDL_initialized & SDL_INIT_VIDEO) ) {
-		if ( SDL_VideoInit(SDL_getenv("SDL_VIDEODRIVER"),
+		//if ( SDL_VideoInit(SDL_getenv("SDL_VIDEODRIVER"),
+        if ( SDL_VideoInit("NSPVID",
 		                   (flags&SDL_INIT_EVENTTHREAD)) < 0 ) {
 			return(-1);
 		}

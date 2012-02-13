@@ -33,6 +33,9 @@
 
 /* Available video drivers */
 static VideoBootStrap *bootstrap[] = {
+#if SDL_VIDEO_DRIVER_TINSPIRE
+	&NSP_bootstrap,
+#endif
 #if SDL_VIDEO_DRIVER_QUARTZ
 	&QZ_bootstrap,
 #endif
@@ -117,9 +120,6 @@ static VideoBootStrap *bootstrap[] = {
 #if SDL_VIDEO_DRIVER_RISCOS
 	&RISCOS_bootstrap,
 #endif
-#if SDL_VIDEO_DRIVER_TINSPIRE
-	&NSP_bootstrap,
-#endif
 #if SDL_VIDEO_DRIVER_OS2FS
 	&OS2FSLib_bootstrap,
 #endif
@@ -159,6 +159,16 @@ int SDL_VideoInit (const char *driver_name, Uint32 flags)
 	SDL_PixelFormat vformat;
 	Uint32 video_flags;
 
+#ifdef __TINSPIRE__
+    /* NSP_bootstrap has to be at index 0 */
+    NSP_NL_RELOCDATA_R(bootstrap);
+    NSP_NL_RELOCDATA(&bootstrap[0]->name, const char *);
+    NSP_NL_RELOCDATA(&bootstrap[0]->desc, const char *);
+    NSP_NL_RELOCDATA(bootstrap[0]->available, int);
+    NSP_NL_RELOCDATA(bootstrap[0]->create, SDL_VideoDevice *);
+    printf("bootstrap[0]->name: %s\n", bootstrap[0]->name);
+#endif /* __TINSPIRE__ */
+
 	/* Toggle the event thread flags, based on OS requirements */
 #if defined(MUST_THREAD_EVENTS)
 	flags |= SDL_INIT_EVENTTHREAD;
@@ -185,9 +195,13 @@ puts("B");
 		}
 #endif
 		for ( i=0; bootstrap[i]; ++i ) {
+            puts("C0");
 			if ( SDL_strcasecmp(bootstrap[i]->name, driver_name) == 0) {
+                puts("C1");
 				if ( bootstrap[i]->available() ) {
+                    puts("C2");
 					video = bootstrap[i]->create(index);
+                    puts("C3");
 					break;
 				}
 			}

@@ -2,7 +2,7 @@ CC = nspire-gcc
 AR = arm-none-eabi-ar
 RANLIB = arm-none-eabi-ranlib
 INCLUDE = -Iinclude
-CFLAGS = -Wall -nostdlib
+CFLAGS = -Wall -Wextra -nostdlib
 
 TARGET = libSDL.a
 CONFIG_H = include/SDL_config.h
@@ -14,8 +14,13 @@ SOURCES = \
 	src/audio/SDL_audiocvt.c \
 	src/audio/SDL_audiodev.c \
 	src/audio/SDL_mixer.c \
+    src/audio/SDL_mixer_m68k.c \
+    src/audio/SDL_mixer_MMX.c \
+    src/audio/SDL_mixer_MMX_VC.c \
 	src/audio/SDL_wave.c \
+    src/audio/dummy/SDL_dummyaudio.c \
 	src/cdrom/SDL_cdrom.c \
+    src/cdrom/dummy/SDL_syscdrom.c \
 	src/cpuinfo/SDL_cpuinfo.c \
 	src/events/SDL_active.c \
 	src/events/SDL_events.c \
@@ -26,6 +31,7 @@ SOURCES = \
 	src/events/SDL_resize.c \
 	src/file/SDL_rwops.c \
 	src/joystick/SDL_joystick.c \
+    src/joystick/dummy/SDL_sysjoystick.c \
 	src/stdlib/SDL_getenv.c \
 	src/stdlib/SDL_iconv.c \
 	src/stdlib/SDL_malloc.c \
@@ -53,12 +59,10 @@ SOURCES = \
 	src/video/SDL_surface.c \
 	src/video/SDL_video.c \
 	src/video/SDL_yuv.c \
+    src/video/SDL_yuv_mmx.c \
 	src/video/SDL_yuv_sw.c \
-	src/video/dummy/SDL_nullevents.c \
-	src/video/dummy/SDL_nullmouse.c \
-	src/video/dummy/SDL_nullvideo.c \
-	src/video/tinspire/SDL_tinspireevents.c \
-	src/video/tinspire/SDL_tinspirevideo.c
+    src/video/tinspire/SDL_tinspireevents.c \
+    src/video/tinspire/SDL_tinspirevideo.c
 OBJECTS = $(SOURCES:.c=.o)
 
 all: $(TARGET)

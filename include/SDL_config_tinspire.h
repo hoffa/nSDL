@@ -28,6 +28,12 @@
 /* General platform specific identifiers */
 #include "SDL_platform.h"
 
+/* Convenience macros for nl_relocdata */
+#define NSP_NL_RELOCDATA(ptr, type) nl_relocdata((unsigned int *)ptr, \
+                                                 sizeof(type))
+#define NSP_NL_RELOCDATA_R(ptr) nl_relocdata((unsigned int *)ptr, \
+                                             sizeof(ptr) / sizeof(ptr[0]))
+
 #define SDL_HAS_64BIT_TYPE	1
 
 /* Endianness */
@@ -115,26 +121,24 @@
 #undef HAVE_SEM_TIMEDWAIT */
 
 /* Allow disabling of core subsystems */
-#define SDL_AUDIO_DISABLED	1
 #define SDL_CDROM_DISABLED	1
-#define SDL_CPUINFO_DISABLED	1
 #define SDL_LOADSO_DISABLED	1
 #define SDL_THREADS_DISABLED	1
-/* I'll only concentrate on the video driver at the moment */
-#define SDL_EVENTS_DISABLED 1
-#define SDL_JOYSTICK_DISABLED   1
-#define SDL_TIMERS_DISABLED 1
-#define SDL_FILE_DISABLED   1
+
+/* Enable various audio drivers */
+/* #define SDL_AUDIO_TINSPIRE	1 */
+#define SDL_AUDIO_DRIVER_DUMMY	1
 
 /* Enable various input drivers */
 /* #define SDL_JOYSTICK_TINSPIRE	1 */
+#define SDL_JOYSTICK_DUMMY	1
 
 /* Enable various timer systems */
 /* #define SDL_TIMER_TINSPIRE	1 */
+#define SDL_TIMER_DUMMY	1
 
 /* Enable various video drivers */
-/* #define SDL_VIDEO_DRIVER_TINSPIRE	1 */
-#define SDL_VIDEO_DRIVER_DUMMY	1
+#define SDL_VIDEO_DRIVER_TINSPIRE	1
 
 /* Enable assembly routines */
 /* #define SDL_ASSEMBLY_ROUTINES	1 */
