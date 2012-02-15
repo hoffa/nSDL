@@ -63,6 +63,8 @@ static SDL_VideoDevice *NSP_CreateDevice(int devindex)
 {
 	SDL_VideoDevice *device;
 
+	NSP_DPRINT("Creating device\n");
+
 	/* Initialize all variables that we clean on shutdown */
 	device = (SDL_VideoDevice *)SDL_malloc(sizeof(SDL_VideoDevice));
 	if ( device ) {
@@ -117,6 +119,8 @@ VideoBootStrap NSP_bootstrap = {
 
 int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 {
+	NSP_DPRINT("Filling SDL_PixelFormat\n");
+
 	vformat->palette = NULL;
 	vformat->BitsPerPixel = 16;
 	vformat->BytesPerPixel = 2;
@@ -142,6 +146,10 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 				int width, int height, int bpp, Uint32 flags)
 {
 	Uint32 Rmask, Gmask, Bmask;
+	width = 320;
+	height = 240;
+
+	NSP_DPRINT("%dx%d, %d BPP\n", width, height, bpp);
 
 	if ( bpp > 8 ) {
 		bpp = 16;
@@ -157,7 +165,7 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 		SDL_free( this->hidden->buffer );
 	}
 
-	this->hidden->buffer = SDL_malloc(width * height * sizeof(uint16_t));
+	this->hidden->buffer = SDL_malloc(width * height * 2);
 	if ( ! this->hidden->buffer ) {
 		SDL_SetError("Couldn't allocate buffer for requested mode");
 		return(NULL);
@@ -165,7 +173,7 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 
 /* 	printf("Setting mode %dx%d\n", width, height); */
 
-	SDL_memset(this->hidden->buffer, 0, width * height * sizeof(uint16_t));
+	SDL_memset(this->hidden->buffer, 0, width * height * 2);
 
 	/* Allocate the new pixel format for the screen */
 	if ( ! SDL_ReallocFormat(current, bpp, Rmask, Gmask, Bmask, 0) ) {
@@ -179,8 +187,10 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 	current->flags = flags & 0x0; /* No flags yet */
 	this->hidden->w = current->w = width;
 	this->hidden->h = current->h = height;
-	current->pitch = current->w * sizeof(uint16_t);
+	current->pitch = current->w * 2;
 	current->pixels = this->hidden->buffer;
+
+	NSP_DPRINT("Done\n");
 
 	/* We're done */
 	return(current);
