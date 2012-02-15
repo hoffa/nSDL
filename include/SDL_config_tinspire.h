@@ -28,11 +28,8 @@
 /* General platform specific identifiers */
 #include "SDL_platform.h"
 
-/* Convenience macros for nl_relocdata */
-#define NSP_NL_RELOCDATA(ptr, type) nl_relocdata((unsigned int *)ptr, \
-                                                 sizeof(type))
-#define NSP_NL_RELOCDATA_R(ptr) nl_relocdata((unsigned int *)ptr, \
-                                             sizeof(ptr) / sizeof(ptr[0]))
+#define NSP_ARRAY_SIZE(array) (sizeof(array) / sizeof(array[0]))
+#define NSP_NL_RELOCDATA(ptr, size) nl_relocdata((unsigned int *)ptr, size)
 
 #define SDL_HAS_64BIT_TYPE	1
 
