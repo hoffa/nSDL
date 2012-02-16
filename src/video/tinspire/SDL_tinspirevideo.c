@@ -184,7 +184,7 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 	current->pitch = current->w * 2;
 	current->pixels = this->hidden->buffer;
 
-	NSP_DPRINT("Done: 0x%p\n", current);
+	NSP_DPRINT("Done (0x%p)\n", current);
 
 	/* We're done */
 	return(current);
