@@ -31,16 +31,19 @@
 /* Hidden "this" pointer for the video functions */
 #define _THIS	SDL_VideoDevice *this
 
-/* Color masks for the CX */
-#define RMASK16	0xf800
-#define GMASK16	0x7e0
-#define BMASK16	0x1f
+#ifdef NSP_COLOR_LCD
+#define RMASK	0xf800
+#define GMASK	0x7e0
+#define BMASK	0x1f
+#endif
 
 /* Private display data */
 
 struct SDL_PrivateVideoData {
     int w, h;
+#ifdef NSP_COLOR_LCD
     uint16_t *buffer;
+#endif
 };
 
 #endif /* _SDL_tinspirevideo_h */
