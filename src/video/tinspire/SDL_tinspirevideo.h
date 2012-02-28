@@ -32,9 +32,9 @@
 #define _THIS	SDL_VideoDevice *this
 
 #ifdef NSP_COLOR_LCD
-#define RMASK	0xf800
-#define GMASK	0x7e0
-#define BMASK	0x1f
+#define NSP_RMASK	0xf800
+#define NSP_GMASK	0x7e0
+#define NSP_BMASK	0x1f
 #endif
 
 /* Private display data */

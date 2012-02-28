@@ -44,7 +44,7 @@ SOURCES = \
 	src/thread/generic/SDL_syssem.c \
 	src/thread/generic/SDL_systhread.c \
 	src/timer/SDL_timer.c \
-	src/timer/dummy/SDL_systimer.c \
+	src/timer/tinspire/SDL_systimer.c \
 	src/video/SDL_blit.c \
 	src/video/SDL_blit_0.c \
 	src/video/SDL_blit_1.c \

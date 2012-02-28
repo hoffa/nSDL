@@ -121,18 +121,20 @@ int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 {
 	NSP_DPRINT("Filling SDL_PixelFormat\n");
 
+#ifdef NSP_COLOR_LCD
 	vformat->palette = NULL;
 	vformat->BitsPerPixel = 16;
 	vformat->BytesPerPixel = 2;
-	vformat->Rmask = RMASK;
-	vformat->Gmask = GMASK;
-	vformat->Bmask = BMASK;
+	vformat->Rmask = NSP_RMASK;
+	vformat->Gmask = NSP_GMASK;
+	vformat->Bmask = NSP_BMASK;
 	vformat->Rshift = 11;
 	vformat->Gshift = 5;
 	vformat->Bshift = 0;
 	vformat->Rloss = 3;
 	vformat->Gloss = 2;
 	vformat->Bloss = 3;
+#endif
 
 	return(0);
 }
@@ -167,10 +169,10 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 		return(NULL);
 	}
 
-	memset(this->hidden->buffer, 0xff, SCREEN_BYTES_SIZE);
+	memset(this->hidden->buffer, 0, SCREEN_BYTES_SIZE);
 
 	/* Allocate the new pixel format for the screen */
-	if ( ! SDL_ReallocFormat(current, bpp, RMASK, GMASK, BMASK, 0) ) {
+	if ( ! SDL_ReallocFormat(current, bpp, NSP_RMASK, NSP_GMASK, NSP_BMASK, 0) ) {
 		SDL_free(this->hidden->buffer);
 		this->hidden->buffer = NULL;
 		SDL_SetError("Couldn't allocate new pixel format for requested mode");
@@ -184,7 +186,7 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 	current->pitch = current->w * 2;
 	current->pixels = this->hidden->buffer;
 
-	NSP_DPRINT("Done: 0x%p\n", current);
+	NSP_DPRINT("Done (0x%p)\n", current);
 
 	/* We're done */
 	return(current);
@@ -215,6 +217,7 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 {
 	int i;
 	Uint8 *src_addr, *dst_addr;
+
 	for ( i = 0; i < numrects; ++i ) {
 		SDL_Rect *rect = rects + i;
 		int height = rect->h;
