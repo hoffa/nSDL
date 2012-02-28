@@ -24,11 +24,12 @@ int main(void) {
 	SDL_FillRect(screen, &r2, SDL_MapRGB(screen->format, 0, 0, 255));
 	SDL_FillRect(screen, &r3, SDL_MapRGB(screen->format, 0, 255, 0));
 	SDL_FillRect(surf, NULL, SDL_MapRGB(screen->format, 255, 255, 0));
-	SDL_BlitSurface(surf, NULL, screen, NULL);
+	SDL_BlitSurface(surf, NULL, screen, &r3);
 	puts("C");
 	//SDL_BlitSurface(img, NULL, screen, NULL); /*Doesn't work yet*/
 	puts("D");
-	SDL_Flip(screen);
+	//SDL_Flip(screen);
+	SDL_UpdateRect(screen, 20, 10, 100, 200);
 	SDL_Delay(3000);
 	SDL_Quit();
     return 0;

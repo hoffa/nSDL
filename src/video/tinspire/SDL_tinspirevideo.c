@@ -213,6 +213,7 @@ static void NSP_UnlockHWSurface(_THIS, SDL_Surface *surface)
 	return;
 }
 
+/* TODO: requires some cleaning up and optimization */
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 {
 	int i;
@@ -224,8 +225,8 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 		if ( ! rect )
 			continue;
 		NSP_DPRINT("Updating rect: %dx%d at (%d, %d)\n", rect->w, rect->h, rect->x, rect->y);
-		src_addr = (Uint8 *)(SDL_VideoSurface->pixels + rect->x + (rect->y * SDL_VideoSurface->w));
-		dst_addr = (Uint8 *)(SCREEN_BASE_ADDRESS + rect->x + (rect->y * SCREEN_WIDTH));
+		src_addr = (Uint8 *)(SDL_VideoSurface->pixels + NSP_SIZE_BYTES(rect->x) + (NSP_SIZE_BYTES(rect->y) * SDL_VideoSurface->w));
+		dst_addr = (Uint8 *)(SCREEN_BASE_ADDRESS + NSP_SIZE_BYTES(rect->x) + (NSP_SIZE_BYTES(rect->y) * SCREEN_WIDTH));
 		while(height--) {
 			memcpy(dst_addr, src_addr, NSP_SIZE_BYTES(rect->w));
 			src_addr += NSP_SIZE_BYTES(SCREEN_WIDTH);
