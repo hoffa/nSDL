@@ -81,6 +81,8 @@ SDL_Surface * SDL_LoadBMP_RW (SDL_RWops *src, int freesrc)
 	Uint32 biClrUsed;
 	Uint32 biClrImportant;
 
+	NSP_DPRINT("Loading BMP\n");
+
 	/* Make sure we are passed a valid data source */
 	surface = NULL;
 	was_error = SDL_FALSE;
@@ -132,6 +134,8 @@ SDL_Surface * SDL_LoadBMP_RW (SDL_RWops *src, int freesrc)
 		biClrUsed	= SDL_ReadLE32(src);
 		biClrImportant	= SDL_ReadLE32(src);
 	}
+	
+	NSP_DPRINT("biBitCount: %d\n", biBitCount);
 
 	/* stop some compiler warnings. */
 	(void) bfSize;
@@ -354,6 +358,7 @@ done:
 	if ( freesrc && src ) {
 		SDL_RWclose(src);
 	}
+	NSP_DPRINT("Done (0x%p)\n", surface);
 	return(surface);
 }
 

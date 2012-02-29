@@ -135,8 +135,7 @@
 #define SDL_THREADS_DISABLED	1
 
 /* Enable various input drivers */
-/* #define SDL_JOYSTICK_TINSPIRE	1 */
-#define SDL_JOYSTICK_DUMMY	1
+#define SDL_JOYSTICK_TINSPIRE	1
 
 /* Enable various timer systems */
 #define SDL_TIMER_TINSPIRE	1

@@ -23,13 +23,4 @@
 
 #include "SDL_tinspirevideo.h"
 
-#define NSP_MAX_KEYVAL /*stub*/
-
-/* Variables and functions exported by SDL_sysevents.c to other parts 
-   of the native video subsystem (SDL_sysvideo.c)
-*/
-extern void NSP_InitOSKeymap(_THIS);
-extern void NSP_PumpEvents(_THIS);
-
-/* end of SDL_tinspireevents_c.h ... */
-
+/* Functions to be exported */

@@ -21,15 +21,13 @@
 */
 #include "SDL_config.h"
 
-#include "SDL_tinspirevideo.h"
+#include "SDL_mouse.h"
+#include "../../events/SDL_events_c.h"
 
-#define NSP_MAX_KEYVAL /*stub*/
+#include "SDL_tinspiremouse_c.h"
 
-/* Variables and functions exported by SDL_sysevents.c to other parts 
-   of the native video subsystem (SDL_sysvideo.c)
-*/
-extern void NSP_InitOSKeymap(_THIS);
-extern void NSP_PumpEvents(_THIS);
 
-/* end of SDL_tinspireevents_c.h ... */
-
+/* The implementation dependent data for the window manager cursor */
+struct WMcursor {
+	int unused;
+};
