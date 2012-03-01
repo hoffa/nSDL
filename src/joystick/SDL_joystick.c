@@ -44,7 +44,6 @@ int SDL_JoystickInit(void)
 {
 	int arraylen;
 	int status;
-NSP_DPRINT("OVER HERE BITCH");
 	SDL_numjoysticks = 0;
 	status = SDL_SYS_JoystickInit();
 	if ( status >= 0 ) {
@@ -110,7 +109,7 @@ SDL_Joystick *SDL_JoystickOpen(int device_index)
 			return(joystick);
 		}
 	}
-NSP_DPRINT("LOLOLOLOL\n");
+
 	/* Create and initialize the joystick */
 	joystick = (SDL_Joystick *)SDL_malloc((sizeof *joystick));
 	if ( !joystick ) {

@@ -146,4 +146,40 @@
 /* Enable assembly routines */
 /* #define SDL_ASSEMBLY_ROUTINES	1 */
 
+/* Joystick axes */
+enum {
+	NSP_JA_H = 0,
+	NSP_JA_V,
+	NSP_JA_NUMAXES
+};
+
+/* Joystick buttons, these need to match js_buttons array */
+enum {
+	NSP_JB_ESC = 0,
+	NSP_JB_SCRATCHPAD,
+	NSP_JB_TAB,
+	NSP_JB_HOME,
+	NSP_JB_DOC,
+	NSP_JB_MENU,
+	NSP_JB_CTRL,
+	NSP_JB_SHIFT,
+	NSP_JB_VAR,
+	NSP_JB_DEL,
+	NSP_JB_0,
+	NSP_JB_1,
+	NSP_JB_2,
+	NSP_JB_3,
+	NSP_JB_4,
+	NSP_JB_5,
+	NSP_JB_6,
+	NSP_JB_7,
+	NSP_JB_8,
+	NSP_JB_9,
+	NSP_JB_PERIOD,
+	NSP_JB_NEGATIVE,
+	NSP_JB_ENTER,
+	NSP_JB_CLICK,
+	NSP_JB_NUMBUTTONS
+};
+
 #endif /* _SDL_config_tinspire_h */

@@ -147,9 +147,6 @@ SDL_Rect **NSP_ListModes(_THIS, SDL_PixelFormat *format, Uint32 flags)
 SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 				int width, int height, int bpp, Uint32 flags)
 {
-	width = SCREEN_WIDTH;
-	height = SCREEN_HEIGHT;
-
 	NSP_DPRINT("%dx%d, %d BPP\n", width, height, bpp);
 
 	if ( bpp > 8 ) {

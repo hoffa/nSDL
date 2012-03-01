@@ -12,12 +12,15 @@ int main(void) {
 	SDL_Rect r3 = {60, 100, 200, 50};
 	SDL_Surface *surf, *img;
 	SDL_Joystick *joystick;
+	SDL_Event event;
+	int quit = 0;
 	int i;
     if(!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_NOPARACHUTE))
 		printf("Error: %s\n", SDL_GetError());
 	screen = SDL_SetVideoMode(320, 240, 16, 0);
 	SDL_JoystickEventState(SDL_ENABLE);
-	puts(SDL_JoystickName(0));
+	printf("joystickname: %s\n", SDL_JoystickName(0));
+	joystick = SDL_JoystickOpen(0);
 	surf = SDL_CreateRGBSurface(SDL_SWSURFACE, 100, 100, 16, RMASK, GMASK, BMASK, 0);
 	img = SDL_LoadBMP("Examples/image.bmp.tns");
 	if(!img)
@@ -35,7 +38,23 @@ int main(void) {
 	//SDL_BlitSurface(img, NULL, screen, NULL); /*Doesn't work yet*/
 	SDL_Flip(screen);
 	//SDL_UpdateRect(screen, 20, 10, 100, 200);
-	SDL_Delay(3000);
+	while(!quit) {
+		SDL_PollEvent(&event);
+		switch(event.type) {
+			case SDL_JOYBUTTONDOWN:
+				printf("Button down: %d\n", event.jbutton.button);
+				if(event.jbutton.button == NSP_JB_ESC) {
+					puts("NSP_JB_ESC pressed, quitting");
+					quit = 1;
+				}
+				break;
+			case SDL_JOYBUTTONUP:
+				puts("BUTTON UP");
+				break;
+			default:
+				break;
+		}
+	}
 	SDL_Quit();
     return 0;
 }
