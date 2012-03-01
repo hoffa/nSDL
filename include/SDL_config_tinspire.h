@@ -31,6 +31,8 @@
 #define NSP_COLOR_LCD	1
 #define NSP_DEBUG	1
 
+#define NSP_JOYAXISVALUE	1
+
 /* A few convenience macros */
 #define NSP_ARRAY_SIZE(array) (sizeof(array) / sizeof(array[0]))
 #define NSP_NL_RELOCDATA(ptr, size) nl_relocdata((unsigned int *)ptr, size)

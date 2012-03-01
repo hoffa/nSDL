@@ -30,8 +30,6 @@
 #include "../SDL_sysjoystick.h"
 #include "../SDL_joystick_c.h"
 
-int jb_state = 0;
-
 const t_key js_buttons[NSP_JB_NUMBUTTONS] = {
 	KEY_NSPIRE_ESC,
 	KEY_NSPIRE_SCRATCHPAD,
@@ -58,6 +56,10 @@ const t_key js_buttons[NSP_JB_NUMBUTTONS] = {
 	KEY_NSPIRE_ENTER,
 	KEY_NSPIRE_CLICK
 };
+
+/* No bitmasks for easier extensibility and cleaner code */
+char ja_state[NSP_JA_NUMAXES] = {SDL_RELEASED};
+char jb_state[NSP_JB_NUMBUTTONS] = {SDL_RELEASED};
 
 /* Function to scan the system for joysticks.
  * This function should set SDL_numjoysticks to the number of available
@@ -98,9 +100,30 @@ int SDL_SYS_JoystickOpen(SDL_Joystick *joystick)
 void SDL_SYS_JoystickUpdate(SDL_Joystick *joystick)
 {
 	int i;
+
+	for(i = 0; i < NSP_JA_NUMAXES; ++i) {
+		t_key pos_key = (i == NSP_JA_H) ? KEY_NSPIRE_RIGHT : KEY_NSPIRE_DOWN;
+		t_key neg_key = (i == NSP_JA_H) ? KEY_NSPIRE_LEFT : KEY_NSPIRE_UP;
+		if(ja_state[i] == SDL_RELEASED) {
+			if(isKeyPressed(pos_key)) {
+				SDL_PrivateJoystickAxis(joystick, i, NSP_JOYAXISVALUE);
+				ja_state[i] = SDL_PRESSED;
+			} else if(isKeyPressed(neg_key)) {
+				SDL_PrivateJoystickAxis(joystick, i, -NSP_JOYAXISVALUE);
+				ja_state[i] = SDL_PRESSED;
+			}
+		} else
+			ja_state[i] = SDL_RELEASED;
+	}
+
 	for(i = 0; i < NSP_JB_NUMBUTTONS; ++i)
-		if(isKeyPressed(js_buttons[i]))
+		if(isKeyPressed(js_buttons[i]) && jb_state[i] == SDL_RELEASED) {
 			SDL_PrivateJoystickButton(joystick, i, SDL_PRESSED);
+			jb_state[i] = SDL_PRESSED;
+		} else if(jb_state[i] == SDL_PRESSED) {
+			SDL_PrivateJoystickButton(joystick, i, SDL_RELEASED);
+			jb_state[i] = SDL_RELEASED;
+		}
 }
 
 /* Function to close a joystick after use */
