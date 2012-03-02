@@ -31,18 +31,14 @@
 /* Hidden "this" pointer for the video functions */
 #define _THIS	SDL_VideoDevice *this
 
-#ifdef NSP_COLOR_LCD
-#define NSP_RMASK	0xf800
-#define NSP_GMASK	0x7e0
-#define NSP_BMASK	0x1f
-#endif
-
 /* Private display data */
 
 struct SDL_PrivateVideoData {
-    int w, h;
+	int w, h;
 #ifdef NSP_COLOR_LCD
-    uint16_t *buffer;
+	Uint16 *buffer;
+#else
+	Uint8 *buffer;
 #endif
 };
 

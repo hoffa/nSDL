@@ -135,7 +135,7 @@ SDL_Surface * SDL_LoadBMP_RW (SDL_RWops *src, int freesrc)
 		biClrImportant	= SDL_ReadLE32(src);
 	}
 	
-	NSP_DPRINT("biBitCount: %d\n", biBitCount);
+	NSP_DPRINT("biBitCount: %d, size: %dx%d\n", biBitCount, biWidth, biHeight);
 
 	/* stop some compiler warnings. */
 	(void) bfSize;
@@ -347,6 +347,7 @@ SDL_Surface * SDL_LoadBMP_RW (SDL_RWops *src, int freesrc)
 	}
 done:
 	if ( was_error ) {
+		puts("WAS ERROR :(");
 		if ( src ) {
 			SDL_RWseek(src, fp_offset, RW_SEEK_SET);
 		}

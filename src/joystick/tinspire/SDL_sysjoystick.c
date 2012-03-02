@@ -30,36 +30,38 @@
 #include "../SDL_sysjoystick.h"
 #include "../SDL_joystick_c.h"
 
-const t_key js_buttons[NSP_JB_NUMBUTTONS] = {
-	KEY_NSPIRE_ESC,
-	KEY_NSPIRE_SCRATCHPAD,
-	KEY_NSPIRE_TAB,
-	KEY_NSPIRE_HOME,
-	KEY_NSPIRE_DOC,
-	KEY_NSPIRE_MENU,
-	KEY_NSPIRE_CTRL,
-	KEY_NSPIRE_SHIFT,
-	KEY_NSPIRE_VAR,
-	KEY_NSPIRE_DEL,
-	KEY_NSPIRE_0,
-	KEY_NSPIRE_1,
-	KEY_NSPIRE_2,
-	KEY_NSPIRE_3,
-	KEY_NSPIRE_4,
-	KEY_NSPIRE_5,
-	KEY_NSPIRE_6,
-	KEY_NSPIRE_7,
-	KEY_NSPIRE_8,
-	KEY_NSPIRE_9,
-	KEY_NSPIRE_PERIOD,
-	KEY_NSPIRE_NEGATIVE,
-	KEY_NSPIRE_ENTER,
-	KEY_NSPIRE_CLICK
-};
+static t_key js_keymap[NSP_NUMBUTTONS];
 
 /* No bitmasks for easier extensibility and cleaner code */
-char ja_state[NSP_JA_NUMAXES] = {SDL_RELEASED};
-char jb_state[NSP_JB_NUMBUTTONS] = {SDL_RELEASED};
+char ja_state[NSP_NUMAXES] = {SDL_RELEASED};
+char jb_state[NSP_NUMBUTTONS] = {SDL_RELEASED};
+
+void nsp_init_js_keymap(void) {
+	js_keymap[NSP_JB_ESC] =		KEY_NSPIRE_ESC;
+	js_keymap[NSP_JB_SCRATCHPAD] =	KEY_NSPIRE_SCRATCHPAD;
+	js_keymap[NSP_JB_TAB] =		KEY_NSPIRE_TAB;
+	js_keymap[NSP_JB_HOME] =	KEY_NSPIRE_HOME;
+	js_keymap[NSP_JB_DOC] =		KEY_NSPIRE_DOC;
+	js_keymap[NSP_JB_MENU] =	KEY_NSPIRE_MENU;
+	js_keymap[NSP_JB_CTRL] =	KEY_NSPIRE_CTRL;
+	js_keymap[NSP_JB_SHIFT] =	KEY_NSPIRE_SHIFT;
+	js_keymap[NSP_JB_VAR] =		KEY_NSPIRE_VAR;
+	js_keymap[NSP_JB_DEL] =		KEY_NSPIRE_DEL;
+	js_keymap[NSP_JB_0] =		KEY_NSPIRE_0;
+	js_keymap[NSP_JB_1] =		KEY_NSPIRE_1;
+	js_keymap[NSP_JB_2] =		KEY_NSPIRE_2;
+	js_keymap[NSP_JB_3] =		KEY_NSPIRE_3;
+	js_keymap[NSP_JB_4] =		KEY_NSPIRE_4;
+	js_keymap[NSP_JB_5] =		KEY_NSPIRE_5;
+	js_keymap[NSP_JB_6] =		KEY_NSPIRE_6;
+	js_keymap[NSP_JB_7] =		KEY_NSPIRE_7;
+	js_keymap[NSP_JB_8] =		KEY_NSPIRE_8;
+	js_keymap[NSP_JB_9] =		KEY_NSPIRE_9;
+	js_keymap[NSP_JB_PERIOD] =	KEY_NSPIRE_PERIOD;
+	js_keymap[NSP_JB_NEGATIVE] =	KEY_NSPIRE_NEGATIVE;
+	js_keymap[NSP_JB_ENTER] =	KEY_NSPIRE_ENTER;
+	js_keymap[NSP_JB_CLICK] =	KEY_NSPIRE_CLICK;
+}
 
 /* Function to scan the system for joysticks.
  * This function should set SDL_numjoysticks to the number of available
@@ -68,6 +70,7 @@ char jb_state[NSP_JB_NUMBUTTONS] = {SDL_RELEASED};
  */
 int SDL_SYS_JoystickInit(void)
 {
+	nsp_init_js_keymap();
 	SDL_numjoysticks = 1;
 	return(1);
 }
@@ -85,8 +88,8 @@ const char *SDL_SYS_JoystickName(int index)
  */
 int SDL_SYS_JoystickOpen(SDL_Joystick *joystick)
 {
-	joystick->naxes = NSP_JA_NUMAXES;
-	joystick->nbuttons = NSP_JB_NUMBUTTONS;
+	joystick->naxes = NSP_NUMAXES;
+	joystick->nbuttons = NSP_NUMBUTTONS;
 	joystick->nhats = 0;
 	joystick->nballs = 0;
 	return(0);
@@ -100,8 +103,7 @@ int SDL_SYS_JoystickOpen(SDL_Joystick *joystick)
 void SDL_SYS_JoystickUpdate(SDL_Joystick *joystick)
 {
 	int i;
-
-	for(i = 0; i < NSP_JA_NUMAXES; ++i) {
+	for(i = 0; i < NSP_NUMAXES; ++i) {
 		t_key pos_key = (i == NSP_JA_H) ? KEY_NSPIRE_RIGHT : KEY_NSPIRE_DOWN;
 		t_key neg_key = (i == NSP_JA_H) ? KEY_NSPIRE_LEFT : KEY_NSPIRE_UP;
 		if(ja_state[i] == SDL_RELEASED) {
@@ -116,8 +118,9 @@ void SDL_SYS_JoystickUpdate(SDL_Joystick *joystick)
 			ja_state[i] = SDL_RELEASED;
 	}
 
-	for(i = 0; i < NSP_JB_NUMBUTTONS; ++i)
-		if(isKeyPressed(js_buttons[i]) && jb_state[i] == SDL_RELEASED) {
+	/* TODO: a bit fishy condition here */
+	for(i = 0; i < NSP_NUMBUTTONS; ++i)
+		if(isKeyPressed(js_keymap[i]) && jb_state[i] == SDL_RELEASED) {
 			SDL_PrivateJoystickButton(joystick, i, SDL_PRESSED);
 			jb_state[i] = SDL_PRESSED;
 		} else if(jb_state[i] == SDL_PRESSED) {
