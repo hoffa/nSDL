@@ -1,10 +1,6 @@
 #include <os.h>
 #include "../include/SDL.h"
 
-#define RMASK	0xf800
-#define GMASK	0x7e0
-#define BMASK	0x1f
-
 /* I am not responsible for any damage caused by this code to your eyes */
 int main(void) {
 	SDL_Surface *screen;
@@ -22,7 +18,7 @@ int main(void) {
 	//SDL_JoystickEventState(SDL_ENABLE);
 	//printf("joystickname: %s\n", SDL_JoystickName(0));
 	//joystick = SDL_JoystickOpen(0);
-	surf = SDL_CreateRGBSurface(SDL_SWSURFACE, 100, 100, 16, RMASK, GMASK, BMASK, 0);
+	surf = SDL_CreateRGBSurface(SDL_SWSURFACE, 100, 100, 16, NSP_RMASK, NSP_GMASK, NSP_BMASK, 0);
 	img = SDL_LoadBMP("Examples/image.bmp.tns");
 	if(!img)
 		puts("Failed to load BMP");
@@ -46,6 +42,7 @@ int main(void) {
 		SDL_WaitEvent(&event);
 		switch(event.type) {
 			case SDL_KEYDOWN:
+				puts("SDL_KEYDOWN");
 				switch(event.key.keysym.sym) {
 					case SDLK_ESCAPE:
 						quit = 1;
@@ -65,6 +62,9 @@ int main(void) {
 					default:
 						break;
 				}
+				break;
+			case SDL_KEYUP:
+				puts("SDL_KEYUP");
 				break;
 			default:
 				break;

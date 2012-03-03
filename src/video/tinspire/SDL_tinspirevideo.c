@@ -46,6 +46,14 @@ static void NSP_FreeHWSurface(_THIS, SDL_Surface *surface);
 /* etc. */
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects);
 
+static void nsp_create_palette(SDL_Surface *surface) {
+	SDL_Color colors[16];
+	int i;
+	for ( i = 0; i < 16; ++i )
+		colors[i].r = colors[i].g = colors[i].b = i << 4;
+	SDL_SetColors(surface, colors, 0, 16);
+}
+
 /* NSP driver bootstrap functions */
 
 static int NSP_Available(void)
@@ -121,19 +129,14 @@ int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 {
 	NSP_DPRINT("Filling SDL_PixelFormat\n");
 
-#ifdef NSP_COLOR_LCD
-	vformat->palette = NULL;
-	vformat->BitsPerPixel = 16;
-	vformat->BytesPerPixel = 2;
+#if NSP_COLOR_LCD
+	vformat->BitsPerPixel = NSP_BPP;
 	vformat->Rmask = NSP_RMASK;
 	vformat->Gmask = NSP_GMASK;
 	vformat->Bmask = NSP_BMASK;
-	vformat->Rshift = 11;
-	vformat->Gshift = 5;
-	vformat->Bshift = 0;
-	vformat->Rloss = 3;
-	vformat->Gloss = 2;
-	vformat->Bloss = 3;
+#else
+	/* The non-CX has a 4 BPP display; we pretend it's 8 BPP and do the conversion at the very end */
+	vformat->BitsPerPixel = NSP_BPP;
 #endif
 
 	return(0);
@@ -147,26 +150,28 @@ SDL_Rect **NSP_ListModes(_THIS, SDL_PixelFormat *format, Uint32 flags)
 SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 				int width, int height, int bpp, Uint32 flags)
 {
-	NSP_DPRINT("%dx%d, %d BPP\n", width, height, bpp);
-
-	if ( bpp > 8 ) {
+	if ( bpp <= 8 )
+		bpp = 8;
+	else if ( bpp <= 16 )
 		bpp = 16;
-	} else {
+	else {
 		SDL_SetError("[NSP] Pixel format not supported");
 		return(NULL);
 	}
+
+	NSP_DPRINT("%dx%d, %d BPP\n", width, height, bpp);
 
 	if ( this->hidden->buffer ) {
 		SDL_free( this->hidden->buffer );
 	}
 
-	this->hidden->buffer = SDL_malloc(width * height * 2);
+	this->hidden->buffer = SDL_malloc(width * height * (bpp / 8));
 	if ( ! this->hidden->buffer ) {
 		SDL_SetError("Couldn't allocate buffer for requested mode");
 		return(NULL);
 	}
 
-	memset(this->hidden->buffer, 0, SCREEN_BYTES_SIZE);
+	memset(this->hidden->buffer, 0, width * height * (bpp / 8));
 
 	/* Allocate the new pixel format for the screen */
 	if ( ! SDL_ReallocFormat(current, bpp, NSP_RMASK, NSP_GMASK, NSP_BMASK, 0) ) {
@@ -177,11 +182,14 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 	}
 
 	/* Set up the new mode framebuffer */
-	current->flags = flags & 0x0; /* No flags yet */
+	current->flags = flags;
 	this->hidden->w = current->w = width;
 	this->hidden->h = current->h = height;
-	current->pitch = current->w * 2;
+	current->pitch = current->w * (bpp / 8);
 	current->pixels = this->hidden->buffer;
+#if !NSP_COLOR_LCD
+	nsp_create_palette(current);
+#endif
 
 	NSP_DPRINT("Done (0x%p)\n", current);
 
@@ -215,19 +223,23 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 {
 	int i;
 	Uint8 *src_addr, *dst_addr;
+	int row_skip = SCREEN_WIDTH << 1;
 
 	for ( i = 0; i < numrects; ++i ) {
 		SDL_Rect *rect = rects + i;
 		int height = rect->h;
+		int rect_x = rect->x << 1;
+		int rect_y = rect->y << 1;
+		int rect_w = rect->w << 1;
 		if ( ! rect )
 			continue;
 		NSP_DPRINT("Updating rect: %dx%d at (%d, %d)\n", rect->w, rect->h, rect->x, rect->y);
-		src_addr = (Uint8 *)(SDL_VideoSurface->pixels + NSP_SIZE_BYTES(rect->x) + (NSP_SIZE_BYTES(rect->y) * SDL_VideoSurface->w));
-		dst_addr = (Uint8 *)(SCREEN_BASE_ADDRESS + NSP_SIZE_BYTES(rect->x) + (NSP_SIZE_BYTES(rect->y) * SCREEN_WIDTH));
+		src_addr = (Uint8 *)(SDL_VideoSurface->pixels + rect_x + (rect_y * SDL_VideoSurface->w));
+		dst_addr = (Uint8 *)(SCREEN_BASE_ADDRESS + rect_x + (rect_y * SCREEN_WIDTH));
 		while(height--) {
-			memcpy(dst_addr, src_addr, NSP_SIZE_BYTES(rect->w));
-			src_addr += NSP_SIZE_BYTES(SCREEN_WIDTH);
-			dst_addr += NSP_SIZE_BYTES(SCREEN_WIDTH);
+			memcpy(dst_addr, src_addr, rect_w);
+			src_addr += row_skip;
+			dst_addr += row_skip;
 		}
 	}
 }

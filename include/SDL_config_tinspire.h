@@ -28,25 +28,31 @@
 /* General platform specific identifiers */
 #include "SDL_platform.h"
 
-#define NSP_COLOR_LCD	1 /* Rather unneeded right now */
+#define NSP_COLOR_LCD	1
 #define NSP_DEBUG	1
 
 #define NSP_JOYAXISVALUE	1
 
 /* A few convenience macros */
-#define NSP_ARRAY_SIZE(array) (sizeof(array) / sizeof(array[0]))
-#define NSP_NL_RELOCDATA(ptr, size) nl_relocdata((unsigned int *)ptr, size)
-#define NSP_SIZE_BYTES(size) (size << 1)
-#ifdef NSP_DEBUG
-#define NSP_DPRINT(fmt, args...) fprintf(stderr, "[NSP] %s():%d: " fmt, __FUNCTION__, __LINE__, ## args)
-#else
-#define NSP_DPRINT(fmt, ...)
-#endif
+#define NSP_ARRAY_SIZE(array)	(sizeof(array) / sizeof(array[0]))
+#define NSP_NL_RELOCDATA(ptr, size)	nl_relocdata((unsigned int *)ptr, size)
 
-#ifdef NSP_COLOR_LCD
+#if NSP_COLOR_LCD
+#define NSP_BPP	16
 #define NSP_RMASK	0xf800
 #define NSP_GMASK	0x7e0
 #define NSP_BMASK	0x1f
+#else
+#define NSP_BPP	8
+#define NSP_RMASK	0
+#define NSP_GMASK	0
+#define NSP_BMASK	0
+#endif /* NSP_COLOR_LCD */
+
+#if NSP_DEBUG
+#define NSP_DPRINT(fmt, args...)	fprintf(stderr, "[NSP] %s():%d: " fmt, __FUNCTION__, __LINE__, ## args)
+#else
+#define NSP_DPRINT(fmt, ...)
 #endif
 
 #define SDL_HAS_64BIT_TYPE	1
@@ -151,7 +157,7 @@
 #define SDL_VIDEO_DRIVER_TINSPIRE	1
 
 /* Enable assembly routines */
-/* #define SDL_ASSEMBLY_ROUTINES	1 */
+#define SDL_ASSEMBLY_ROUTINES	1
 
 /* Keys */
 enum {

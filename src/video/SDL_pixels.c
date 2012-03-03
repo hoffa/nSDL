@@ -120,6 +120,9 @@ SDL_PixelFormat *SDL_AllocFormat(int bpp,
 	}
 	if ( bpp <= 8 ) {			/* Palettized mode */
 		int ncolors = 1<<bpp;
+#ifdef __TINSPIRE__
+		ncolors = 16; /* We're using 16 colors on non-CX's 4-bit display */
+#endif
 #ifdef DEBUG_PALETTE
 		fprintf(stderr,"bpp=%d ncolors=%d\n",bpp,ncolors);
 #endif

@@ -35,7 +35,7 @@
 
 struct SDL_PrivateVideoData {
 	int w, h;
-#ifdef NSP_COLOR_LCD
+#if NSP_COLOR_LCD
 	Uint16 *buffer;
 #else
 	Uint8 *buffer;

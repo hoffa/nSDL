@@ -160,12 +160,12 @@ int SDL_VideoInit (const char *driver_name, Uint32 flags)
 	Uint32 video_flags;
 
 #ifdef __TINSPIRE__
-    /* NSP_bootstrap has to be at index 0 */
-    NSP_NL_RELOCDATA(bootstrap, NSP_ARRAY_SIZE(bootstrap) - 1);
-    NSP_NL_RELOCDATA(&bootstrap[0]->name, 1);
-    NSP_NL_RELOCDATA(&bootstrap[0]->desc, 1);
-    NSP_NL_RELOCDATA(&bootstrap[0]->available, 1);
-    NSP_NL_RELOCDATA(&bootstrap[0]->create, 1);
+	/* NSP_bootstrap has to be at index 0 */
+	NSP_NL_RELOCDATA(bootstrap, NSP_ARRAY_SIZE(bootstrap) - 1);
+	NSP_NL_RELOCDATA(&bootstrap[0]->name, 1);
+	NSP_NL_RELOCDATA(&bootstrap[0]->desc, 1);
+	NSP_NL_RELOCDATA(&bootstrap[0]->available, 1);
+	NSP_NL_RELOCDATA(&bootstrap[0]->create, 1);
 	NSP_DPRINT("Initializing video (%s)\n", bootstrap[0]->name);
 #endif /* __TINSPIRE__ */
 
@@ -292,8 +292,6 @@ int SDL_VideoInit (const char *driver_name, Uint32 flags)
 		return(-1);
 	}
 	SDL_CursorInit(flags & SDL_INIT_EVENTTHREAD);
-
-	NSP_DPRINT("Done: %s\n", current_video->name);
 
 	/* We're ready to go! */
 	return(0);
