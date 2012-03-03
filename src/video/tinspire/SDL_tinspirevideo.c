@@ -46,12 +46,12 @@ static void NSP_FreeHWSurface(_THIS, SDL_Surface *surface);
 /* etc. */
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects);
 
-static void nsp_create_palette(SDL_Surface *surface) {
+static int nsp_create_palette(SDL_Surface *surface) {
 	SDL_Color colors[16];
 	int i;
 	for ( i = 0; i < 16; ++i )
 		colors[i].r = colors[i].g = colors[i].b = i << 4;
-	SDL_SetColors(surface, colors, 0, 16);
+	return SDL_SetColors(surface, colors, 0, 16);
 }
 
 /* NSP driver bootstrap functions */
@@ -127,18 +127,25 @@ VideoBootStrap NSP_bootstrap = {
 
 int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 {
-	NSP_DPRINT("Filling SDL_PixelFormat\n");
-
 #if NSP_COLOR_LCD
-	vformat->BitsPerPixel = NSP_BPP;
+	if(is_classic) {
+		show_msgbox("SDL", "Incompatible pixel format.");
+		SDL_SetError("[NSP] Incompatible pixel format");
+		return(-1);
+	}
+	vformat->BitsPerPixel = 16;
 	vformat->Rmask = NSP_RMASK;
 	vformat->Gmask = NSP_GMASK;
 	vformat->Bmask = NSP_BMASK;
 #else
+	if(is_cx) {
+		show_msgbox("SDL", "Incompatible pixel format.");
+		SDL_SetError("[NSP] Incompatible pixel format");
+		return(-1);
+	}
 	/* The non-CX has a 4 BPP display; we pretend it's 8 BPP and do the conversion at the very end */
-	vformat->BitsPerPixel = NSP_BPP;
+	vformat->BitsPerPixel = 8;
 #endif
-
 	return(0);
 }
 
@@ -152,12 +159,8 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 {
 	if ( bpp <= 8 )
 		bpp = 8;
-	else if ( bpp <= 16 )
+	else
 		bpp = 16;
-	else {
-		SDL_SetError("[NSP] Pixel format not supported");
-		return(NULL);
-	}
 
 	NSP_DPRINT("%dx%d, %d BPP\n", width, height, bpp);
 
@@ -187,10 +190,12 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 	this->hidden->h = current->h = height;
 	current->pitch = current->w * (bpp / 8);
 	current->pixels = this->hidden->buffer;
-#if !NSP_COLOR_LCD
-	nsp_create_palette(current);
+#if 0 /* FIXME: just fix this, dunno if it's causing it though */
+	if( ! nsp_create_palette(current) ) {
+		SDL_SetError("[NSP] Couldn't create palette");
+		return(NULL);
+	}	
 #endif
-
 	NSP_DPRINT("Done (0x%p)\n", current);
 
 	/* We're done */
@@ -219,28 +224,45 @@ static void NSP_UnlockHWSurface(_THIS, SDL_Surface *surface)
 }
 
 /* TODO: requires some cleaning up and optimization */
+/* FIXME: this causes issues with non-CX */
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 {
-	int i;
+	int i, j;
 	Uint8 *src_addr, *dst_addr;
-	int row_skip = SCREEN_WIDTH << 1;
+	//int row_skip = DBL_IF_CX(SCREEN_WIDTH); /* equal to pitch? */
 
 	for ( i = 0; i < numrects; ++i ) {
-		SDL_Rect *rect = rects + i;
-		int height = rect->h;
-		int rect_x = rect->x << 1;
-		int rect_y = rect->y << 1;
-		int rect_w = rect->w << 1;
+		//SDL_Rect *rect = rects[i];
+		//int rect_h = rect->h;
+		//NSP_DPRINT("Updating rect: %dx%d at (%d, %d)\n", rect->w, rect->h, rect->x, rect->y);
+		//if ( ! rect )
+		//	continue;
+		//printf("B (%d)\n", rect->w);
+		//src_addr = (Uint8 *)(SDL_VideoSurface->pixels + (rect->y * SDL_VideoSurface->w) + rect->x);
+		//dst_addr = (Uint8 *)(SCREEN_BASE_ADDRESS + ((rect->y >> 1) * SCREEN_WIDTH) + (rect->x >> 1));
+		/*while ( rect_h-- ) {
+			for ( j = 0; j < rect->w ; j += 2 ) {
+				Uint8 byte = (src_addr[j] << 4) | src_addr[j + 1];
+				printf("0x%x\n", byte);
+				//dst_addr[j >> 1] = byte;
+			}
+			src_addr += SDL_VideoSurface->w;
+			dst_addr += SDL_VideoSurface->w >> 1;
+		}*/
+		/*SDL_Rect *rect = rects + i;
+		int rect_x = DBL_IF_CX(rect->x);
+		int rect_y = DBL_IF_CX(rect->y);
+		int rect_w = DBL_IF_CX(rect->w);
+		int rect_h = rect->h;
 		if ( ! rect )
 			continue;
-		NSP_DPRINT("Updating rect: %dx%d at (%d, %d)\n", rect->w, rect->h, rect->x, rect->y);
 		src_addr = (Uint8 *)(SDL_VideoSurface->pixels + rect_x + (rect_y * SDL_VideoSurface->w));
 		dst_addr = (Uint8 *)(SCREEN_BASE_ADDRESS + rect_x + (rect_y * SCREEN_WIDTH));
-		while(height--) {
+		while(rect_h--) {
 			memcpy(dst_addr, src_addr, rect_w);
 			src_addr += row_skip;
 			dst_addr += row_skip;
-		}
+		}*/
 	}
 }
 
@@ -258,6 +280,7 @@ void NSP_VideoQuit(_THIS)
 	NSP_DPRINT("Closing video\n");
 	if (this->screen->pixels != NULL)
 	{
+		/* TODO: if init fails, seems like this doesn't work and the calc reboots */
 		SDL_free(this->screen->pixels);
 		this->screen->pixels = NULL;
 	}

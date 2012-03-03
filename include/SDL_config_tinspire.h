@@ -28,7 +28,7 @@
 /* General platform specific identifiers */
 #include "SDL_platform.h"
 
-#define NSP_COLOR_LCD	1
+#define NSP_COLOR_LCD	0
 #define NSP_DEBUG	1
 
 #define NSP_JOYAXISVALUE	1
@@ -38,12 +38,12 @@
 #define NSP_NL_RELOCDATA(ptr, size)	nl_relocdata((unsigned int *)ptr, size)
 
 #if NSP_COLOR_LCD
-#define NSP_BPP	16
+#define DBL_IF_CX(size)	(size << 1)
 #define NSP_RMASK	0xf800
 #define NSP_GMASK	0x7e0
 #define NSP_BMASK	0x1f
 #else
-#define NSP_BPP	8
+#define DBL_IF_CX(size)	(size)
 #define NSP_RMASK	0
 #define NSP_GMASK	0
 #define NSP_BMASK	0
