@@ -7,7 +7,7 @@ LDFLAGS =
 SOURCES = tinspire_test.c
 OBJECTS = tinspire_test.o
 LIBS = ../libSDL.a
-TARGET = tinspire_test.tns
+TARGET = sdl_test.tns
 
 all: $(TARGET)
 

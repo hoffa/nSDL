@@ -131,13 +131,15 @@ int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 
 #if NSP_COLOR_LCD
 	if ( is_classic ) {
-		show_msgbox("SDL", "Pixel format not supported; compiled for color displays.");
+		show_msgbox("SDL", "Pixel format not supported.\nThis program has been " \
+				"compiled for TI-Nspire calculators with a color display.");
 		SDL_SetError("[NSP] Pixel format not supported");
 		return(-1);
 	}
 #else
 	if ( is_cx ) {
-		show_msgbox("SDL", "Pixel format not supported; compiled for grayscale displays.");
+		show_msgbox("SDL", "Pixel format not supported.\nThis program has been " \
+				"compiled for TI-Nspire calculators with a grayscale display.");
 		SDL_SetError("[NSP] Pixel format not supported");
 		return(-1);
 	}
@@ -194,7 +196,8 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 	this->hidden->h = current->h = height;
 	current->pitch = NSP_DBL_IF_CX(current->w);
 	current->pixels = this->hidden->buffer;
-#if !NSP_COLOR_LCD
+#if 0
+	/* This isn't actually needed, but I'll keep it here to keep SDL happy */
 	if ( ! nsp_create_palette(current) ) {
 		SDL_SetError("[NSP] Couldn't create palette");
 		return(NULL);
@@ -257,10 +260,8 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 			src_addr += SDL_VideoSurface->pitch;
 			dst_addr += SDL_VideoSurface->pitch;
 #else
-			for ( j = 0; j < rect_w; j += 2 ) {
-				Uint8 byte = ((src_addr[j] >> 4) << 4) | (src_addr[j + 1] >> 4);
-				dst_addr[j >> 1] = byte;
-			}
+			for ( j = 0; j < rect_w; j += 2 )
+				dst_addr[j >> 1] = (src_addr[j] << 4) | src_addr[j + 1];
 			src_addr += SDL_VideoSurface->w;
 			dst_addr += dst_skip;
 #endif

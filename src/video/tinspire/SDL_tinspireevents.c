@@ -28,8 +28,8 @@
 #include "SDL_tinspirevideo.h"
 #include "SDL_tinspireevents_c.h"
 
-static t_key nspk_keymap[NSP_NUMKEYS]; /* enum -> KEY_NSPIRE_* */
-static SDLKey sdlk_keymap[NSP_NUMKEYS] = {SDLK_UNKNOWN}; /* enum -> SDLK_* */
+static t_key nspk_keymap[NSP_NUMKEYS];
+static SDLKey sdlk_keymap[NSP_NUMKEYS] = {SDLK_UNKNOWN};
 static char key_state[NSP_NUMKEYS] = {SDL_RELEASED};
 
 void NSP_PumpEvents(_THIS)
@@ -37,14 +37,14 @@ void NSP_PumpEvents(_THIS)
 	BOOL key_pressed;
 	SDL_keysym keysym;
 	int i;
-	for(i = 0; i < NSP_NUMKEYS; ++i) {
+	for ( i = 0; i < NSP_NUMKEYS; ++i ) {
 		keysym.scancode = i;
 		keysym.sym = sdlk_keymap[i];
 		key_pressed = isKeyPressed(nspk_keymap[i]);
-		if(key_pressed && key_state[i] == SDL_RELEASED) {
+		if ( key_pressed && key_state[i] == SDL_RELEASED ) {
 			SDL_PrivateKeyboard(SDL_PRESSED, &keysym);
 			key_state[i] = SDL_PRESSED;
-		} else if(!key_pressed && key_state[i] == SDL_PRESSED) {
+		} else if ( ! key_pressed && key_state[i] == SDL_PRESSED ) {
 			SDL_PrivateKeyboard(SDL_RELEASED, &keysym);
 			key_state[i] = SDL_RELEASED;
 		}
@@ -53,6 +53,7 @@ void NSP_PumpEvents(_THIS)
 
 void NSP_InitOSKeymap(_THIS)
 {
+	/* Enum value -> KEY_NSPIRE_* */
 	nspk_keymap[NSP_KEY_RET] =	KEY_NSPIRE_RET;
 	nspk_keymap[NSP_KEY_ENTER] =	KEY_NSPIRE_ENTER;
 	nspk_keymap[NSP_KEY_SPACE] =	KEY_NSPIRE_SPACE;
@@ -146,6 +147,7 @@ void NSP_InitOSKeymap(_THIS)
 	nspk_keymap[NSP_KEY_TRIG] =	KEY_NSPIRE_TRIG;
 	nspk_keymap[NSP_KEY_SCRATCHPAD] = KEY_NSPIRE_SCRATCHPAD;
 
+	/* Enum value -> SDLK_* */
 	sdlk_keymap[NSP_KEY_RET] =	SDLK_RETURN;
 	sdlk_keymap[NSP_KEY_ENTER] =	SDLK_RETURN;
 	sdlk_keymap[NSP_KEY_SPACE] =	SDLK_SPACE;
