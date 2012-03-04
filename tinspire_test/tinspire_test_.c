@@ -6,25 +6,19 @@ int main(void) {
 	SDL_Surface *screen;
 	SDL_Rect r1 = {10, 20, 10, 10};
 	SDL_Rect r2 = {40, 30, 30, 30};
-	SDL_Rect r3 = {60, 100, 200, 50};
+	SDL_Rect r3 = {310, 230, 10, 10};
 	SDL_Surface *surf, *img;
 	SDL_Joystick *joystick;
 	SDL_Event event;
 	int quit = 0;
 	int i;
-    if(SDL_Init(SDL_INIT_VIDEO) == -1) {
+    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) != 0)
 		printf("Error: %s\n", SDL_GetError());
-		return 1;
-	}
-	screen = SDL_SetVideoMode(320, 240, 8, 0);
-	if(!screen) {
-		puts(SDL_GetError());
-		return 1;
-	}
+	screen = SDL_SetVideoMode(320, 240, 16, 0);
 	//SDL_JoystickEventState(SDL_ENABLE);
 	//printf("joystickname: %s\n", SDL_JoystickName(0));
 	//joystick = SDL_JoystickOpen(0);
-	surf = SDL_CreateRGBSurface(SDL_SWSURFACE, 100, 100, 8, NSP_RMASK, NSP_GMASK, NSP_BMASK, 0);
+	surf = SDL_CreateRGBSurface(SDL_SWSURFACE, 100, 100, 16, NSP_RMASK, NSP_GMASK, NSP_BMASK, 0);
 	img = SDL_LoadBMP("Examples/image.bmp.tns");
 	if(!img)
 		puts("Failed to load BMP");
@@ -44,7 +38,7 @@ int main(void) {
 		r1.w = r1.h = 10;
 		SDL_FillRect(screen, &r1, SDL_MapRGB(screen->format, 255, 0, 255));
 		printf("x: %d, y: %d\n", r1.x, r1.y);
-		SDL_UpdateRect(screen, 20, 10, 100, 200);
+		SDL_Flip(screen);
 		SDL_WaitEvent(&event);
 		switch(event.type) {
 			case SDL_KEYDOWN:

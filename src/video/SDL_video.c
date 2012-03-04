@@ -158,7 +158,7 @@ int SDL_VideoInit (const char *driver_name, Uint32 flags)
 	int i;
 	SDL_PixelFormat vformat;
 	Uint32 video_flags;
-puts("LOL");
+
 #ifdef __TINSPIRE__
 	/* NSP_bootstrap has to be at index 0 */
 	NSP_NL_RELOCDATA(bootstrap, NSP_ARRAY_SIZE(bootstrap) - 1);
@@ -217,7 +217,6 @@ puts("LOL");
 	}
 	current_video = video;
 	current_video->name = bootstrap[i]->name;
-	puts(current_video->name);
 
 	/* Do some basic variable initialization */
 	video->screen = NULL;
@@ -254,11 +253,10 @@ puts("LOL");
 	video->gl_config.multisamplesamples = 0;
 	video->gl_config.accelerated = -1; /* not known, don't set */
 	video->gl_config.swap_control = -1; /* not known, don't set */
-
+	
 	/* Initialize the video subsystem */
 	SDL_memset(&vformat, 0, sizeof(vformat));
 	if ( video->VideoInit(video, &vformat) < 0 ) {
-		puts("EERROROORR"); /* TINSPIRE */
 		SDL_VideoQuit();
 		return(-1);
 	}
@@ -294,7 +292,7 @@ puts("LOL");
 		return(-1);
 	}
 	SDL_CursorInit(flags & SDL_INIT_EVENTTHREAD);
-	
+
 	/* We're ready to go! */
 	return(0);
 }
@@ -758,6 +756,7 @@ SDL_Surface * SDL_SetVideoMode (int width, int height, int bpp, Uint32 flags)
 		mode->h = height;
 		SDL_SetClipRect(mode, NULL);
 	}
+
 	SDL_ResetCursor();
 	SDL_UnlockCursor();
 
@@ -1286,7 +1285,6 @@ int SDL_SetPalette(SDL_Surface *screen, int which,
 	if ( !screen ) {
 		return 0;
 	}
-
 	if ( !current_video || screen != SDL_PublicSurface ) {
 		/* only screens have physical palettes */
 		which &= ~SDL_PHYSPAL;
@@ -1300,7 +1298,6 @@ int SDL_SetPalette(SDL_Surface *screen, int which,
 	if( !pal ) {
 		return 0;	/* not a palettized surface */
 	}
-
 	gotall = 1;
 	palsize = 1 << screen->format->BitsPerPixel;
 	if ( ncolors > (palsize - firstcolor) ) {
@@ -1345,7 +1342,6 @@ int SDL_SetPalette(SDL_Surface *screen, int which,
 			gotall = 0;
 		}
 	}
-
 	return gotall;
 }
 

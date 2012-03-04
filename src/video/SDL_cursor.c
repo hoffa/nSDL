@@ -662,6 +662,7 @@ void SDL_DrawCursor(SDL_Surface *screen)
 		SDL_Rect area;
 
 		SDL_MouseRect(&area);
+
 		/* This can be called before a video mode is set */
 		if ( video->UpdateRects ) {
 			video->UpdateRects(this, 1, &area);
