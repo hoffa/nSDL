@@ -227,11 +227,15 @@ static void NSP_UnlockHWSurface(_THIS, SDL_Surface *surface)
 	return;
 }
 
+/* FIXME: doesn't work so well with non-CX */
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 {
-#if NSP_COLOR_LCD
 	Uint8 *src_addr, *dst_addr;
 	int i;
+#if !NSP_COLOR_LCD
+	int j;
+	int dst_skip = SDL_VideoSurface->w >> 1;
+#endif
 	for ( i = 0; i < numrects; ++i ) {
 		SDL_Rect *rect = &rects[i];
 		int rect_x = NSP_DBL_IF_CX(rect->x);
@@ -242,14 +246,26 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 			continue;
 		NSP_DPRINT("Updating: (%d, %d) %dx%d\n", rect->x, rect->y, rect->w, rect->h);
 		src_addr = (Uint8 *)(SDL_VideoSurface->pixels + rect_x + (rect_y * SDL_VideoSurface->w));
+#if NSP_COLOR_LCD
 		dst_addr = (Uint8 *)(SCREEN_BASE_ADDRESS + rect_x + (rect_y * SDL_VideoSurface->w));
-		while( rect_h-- ) {
+#else
+		dst_addr = (Uint8 *)(SCREEN_BASE_ADDRESS + (rect_x >> 1) + ((rect_y >> 1) * SDL_VideoSurface->w));
+#endif
+		while ( rect_h-- ) {
+#if NSP_COLOR_LCD
 			memcpy(dst_addr, src_addr, rect_w);
 			src_addr += SDL_VideoSurface->pitch;
 			dst_addr += SDL_VideoSurface->pitch;
+#else
+			for ( j = 0; j < rect_w; j += 2 ) {
+				Uint8 byte = ((src_addr[j] >> 4) << 4) | (src_addr[j + 1] >> 4);
+				dst_addr[j >> 1] = byte;
+			}
+			src_addr += SDL_VideoSurface->w;
+			dst_addr += dst_skip;
+#endif
 		}
 	}
-#endif
 }
 
 int NSP_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
