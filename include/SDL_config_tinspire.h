@@ -28,14 +28,22 @@
 /* General platform specific identifiers */
 #include "SDL_platform.h"
 
+#define NSP_COLOR_LCD	0
+
+#define NSP_JOYAXISVALUE	1
+
+#if 1
+#define NSP_DEBUG	1
 #define DEBUG_BUILD	1
 #define DEBUG_PALETTE	1
 #define DEBUG_VIDEO	1
-
-#define NSP_COLOR_LCD	0
-#define NSP_DEBUG	1
-
-#define NSP_JOYAXISVALUE	1
+#define DEBUG_ASM	1
+#define DEBUG_GRAB	1
+#define DEBUG_TIMERS	1
+#define DEBUG_QSORT	1
+#define DEBUG_THREADS	1
+#define DEBUG_ERROR	1
+#endif
 
 /* A few convenience macros */
 #define NSP_ARRAY_SIZE(array)	(sizeof(array) / sizeof(array[0]))
@@ -53,7 +61,7 @@
 #define NSP_RMASK	0
 #define NSP_GMASK	0
 #define NSP_BMASK	0
-#endif /* NSP_COLOR_LCD */
+#endif
 
 #if NSP_DEBUG
 #define NSP_DPRINT(fmt, args...)	fprintf(stderr, "[NSP] %s():%d: " fmt, __FUNCTION__, __LINE__, ## args)

@@ -347,7 +347,6 @@ SDL_Surface * SDL_LoadBMP_RW (SDL_RWops *src, int freesrc)
 	}
 done:
 	if ( was_error ) {
-		puts("WAS ERROR :(");
 		if ( src ) {
 			SDL_RWseek(src, fp_offset, RW_SEEK_SET);
 		}

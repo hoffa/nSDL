@@ -100,17 +100,18 @@ int SDL_SYS_JoystickOpen(SDL_Joystick *joystick)
  * but instead should call SDL_PrivateJoystick*() to deliver events
  * and update joystick device state.
  */
+/* FIXME: Diagonal arrows handling? */
 void SDL_SYS_JoystickUpdate(SDL_Joystick *joystick)
 {
 	int i;
-	for(i = 0; i < NSP_NUMAXES; ++i) {
+	for ( i = 0; i < NSP_NUMAXES; ++i ) {
 		t_key pos_key = (i == NSP_JA_H) ? KEY_NSPIRE_RIGHT : KEY_NSPIRE_DOWN;
 		t_key neg_key = (i == NSP_JA_H) ? KEY_NSPIRE_LEFT : KEY_NSPIRE_UP;
-		if(ja_state[i] == SDL_RELEASED) {
-			if(isKeyPressed(pos_key)) {
+		if ( ja_state[i] == SDL_RELEASED ) {
+			if ( isKeyPressed(pos_key) ) {
 				SDL_PrivateJoystickAxis(joystick, i, NSP_JOYAXISVALUE);
 				ja_state[i] = SDL_PRESSED;
-			} else if(isKeyPressed(neg_key)) {
+			} else if ( isKeyPressed(neg_key) ) {
 				SDL_PrivateJoystickAxis(joystick, i, -NSP_JOYAXISVALUE);
 				ja_state[i] = SDL_PRESSED;
 			}
@@ -118,12 +119,12 @@ void SDL_SYS_JoystickUpdate(SDL_Joystick *joystick)
 			ja_state[i] = SDL_RELEASED;
 	}
 
-	/* TODO: a bit fishy condition here */
-	for(i = 0; i < NSP_NUMBUTTONS; ++i)
-		if(isKeyPressed(js_keymap[i]) && jb_state[i] == SDL_RELEASED) {
+	/* TODO: Not sure if this it should only send one event as with key events */
+	for ( i = 0; i < NSP_NUMBUTTONS; ++i )
+		if ( isKeyPressed(js_keymap[i]) && jb_state[i] == SDL_RELEASED ) {
 			SDL_PrivateJoystickButton(joystick, i, SDL_PRESSED);
 			jb_state[i] = SDL_PRESSED;
-		} else if(jb_state[i] == SDL_PRESSED) {
+		} else if ( jb_state[i] == SDL_PRESSED ) {
 			SDL_PrivateJoystickButton(joystick, i, SDL_RELEASED);
 			jb_state[i] = SDL_RELEASED;
 		}

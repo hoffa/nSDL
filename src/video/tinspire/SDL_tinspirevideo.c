@@ -46,7 +46,7 @@ static void NSP_FreeHWSurface(_THIS, SDL_Surface *surface);
 /* etc. */
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects);
 
-static int nsp_create_palette(SDL_Surface *surface) {
+int nsp_create_palette(SDL_Surface *surface) {
 	SDL_Color colors[256];
 	int i;
 	for ( i = 0; i < 256; ++i )
@@ -124,7 +124,7 @@ VideoBootStrap NSP_bootstrap = {
 	NSP_Available, NSP_CreateDevice
 };
 
-
+/* FIXME: CreateRGBSurface might be the source of problems */
 int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 {
 	NSP_DPRINT("Initializing video format\n");
@@ -147,9 +147,13 @@ int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 	/* Non-CX is 4 BPP; if not CX we pretend it's 8 BPP and do the
 	conversion at the very end */
 	vformat->BitsPerPixel = NSP_BPP;
+	vformat->BytesPerPixel = vformat->BitsPerPixel / 8;
 	vformat->Rmask = NSP_RMASK;
 	vformat->Gmask = NSP_GMASK;
 	vformat->Bmask = NSP_BMASK;
+
+	NSP_DPRINT("BitsPerPixel: %d, BytesPerPixel: %d, Rmask: 0x%x, Gmask: 0x%x, Bmask: 0x%x, Amask: 0x%x\n",
+		vformat->BitsPerPixel, vformat->BytesPerPixel, vformat->Rmask, vformat->Gmask, vformat->Bmask, vformat->Amask);
 
 	return(0);
 }
@@ -196,7 +200,7 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 	this->hidden->h = current->h = height;
 	current->pitch = NSP_DBL_IF_CX(current->w);
 	current->pixels = this->hidden->buffer;
-#if 0
+#if !NSP_COLOR_LCD
 	/* This isn't actually needed, but I'll keep it here to keep SDL happy */
 	if ( ! nsp_create_palette(current) ) {
 		SDL_SetError("[NSP] Couldn't create palette");
@@ -230,10 +234,11 @@ static void NSP_UnlockHWSurface(_THIS, SDL_Surface *surface)
 	return;
 }
 
-/* FIXME: doesn't work so well with non-CX */
+/* FIXME: odd positions in non-CX etc. */
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 {
 	Uint8 *src_addr, *dst_addr;
+	int rect_x, rect_y, rect_w, rect_h;
 	int i;
 #if !NSP_COLOR_LCD
 	int j;
@@ -241,12 +246,19 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 #endif
 	for ( i = 0; i < numrects; ++i ) {
 		SDL_Rect *rect = &rects[i];
-		int rect_x = NSP_DBL_IF_CX(rect->x);
-		int rect_y = NSP_DBL_IF_CX(rect->y);
-		int rect_w = NSP_DBL_IF_CX(rect->w);
-		int rect_h = rect->h;
 		if ( ! rect )
 			continue;
+#if !NSP_COLOR_LCD
+		/* Single nibbles go to hell! */
+		if ( rect->x & 1 )
+			--rect->x;
+		if ( rect->w & 1 )
+			++rect->w;
+#endif
+		rect_x = NSP_DBL_IF_CX(rect->x);
+		rect_y = NSP_DBL_IF_CX(rect->y);
+		rect_w = NSP_DBL_IF_CX(rect->w);
+		rect_h = rect->h;
 		NSP_DPRINT("Updating: (%d, %d) %dx%d\n", rect->x, rect->y, rect->w, rect->h);
 		src_addr = (Uint8 *)(SDL_VideoSurface->pixels + rect_x + (rect_y * SDL_VideoSurface->w));
 #if NSP_COLOR_LCD

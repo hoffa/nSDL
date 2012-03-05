@@ -26,14 +26,28 @@
 #include "SDL_timer.h"
 #include "../SDL_timer_c.h"
 
+#if !NSP_COLOR_LCD
+#define NSP_TIMER_CURRENT	(*(volatile unsigned int *)0x900c000c)
+#define NSP_TIMER_DIVIDER	3276
+#endif
+
+unsigned int start = 0;
+
 void SDL_StartTicks(void)
 {
+#if !NSP_COLOR_LCD
+	/* Enable timer access */
+	*(volatile unsigned int *)0x900b0018 &= ~(1 << 11);
+	/* Set timer divider; timer should be ~10 Hz */
+	*(volatile unsigned int *)0x900c0010 = NSP_TIMER_DIVIDER;
+	NSP_TIMER_CURRENT = start; /* Reset */
+	*(volatile unsigned int *)0x900c0014 = 0xf; /* Start */
+#endif
 }
 
 Uint32 SDL_GetTicks (void)
 {
-	SDL_Unsupported();
-	return 0;
+	return((NSP_TIMER_CURRENT - start) * 100);
 }
 
 void SDL_Delay (Uint32 ms)
@@ -79,7 +93,7 @@ void SDL_SYS_TimerQuit(void)
 
 int SDL_SYS_StartTimer(void)
 {
-	SDL_SetError("Internal logic error: threaded timer in use");
+	SDL_SetError("Timers not implemented on the TI-Nspire");
 	return(-1);
 }
 

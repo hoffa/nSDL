@@ -1,14 +1,10 @@
 #include <os.h>
 #include "../include/SDL.h"
 
-#define MOVE_AMOUNT 10
-
 int main(void) {
-	SDL_Surface *screen;
-	SDL_Rect r = {1, 1, 30, 30};
-	SDL_Event event;
+	SDL_Surface *screen, *surf;
+	SDL_Rect r = {10, 20, 0, 0};
 	int quit = 0;
-	int i;
 	if(SDL_Init(SDL_INIT_VIDEO) == -1) {
 		printf("SDL_Init error: %s\n", SDL_GetError());
 		return 1;
@@ -18,40 +14,21 @@ int main(void) {
 		printf("SDL_SetVideoMode error: %s\n", SDL_GetError());
 		return 1;
 	}
-	for(i = 0; i < 240; ++i) {
-		SDL_Rect rect = {0, i, 320, 1};
-		SDL_FillRect(screen, &rect, SDL_MapRGB(screen->format, i, i, i));
+	surf = SDL_CreateRGBSurface(SDL_SWSURFACE, 60, 50, NSP_BPP, NSP_RMASK, NSP_BMASK, NSP_GMASK, 0);
+	if(surf == NULL) {
+		printf("SDL_CreateRGBSurface error: %s\n", SDL_GetError());
+		return 1;
 	}
-	while(!quit) {
-		//SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
-		SDL_FillRect(screen, &r, SDL_MapRGB(screen->format, 255, 0, 255));
-		SDL_Flip(screen);
-		SDL_WaitEvent(&event);
-		switch(event.type) {
-			case SDL_KEYDOWN:
-				switch(event.key.keysym.sym) {
-					case SDLK_ESCAPE:
-						quit = 1;
-						break;
-					case SDLK_UP:
-						r.y -= MOVE_AMOUNT;
-						break;
-					case SDLK_DOWN:
-						r.y += MOVE_AMOUNT;
-						break;
-					case SDLK_LEFT:
-						r.x -= MOVE_AMOUNT;
-						break;
-					case SDLK_RIGHT:
-						r.x += MOVE_AMOUNT;
-						break;
-					default:
-						break;
-				}
-			default:
-				break;
-		}
-	}
+	//nsp_create_palette(surf);
+	SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
+	printf("SDL_FillRect: %d\n", SDL_FillRect(surf, NULL, SDL_MapRGB(screen->format, 255, 0, 255)));
+	//printf("SDL_BlitSurface: %d\n", SDL_BlitSurface(surf, NULL, screen, NULL)); /* does not work */
+	SDL_Flip(screen);
+	SDL_Delay(1000);
+	printf("%d\n", SDL_GetTicks());
+	SDL_Delay(3000);
+	//SDL_FreeSurface(surf);
+	printf("%d\n", SDL_GetTicks());
 	SDL_Quit();
 	return 0;
 }
