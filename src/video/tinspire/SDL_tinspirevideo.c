@@ -163,7 +163,6 @@ SDL_Rect **NSP_ListModes(_THIS, SDL_PixelFormat *format, Uint32 flags)
    	return (SDL_Rect **) -1;
 }
 
-/* FIXME: Memory leak with non-CX */
 SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 				int width, int height, int bpp, Uint32 flags)
 {
@@ -234,7 +233,6 @@ static void NSP_UnlockHWSurface(_THIS, SDL_Surface *surface)
 	return;
 }
 
-/* FIXME: odd positions in non-CX etc. */
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 {
 	Uint8 *src_addr, *dst_addr;

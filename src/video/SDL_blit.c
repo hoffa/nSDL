@@ -344,18 +344,16 @@ int SDL_CalculateBlit(SDL_Surface *surface)
 	        if(surface->map->identity
 		   && (blit_index == 1
 		       || (blit_index == 3 && !surface->format->Amask))) {
-		        if ( SDL_RLESurface(surface) == 0 ) {puts("rleblit;");
-			        surface->map->sw_blit = SDL_RLEBlit;}
+		        if ( SDL_RLESurface(surface) == 0 )
+			        surface->map->sw_blit = SDL_RLEBlit;
 		} else if(blit_index == 2 && surface->format->Amask) {
-		        if ( SDL_RLESurface(surface) == 0 ){puts("rlealphablit;");
-			        surface->map->sw_blit = SDL_RLEAlphaBlit;}
+		        if ( SDL_RLESurface(surface) == 0 )
+			        surface->map->sw_blit = SDL_RLEAlphaBlit;
 		}
 	}
 	
-	if ( surface->map->sw_blit == NULL ) {
-		puts("softblit");
+	if ( surface->map->sw_blit == NULL )
 		surface->map->sw_blit = SDL_SoftBlit;
-	}
 	return(0);
 }
 
