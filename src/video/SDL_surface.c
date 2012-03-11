@@ -146,6 +146,11 @@ SDL_Surface * SDL_CreateRGBSurface (Uint32 flags,
 #ifdef CHECK_LEAKS
 	++surfaces_allocated;
 #endif
+
+#if __TINSPIRE__ && !NSP_COLOR_LCD
+	SDL_NSP_CreatePalette(surface);
+#endif
+
 	return(surface);
 }
 /*

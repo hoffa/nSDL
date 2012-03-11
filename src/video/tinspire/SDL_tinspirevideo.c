@@ -274,7 +274,7 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 			dst_addr += SDL_VideoSurface->pitch;
 #else
 			for ( j = 0; j < rect_w; j += 2 )
-				dst_addr[j >> 1] = (src_addr[j] << 4) | src_addr[j + 1];
+				dst_addr[j >> 1] = ((src_addr[j] >> 4) << 4) | (src_addr[j + 1] >> 4);
 			src_addr += SDL_VideoSurface->w;
 			dst_addr += dst_skip;
 #endif
