@@ -351,7 +351,7 @@ int SDL_CalculateBlit(SDL_Surface *surface)
 			        surface->map->sw_blit = SDL_RLEAlphaBlit;
 		}
 	}
-	
+
 	if ( surface->map->sw_blit == NULL )
 		surface->map->sw_blit = SDL_SoftBlit;
 	return(0);

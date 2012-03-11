@@ -46,7 +46,10 @@ static void NSP_FreeHWSurface(_THIS, SDL_Surface *surface);
 /* etc. */
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects);
 
-int nsp_create_palette(SDL_Surface *surface) {
+/* Own functions */
+int SDL_NSP_CreatePalette(SDL_Surface *surface);
+
+int SDL_NSP_CreatePalette(SDL_Surface *surface) {
 	SDL_Color colors[256];
 	int i;
 	for ( i = 0; i < 256; ++i )
@@ -71,7 +74,7 @@ static SDL_VideoDevice *NSP_CreateDevice(int devindex)
 {
 	SDL_VideoDevice *device;
 
-	NSP_DPRINT("Creating device\n");
+	NSP_DPRINT("Creating device (%d)\n", devindex);
 
 	/* Initialize all variables that we clean on shutdown */
 	device = (SDL_VideoDevice *)SDL_malloc(sizeof(SDL_VideoDevice));
@@ -201,7 +204,7 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 	current->pixels = this->hidden->buffer;
 #if !NSP_COLOR_LCD
 	/* This isn't actually needed, but I'll keep it here to keep SDL happy */
-	if ( ! nsp_create_palette(current) ) {
+	if ( ! SDL_NSP_CreatePalette(current) ) {
 		SDL_SetError("[NSP] Couldn't create palette");
 		return(NULL);
 	}

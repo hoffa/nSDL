@@ -12,7 +12,7 @@ Compile with:
 make clean all -f Makefile.nsp
 
 Todo:
-- Fix the issues with blitting surfaces (might be why BMP blitting doesn't work)
+- Fix the issues with blitting surfaces (fixed?)
 - Add SDL_GetTicks() for CX
 - Map more keys to SDLKs
 - Add support for diagonal arrow keys in events & joystick

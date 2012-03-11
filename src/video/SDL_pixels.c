@@ -312,6 +312,7 @@ Uint16 SDL_CalculatePitch(SDL_Surface *surface)
  */
 Uint8 SDL_FindColor(SDL_Palette *pal, Uint8 r, Uint8 g, Uint8 b)
 {
+//printf("FindCOlOR: %d, %d, % d\n", r, g, b);
 /* TODO: Check that using doesn't actually break other things */
 #ifdef __TINSPIRE__
 	return((r + (g << 1) + b) >> 6);

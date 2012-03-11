@@ -29,6 +29,7 @@ int main(void) {
 		//SDL_UpdateRect(screen, 3, 1, 99, 99);
 		SDL_WaitEvent(&event);
 		switch(event.type) {
+			case SDL_KEYDOWN:
 				switch(event.key.keysym.sym) {
 					case SDLK_ESCAPE:
 						quit = 1;
@@ -50,7 +51,6 @@ int main(void) {
 				}
 			default:
 				break;
-#endif
 		}
 	}
 	SDL_Quit();

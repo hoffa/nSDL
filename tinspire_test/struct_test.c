@@ -28,9 +28,5 @@ int main(void) {
     printf("bootstrap[0]->name: %s\n", bootstrap[0]->name);
     printf("bootstrap[0]->desc: %s\n", bootstrap[0]->desc);
     printf("bootstrap[0]->fp(): %d\n", bootstrap[0]->fp());
-	for(i = 0; i < 10; ++i) {
-		printf("'4' pressed: %d\n", isKeyPressed(KEY_NSPIRE_4));
-		sleep(1000);
-	}
     return 0;
 }
