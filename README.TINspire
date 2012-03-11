@@ -1,5 +1,5 @@
-SDL for the TI-Nspire calculators (version X.x)
-=================================
+SDL for TI-Nspire calculators (version 0.1.0)
+=============================
 
 Ported by Christoffer Rehn (christoffer.rehn@telenet.be)
 
@@ -14,8 +14,6 @@ make clean all -f Makefile.nsp
 Todo:
 - Add SDL_GetTicks() for CX
 - Map more keys to SDLKs
-- Add support for diagonal arrow keys in events & joystick
-- Should the joystick continuously fire events if an arrow key is held down?
-- Put all the compiled objects in one folder, along with libSDL.a?
-- (Add some own function to load images stored in arrays)
 - Add mouse support
+(- Add support for diagonal arrow keys in events & joystick)
+(- Merge changes from SDL 1.2.15)

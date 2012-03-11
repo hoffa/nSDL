@@ -54,7 +54,11 @@ int SDL_NSP_CreatePalette(SDL_Surface *surface) {
 	int i;
 	for ( i = 0; i < 256; ++i )
 		colors[i].r = colors[i].g = colors[i].b = i;
-	return SDL_SetColors(surface, colors, 0, 256);
+	if ( ! SDL_SetColors(surface, colors, 0, 256) ) {
+		SDL_SetError("[NSP] Couldn't create palette");
+		return(0);
+	}
+	return(1);
 }
 
 /* NSP driver bootstrap functions */
@@ -127,7 +131,6 @@ VideoBootStrap NSP_bootstrap = {
 	NSP_Available, NSP_CreateDevice
 };
 
-/* FIXME: CreateRGBSurface might be the source of problems */
 int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 {
 	NSP_DPRINT("Initializing video format\n");
@@ -154,9 +157,6 @@ int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 	vformat->Rmask = NSP_RMASK;
 	vformat->Gmask = NSP_GMASK;
 	vformat->Bmask = NSP_BMASK;
-
-	NSP_DPRINT("BitsPerPixel: %d, BytesPerPixel: %d, Rmask: 0x%x, Gmask: 0x%x, Bmask: 0x%x, Amask: 0x%x\n",
-		vformat->BitsPerPixel, vformat->BytesPerPixel, vformat->Rmask, vformat->Gmask, vformat->Bmask, vformat->Amask);
 
 	return(0);
 }
@@ -203,9 +203,8 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 	current->pitch = NSP_DBL_IF_CX(current->w);
 	current->pixels = this->hidden->buffer;
 #if !NSP_COLOR_LCD
-	/* This isn't actually needed, but I'll keep it here to keep SDL happy */
 	if ( ! SDL_NSP_CreatePalette(current) ) {
-		SDL_SetError("[NSP] Couldn't create palette");
+		SDL_FreeSurface(current);
 		return(NULL);
 	}
 #endif
@@ -291,7 +290,7 @@ int NSP_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
 /* Note:  If we are terminated, this could be called in the middle of
    another SDL video routine -- notably UpdateRects.
 */
-/* FIXME: If I use the dummy version of this function (i.e. the one that frees
+/* FIXME?: If I use the dummy version of this function (i.e. the one that frees
    this->screen->pixels) the calculator reboots if SDL_Init fails. I'm not sure
    if anything should even be here; DC and NDS don't do anything at the end as
    far as this->screen->pixels is concerned.
