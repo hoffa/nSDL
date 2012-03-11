@@ -1,9 +1,12 @@
 #include <os.h>
 #include "../include/SDL.h"
 
+#define AMOUNT 10
+
 int main(void) {
-	SDL_Surface *screen, *image;
-	SDL_Rect image_pos = {10, 20, 0, 0};
+	SDL_Surface *screen, *surf;
+	SDL_Rect surf_pos = {10, 20, 0, 0};
+	int quit = 0, update = 1;
 	if(SDL_Init(SDL_INIT_VIDEO) == -1) {
 		printf("SDL_Init error: %s\n", SDL_GetError());
 		return 1;
@@ -13,10 +16,44 @@ int main(void) {
 		printf("SDL_SetVideoMode error: %s\n", SDL_GetError());
 		return 1;
 	}
-	image = SDL_DisplayFormat(SDL_LoadBMP("Examples/image.bmp.tns"));
-	SDL_BlitSurface(image, NULL, screen, &image_pos);
-	SDL_Flip(screen);
-	SDL_Delay(1000);
+	surf = SDL_LoadBMP("Examples/image.bmp.tns");
+	while(!quit) {
+		SDL_Event event;
+		if(update) {
+			SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 255, 255, 255));
+			SDL_BlitSurface(surf, NULL, screen, &surf_pos);
+			SDL_Flip(screen);
+		}
+		SDL_WaitEvent(&event);
+		switch(event.type) {
+			case SDL_KEYDOWN:
+				switch(event.key.keysym.sym) {
+					case SDLK_UP:
+						surf_pos.y -= AMOUNT;
+						break;
+					case SDLK_DOWN:
+						surf_pos.y += AMOUNT;
+						break;
+					case SDLK_LEFT:
+						surf_pos.x -= AMOUNT;
+						break;
+					case SDLK_RIGHT:
+						surf_pos.x += AMOUNT;
+						break;
+					case SDLK_ESCAPE:
+						quit = 1;
+						break;
+					default:
+						break;
+				}
+				update = 1;
+				break;
+			default:
+				update = 0;
+				break;
+		}
+	}
+	SDL_FreeSurface(surf);
 	SDL_Quit();
 	return 0;
 }

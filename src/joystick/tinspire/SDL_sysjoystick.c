@@ -33,8 +33,8 @@
 static t_key js_keymap[NSP_NUMBUTTONS];
 
 /* No bitmasks for easier extensibility and cleaner code */
-char ja_state[NSP_NUMAXES] = {SDL_RELEASED};
-char jb_state[NSP_NUMBUTTONS] = {SDL_RELEASED};
+static char ja_state[NSP_NUMAXES] = {SDL_RELEASED};
+static char jb_state[NSP_NUMBUTTONS] = {SDL_RELEASED};
 
 void nsp_init_js_keymap(void) {
 	js_keymap[NSP_JB_ESC] =		KEY_NSPIRE_ESC;
@@ -103,31 +103,40 @@ int SDL_SYS_JoystickOpen(SDL_Joystick *joystick)
 /* FIXME: Diagonal arrows handling? */
 void SDL_SYS_JoystickUpdate(SDL_Joystick *joystick)
 {
+	BOOL key_pressed;
 	int i;
+
+	/* Update axes */
 	for ( i = 0; i < NSP_NUMAXES; ++i ) {
 		t_key pos_key = (i == NSP_JA_H) ? KEY_NSPIRE_RIGHT : KEY_NSPIRE_DOWN;
 		t_key neg_key = (i == NSP_JA_H) ? KEY_NSPIRE_LEFT : KEY_NSPIRE_UP;
+		BOOL pos_key_pressed = isKeyPressed(pos_key);
+		BOOL neg_key_pressed = isKeyPressed(neg_key);
 		if ( ja_state[i] == SDL_RELEASED ) {
-			if ( isKeyPressed(pos_key) ) {
+			if ( pos_key_pressed ) {
 				SDL_PrivateJoystickAxis(joystick, i, NSP_JOYAXISVALUE);
 				ja_state[i] = SDL_PRESSED;
-			} else if ( isKeyPressed(neg_key) ) {
+			} else if ( neg_key_pressed ) {
 				SDL_PrivateJoystickAxis(joystick, i, -NSP_JOYAXISVALUE);
 				ja_state[i] = SDL_PRESSED;
 			}
-		} else
+		} else if ( ! ( pos_key_pressed || neg_key_pressed ) )
 			ja_state[i] = SDL_RELEASED;
 	}
 
-	/* TODO: Not sure if this it should only send one event as with key events */
-	for ( i = 0; i < NSP_NUMBUTTONS; ++i )
-		if ( isKeyPressed(js_keymap[i]) && jb_state[i] == SDL_RELEASED ) {
-			SDL_PrivateJoystickButton(joystick, i, SDL_PRESSED);
-			jb_state[i] = SDL_PRESSED;
-		} else if ( jb_state[i] == SDL_PRESSED ) {
+	/* Update buttons */
+	for ( i = 0; i < NSP_NUMBUTTONS; ++i ) {
+		key_pressed = isKeyPressed(js_keymap[i]);
+		if ( jb_state[i] == SDL_RELEASED ) {
+			if ( key_pressed ) {
+				SDL_PrivateJoystickButton(joystick, i, SDL_PRESSED);
+				jb_state[i] = SDL_PRESSED;
+			}
+		} else if ( ! key_pressed ) {
 			SDL_PrivateJoystickButton(joystick, i, SDL_RELEASED);
 			jb_state[i] = SDL_RELEASED;
 		}
+	}
 }
 
 /* Function to close a joystick after use */

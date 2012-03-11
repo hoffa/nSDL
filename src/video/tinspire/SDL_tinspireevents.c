@@ -42,10 +42,12 @@ void NSP_PumpEvents(_THIS)
 		keysym.scancode = i;
 		keysym.sym = sdlk_keymap[i];
 		key_pressed = isKeyPressed(nspk_keymap[i]);
-		if ( key_pressed && key_state[i] == SDL_RELEASED ) {
-			SDL_PrivateKeyboard(SDL_PRESSED, &keysym);
-			key_state[i] = SDL_PRESSED;
-		} else if ( ! key_pressed && key_state[i] == SDL_PRESSED ) {
+		if ( key_state[i] == SDL_RELEASED ) {
+			if ( key_pressed ) {
+				SDL_PrivateKeyboard(SDL_PRESSED, &keysym);
+				key_state[i] = SDL_PRESSED;
+			}
+		} else if ( ! key_pressed ) {
 			SDL_PrivateKeyboard(SDL_RELEASED, &keysym);
 			key_state[i] = SDL_RELEASED;
 		}

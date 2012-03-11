@@ -12,12 +12,10 @@ Compile with:
 make clean all -f Makefile.nsp
 
 Todo:
-- Fix the issues with blitting surfaces (fixed?)
 - Add SDL_GetTicks() for CX
 - Map more keys to SDLKs
 - Add support for diagonal arrow keys in events & joystick
 - Should the joystick continuously fire events if an arrow key is held down?
-- Does not using the palette at all for non-CX models (SDL_MapRGB() returns a
-  a 4-bit value without ever consulting the palette) have any repercussions?
 - Put all the compiled objects in one folder, along with libSDL.a?
-- Add some own function to load images stored in arrays
+- (Add some own function to load images stored in arrays)
+- Add mouse support

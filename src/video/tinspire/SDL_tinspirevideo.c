@@ -260,7 +260,7 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 		rect_y = NSP_DBL_IF_CX(rect->y);
 		rect_w = NSP_DBL_IF_CX(rect->w);
 		rect_h = rect->h;
-		NSP_DPRINT("Updating: (%d, %d) %dx%d\n", rect->x, rect->y, rect->w, rect->h);
+		/* NSP_DPRINT("Updating: (%d, %d) %dx%d\n", rect->x, rect->y, rect->w, rect->h); */
 		src_addr = (Uint8 *)(SDL_VideoSurface->pixels + rect_x + (rect_y * SDL_VideoSurface->w));
 #if NSP_COLOR_LCD
 		dst_addr = (Uint8 *)(SCREEN_BASE_ADDRESS + rect_x + (rect_y * SDL_VideoSurface->w));
