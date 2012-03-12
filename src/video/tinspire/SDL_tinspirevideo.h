@@ -29,17 +29,13 @@
 #include "../SDL_sysvideo.h"
 
 /* Hidden "this" pointer for the video functions */
-#define _THIS	SDL_VideoDevice *this
+#define _THIS   SDL_VideoDevice *this
 
 /* Private display data */
 
 struct SDL_PrivateVideoData {
 	int w, h;
-#if NSP_COLOR_LCD
-	Uint16 *buffer;
-#else
-	Uint8 *buffer;
-#endif
+	void *buffer;
 };
 
 #endif /* _SDL_tinspirevideo_h */

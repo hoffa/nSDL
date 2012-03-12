@@ -30,6 +30,11 @@
 #include "SDL_tinspirevideo.h"
 #include "SDL_tinspireevents_c.h"
 
+#include "fonts/THIN_SS.h"
+#include "fonts/SPACE8.h"
+#include "fonts/VGA-ROM.h"
+#include "fonts/FANTASY.h"
+
 /* Initialization/Query functions */
 static int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat);
 static SDL_Rect **NSP_ListModes(_THIS, SDL_PixelFormat *format, Uint32 flags);
@@ -46,8 +51,12 @@ static void NSP_FreeHWSurface(_THIS, SDL_Surface *surface);
 /* etc. */
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects);
 
-/* Own functions */
-int SDL_NSP_CreatePalette(SDL_Surface *surface);
+static unsigned char *nsp_font_charmaps[] = {
+	nsp_font_default,
+	nsp_font_space,
+	nsp_font_vga,
+	nsp_font_fantasy
+};
 
 int SDL_NSP_CreatePalette(SDL_Surface *surface) {
 	SDL_Color colors[256];
@@ -59,6 +68,49 @@ int SDL_NSP_CreatePalette(SDL_Surface *surface) {
 		return(0);
 	}
 	return(1);
+}
+
+/* TODO: Maybe it's better to have some function that loads all the surfaces with
+   RLE acceleration; faster blitting */
+int SDL_NSP_DrawChar(SDL_Surface *surface, unsigned char c, SDL_Rect *pos, NSP_Font font, Uint32 color) {
+	unsigned char *charmap = nsp_font_charmaps[font];
+	SDL_Surface *char_surface = SDL_CreateRGBSurface(SDL_SWSURFACE, 8, 8, NSP_BPP, NSP_RMASK, NSP_GMASK, NSP_BMASK, 0);
+	int offset = c << 3;
+	int i, j;
+	if ( char_surface == NULL )
+		return(-1);
+	SDL_NSP_CreatePalette(char_surface);
+	SDL_SetColorKey(char_surface, SDL_SRCCOLORKEY, 0);
+	SDL_LockSurface(char_surface);
+	for ( i = 0; i < 8; ++i )
+		for ( j = 0; j < 8; ++j )
+			if ( charmap[offset + i] & (1 << (7 - j)) )
+#if NSP_COLOR_LCD
+				*(Uint16 *)(char_surface->pixels + (j << 1) + (i << 4)) = (Uint16)color;
+#else
+				*(Uint8 *)(char_surface->pixels + j + (i << 3)) = (Uint8)color;
+#endif
+	SDL_UnlockSurface(char_surface);
+	if(SDL_BlitSurface(char_surface, NULL, surface, pos) == -1) {
+		SDL_FreeSurface(char_surface);
+		return(-1);
+	}
+	SDL_FreeSurface(char_surface);
+	return(0);
+}
+
+int SDL_NSP_DrawString(SDL_Surface *surface, char *s, int x, int y, NSP_Font font, Uint32 color) {
+	int length = (int)strlen(s);
+	int i;
+	SDL_Rect pos;
+	pos.x = x;
+	pos.y = y;
+	for ( i = 0; i < length; ++i ) {
+		if ( SDL_NSP_DrawChar(surface, (unsigned char)s[i], &pos, font, color) == -1 )
+			return(-1);
+		pos.x += 8;
+	}
+	return(0);
 }
 
 /* NSP driver bootstrap functions */
@@ -134,7 +186,7 @@ VideoBootStrap NSP_bootstrap = {
 int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 {
 	NSP_DPRINT("Initializing video format\n");
-
+	NSP_NL_RELOCDATA(nsp_font_charmaps, NSP_ARRAY_SIZE(nsp_font_charmaps));
 #if NSP_COLOR_LCD
 	if ( is_classic ) {
 		show_msgbox("SDL", "Pixel format not supported.\nThis program has been " \

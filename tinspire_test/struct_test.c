@@ -19,14 +19,20 @@ static type1_t *bootstrap[] = {
     NULL
 };
 
+static int a[] = {5, 4, 3, 2, 1};
+static int b[] = {1, 2, 3, 4, 5};
+static int *c[] = {a, b};
+
 int main(void) {
 	int i;
     nl_relocdata((unsigned int *)bootstrap, 1);
     nl_relocdata((unsigned int *)&bootstrap[0]->name, 1);
     nl_relocdata((unsigned int *)&bootstrap[0]->desc, 1);
     nl_relocdata((unsigned int *)&bootstrap[0]->fp, 1);
+    nl_relocdata((unsigned int *)c, 2);
     printf("bootstrap[0]->name: %s\n", bootstrap[0]->name);
     printf("bootstrap[0]->desc: %s\n", bootstrap[0]->desc);
     printf("bootstrap[0]->fp(): %d\n", bootstrap[0]->fp());
+    printf("d: %d\n", c[0][1]);
     return 0;
 }

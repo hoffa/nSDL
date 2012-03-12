@@ -941,7 +941,14 @@ extern DECLSPEC SDL_GrabMode SDLCALL SDL_WM_GrabInput(SDL_GrabMode mode);
 /** @internal Not in public API at the moment - do not use! */
 extern DECLSPEC int SDLCALL SDL_SoftStretch(SDL_Surface *src, SDL_Rect *srcrect,
                                     SDL_Surface *dst, SDL_Rect *dstrect);
-                    
+
+#ifdef __TINSPIRE__
+/* Public TI-Nspire-specific functions */
+int SDL_NSP_CreatePalette(SDL_Surface *surface);
+int SDL_NSP_DrawChar(SDL_Surface *surface, unsigned char c, SDL_Rect *pos, NSP_Font font, Uint32 color);
+int SDL_NSP_DrawString(SDL_Surface *surface, char *s, int x, int y, NSP_Font font, Uint32 color);
+#endif
+
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }

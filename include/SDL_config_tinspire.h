@@ -309,4 +309,12 @@ enum {
 	NSP_NUMBUTTONS
 };
 
+/* Fonts; needs to match the nsp_font_charmaps array in SDL_tinspirevideo.c */
+typedef enum NSP_Font {
+	NSP_FONT_DEFAULT,
+	NSP_FONT_SPACE,
+	NSP_FONT_VGA,
+	NSP_FONT_FANTASY
+} NSP_Font;
+
 #endif /* _SDL_config_tinspire_h */

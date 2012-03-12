@@ -24,6 +24,10 @@ int main(void) {
 		if(update) {
 			SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 255, 255, 255));
 			SDL_BlitSurface(surf_fast, NULL, screen, &surf_pos);
+			SDL_NSP_DrawString(screen, "Default font", 10, 20, NSP_FONT_DEFAULT, SDL_MapRGB(screen->format, 255, 0, 255));
+			SDL_NSP_DrawString(screen, "VGA font", 10, 30, NSP_FONT_VGA, SDL_MapRGB(screen->format, 255, 255, 255));
+			SDL_NSP_DrawString(screen, "Space font", 10, 40, NSP_FONT_SPACE, SDL_MapRGB(screen->format, 0, 0, 255));
+			SDL_NSP_DrawString(screen, "Fantasy font", 10, 50, NSP_FONT_FANTASY, SDL_MapRGB(screen->format, 100, 200, 50));
 			SDL_Flip(screen);
 		}
 		SDL_WaitEvent(&event);

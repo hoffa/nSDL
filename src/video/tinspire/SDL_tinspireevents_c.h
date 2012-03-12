@@ -23,8 +23,6 @@
 
 #include "SDL_tinspirevideo.h"
 
-#define NSP_MAX_KEYVAL /*stub*/
-
 /* Variables and functions exported by SDL_sysevents.c to other parts 
    of the native video subsystem (SDL_sysvideo.c)
 */
