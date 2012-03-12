@@ -15,5 +15,6 @@ Todo:
 - Add SDL_GetTicks() for CX
 - Map more keys to SDLKs
 - Add mouse support
+- Fix the timer issues (e.g. SDL_EnableKeyRepeat() doesn't work as it should)
 (- Add support for diagonal arrow keys in events & joystick)
 (- Merge changes from SDL 1.2.15)

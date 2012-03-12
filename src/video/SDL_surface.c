@@ -141,13 +141,6 @@ SDL_Surface * SDL_CreateRGBSurface (Uint32 flags,
 		return(NULL);
 	}
 
-#if __TINSPIRE__ && !NSP_COLOR_LCD
-	if ( ! SDL_NSP_CreatePalette(surface) ) {
-		SDL_FreeSurface(surface);
-		return(NULL);
-	}
-#endif
-
 	/* The surface is ready to go */
 	surface->refcount = 1;
 #ifdef CHECK_LEAKS

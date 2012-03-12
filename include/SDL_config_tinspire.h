@@ -29,7 +29,7 @@
 #include "SDL_platform.h"
 
 /* 1 if CX, 0 if Touchpad/Clickpad */
-#define NSP_COLOR_LCD	1
+#define NSP_COLOR_LCD	0
 
 #if 1
 #define NSP_DEBUG	1
@@ -37,7 +37,7 @@
 #define DEBUG_PALETTE	1
 #define DEBUG_VIDEO	1
 #define DEBUG_ASM	1
-#define DEBUG_GRAB	1
+#define DEBUG_GRAB	0
 #define DEBUG_TIMERS	1
 #define DEBUG_QSORT	1
 #define DEBUG_THREADS	1
