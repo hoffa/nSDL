@@ -22,7 +22,7 @@ int main(void) {
 	while(!quit) {
 		SDL_Event event;
 		SDL_NSP_DrawString(screen, "Hello world!", 10, 20, font_space);
-		SDL_NSP_DrawString(screen, "What's up niggra?", 10, 30, font_vga);
+		SDL_NSP_DrawString(screen, "I like turtles", 10, 30, font_vga);
 		SDL_Flip(screen);
 		SDL_WaitEvent(&event);
 		switch(event.type) {
