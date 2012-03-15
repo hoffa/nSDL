@@ -19,12 +19,33 @@ static type1_t *bootstrap[] = {
     NULL
 };
 
-static int a[] = {5, 4, 3, 2, 1};
-static int b[] = {1, 2, 3, 4, 5};
-static int *c[] = {a, b};
+typedef struct lol_t {
+    int wut;
+    int wat;
+} lol_t;
+
+typedef struct derp_t {
+    lol_t *a[256];
+    int herp;
+} derp_t;
+
+void init_derp(derp_t *derp) {
+    int i;
+    derp->herp = 42;
+    for(i = 0; i < 256; ++i) {
+        lol_t *foo = malloc(sizeof *foo);
+        foo->wat = 300 - i;
+        foo->wut = 24;
+        derp->a[i] = foo;
+    }
+}
 
 int main(void) {
-	int i;
+    derp_t derp;
+    init_derp(&derp);
+    printf("[0]: %d\n", derp.a[1]->wat);
+    printf("herp: %d\n", derp.herp);
+#if 0
     nl_relocdata((unsigned int *)bootstrap, 1);
     nl_relocdata((unsigned int *)&bootstrap[0]->name, 1);
     nl_relocdata((unsigned int *)&bootstrap[0]->desc, 1);
@@ -33,6 +54,6 @@ int main(void) {
     printf("bootstrap[0]->name: %s\n", bootstrap[0]->name);
     printf("bootstrap[0]->desc: %s\n", bootstrap[0]->desc);
     printf("bootstrap[0]->fp(): %d\n", bootstrap[0]->fp());
-    printf("d: %d\n", c[0][1]);
+#endif
     return 0;
 }

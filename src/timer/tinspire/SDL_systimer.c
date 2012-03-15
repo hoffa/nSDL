@@ -26,48 +26,40 @@
 #include "SDL_timer.h"
 #include "../SDL_timer_c.h"
 
-/* TODO: just fix this shit, add for CX models and whatnot */
-
-/* Timer should be set to 1024 Hz */
-#define NSP_RTC_GET_VALUE()	NSP_ADDRVAL(0x90090000)
-#if !NSP_COLOR_LCD
-#define NSP_TIMER_VALUE			NSP_ADDRVAL(0x900C000C)
-#define NSP_TIMER_GET_VALUE()		NSP_TIMER_VALUE
-#define NSP_TIMER_SET_VALUE(value)	NSP_TIMER_VALUE = value
-#define NSP_TIMER_START()	NSP_ADDRVAL(0x900C0014) = 0xF
-#define NSP_TIMER_STOP()	NSP_ADDRVAL(0x900C0014) = 0x1F
-#define NSP_TIMER_RESET()	NSP_TIMER_SET_VALUE(0); \
-    				NSP_ADDRVAL(0x900C0010) = 0; \
-    				NSP_TIMER_STOP()
-#define NSP_TIMER_INIT()	NSP_ADDRVAL(0x900B0018) &= ~(1 << 11); \
-    				NSP_ADDRVAL(0x900C0010) = 32
+#if NSP_COLOR_LCD
+static volatile unsigned *value = (unsigned *)0x900C0004;
+static volatile unsigned *control = (unsigned *)0x900C0008;
+#else
+static volatile unsigned *value = (unsigned *)0x900C000C;
+static volatile unsigned *control = (unsigned *)0x900C0014;
+Uint32 tick_sum = 0;
 #endif
 
-Uint32 cur_time = 0;
-Uint32 prev_rtc;
+Uint32 start = 0;
 
 void SDL_StartTicks(void)
 {
-#if !NSP_COLOR_LCD
-	NSP_TIMER_RESET();
-	NSP_TIMER_INIT();
-	NSP_TIMER_SET_VALUE(0);
-	NSP_TIMER_START();
-	prev_rtc = NSP_RTC_GET_VALUE();
+	*(volatile unsigned *)0x900B0018 &= ~(1 << 11);
+	*(volatile unsigned *)0x900C0080 = 0xA;
+#if NSP_COLOR_LCD
+	*control = 0b10100110;
+	start = *value;
+#else
+	*control = 0b10000;
+	*(volatile unsigned *)0x900C0010 = 32;
+	*value = 0;
+	*control = 0b01111;
 #endif
 }
 
 Uint32 SDL_GetTicks (void)
 {
-#if !NSP_COLOR_LCD
-	Uint32 cur_rtc = NSP_RTC_GET_VALUE();
-	Uint32 delta_rtc = cur_rtc - prev_rtc;
-	cur_time += NSP_TIMER_GET_VALUE();
-	if ( delta_rtc >= 64 ) /* It takes 64 seconds before the timer resets */
-		cur_time += (delta_rtc >> 6) << 16;
-	prev_rtc = cur_rtc;
-	NSP_TIMER_SET_VALUE(0);
-	return(cur_time);
+#if NSP_COLOR_LCD
+	return((start - *value) >> 1);
+#else
+	tick_sum += *value;
+	*value = 0;
+	return(tick_sum);
 #endif
 }
 

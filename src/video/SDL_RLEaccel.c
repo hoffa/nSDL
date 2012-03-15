@@ -1640,6 +1640,10 @@ static getpix_func getpixes[4] = {
     getpix_8, getpix_16, getpix_24, getpix_32
 };
 
+#ifdef __TINSPIRE__
+static SDL_bool nsp_reallocated = SDL_FALSE;
+#endif
+
 static int RLEColorkeySurface(SDL_Surface *surface)
 {
         Uint8 *rlebuf, *dst;
@@ -1651,6 +1655,13 @@ static int RLEColorkeySurface(SDL_Surface *surface)
 	getpix_func getpix;
 	Uint32 ckey, rgbmask;
 	int w, h;
+
+#ifdef __TINSPIRE__
+	if ( ! nsp_reallocated ) {
+		NSP_NL_RELOCDATA(getpixes, NSP_ARRAY_SIZE(getpixes));
+		nsp_reallocated = SDL_TRUE;
+	}
+#endif
 
 	/* calculate the worst case size for the compressed surface */
 	switch(bpp) {

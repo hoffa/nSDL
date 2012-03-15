@@ -20,7 +20,7 @@ SOURCES = \
 	src/events/SDL_resize.c \
 	src/file/SDL_rwops.c \
 	src/joystick/SDL_joystick.c \
-    src/joystick/tinspire/SDL_sysjoystick.c \
+	src/joystick/tinspire/SDL_sysjoystick.c \
 	src/stdlib/SDL_getenv.c \
 	src/stdlib/SDL_iconv.c \
 	src/stdlib/SDL_malloc.c \
@@ -48,11 +48,11 @@ SOURCES = \
 	src/video/SDL_surface.c \
 	src/video/SDL_video.c \
 	src/video/SDL_yuv.c \
-    src/video/SDL_yuv_mmx.c \
+	src/video/SDL_yuv_mmx.c \
 	src/video/SDL_yuv_sw.c \
-    src/video/tinspire/SDL_tinspireevents.c \
+	src/video/tinspire/SDL_tinspireevents.c \
 	src/video/tinspire/SDL_tinspiremouse.c \
-    src/video/tinspire/SDL_tinspirevideo.c
+	src/video/tinspire/SDL_tinspirevideo.c
 OBJECTS = $(SOURCES:.c=.o)
 
 all: $(TARGET)

@@ -70,43 +70,66 @@ int SDL_NSP_CreatePalette(SDL_Surface *surface) {
 	return(1);
 }
 
-/* TODO: Maybe it's better to have some function that loads all the surfaces with
-   RLE acceleration; faster blitting */
-int SDL_NSP_DrawChar(SDL_Surface *surface, unsigned char c, SDL_Rect *pos, NSP_Font font, Uint32 color) {
-	unsigned char *charmap = nsp_font_charmaps[font];
-	SDL_Surface *char_surface = SDL_CreateRGBSurface(SDL_SWSURFACE, 8, 8, NSP_BPP, NSP_RMASK, NSP_GMASK, NSP_BMASK, 0);
-	int offset = c << 3;
-	int i, j;
-	if ( char_surface == NULL )
-		return(-1);
-	SDL_NSP_CreatePalette(char_surface);
-	SDL_SetColorKey(char_surface, SDL_SRCCOLORKEY, 0);
-	SDL_LockSurface(char_surface);
-	for ( i = 0; i < 8; ++i )
-		for ( j = 0; j < 8; ++j )
-			if ( charmap[offset + i] & (1 << (7 - j)) )
-#if NSP_COLOR_LCD
-				*(Uint16 *)(char_surface->pixels + (j << 1) + (i << 4)) = (Uint16)color;
-#else
-				*(Uint8 *)(char_surface->pixels + j + (i << 3)) = (Uint8)color;
-#endif
-	SDL_UnlockSurface(char_surface);
-	if(SDL_BlitSurface(char_surface, NULL, surface, pos) == -1) {
-		SDL_FreeSurface(char_surface);
-		return(-1);
+SDL_NSP_Font *SDL_NSP_LoadFont(int font_index, Uint32 color) {
+	unsigned char *charmap = nsp_font_charmaps[font_index];
+	int i, j, k;
+	SDL_NSP_Font *font = SDL_malloc(sizeof *font);
+	if ( font == NULL ) {
+		SDL_OutOfMemory();
+		return(NULL);
 	}
-	SDL_FreeSurface(char_surface);
-	return(0);
+	for ( i = 0; i < NSP_FONT_NUMCHARS; ++i ) {
+		int offset = i << 3;
+		SDL_Surface *char_surf = SDL_CreateRGBSurface(SDL_SWSURFACE, NSP_FONT_WIDTH,
+			NSP_FONT_HEIGHT, NSP_BPP, NSP_RMASK, NSP_GMASK, NSP_BMASK, 0);
+		if ( char_surf == NULL )
+			return(NULL);
+#if !NSP_COLOR_LCD
+		if ( ! SDL_NSP_CreatePalette(char_surf) ) {
+			SDL_FreeSurface(char_surf);
+			return(NULL);
+		}
+#endif
+		if ( SDL_SetColorKey(char_surf, SDL_SRCCOLORKEY | SDL_RLEACCEL, 0) == -1 ) {
+			SDL_FreeSurface(char_surf);
+			return(NULL);
+		}
+		SDL_LockSurface(char_surf);
+		for ( j = 0; j < 8; ++j )
+			for ( k = 0; k < 8; ++k ) {
+				if ( charmap[offset + j] & (1 << (7 - k)) ) {
+#if NSP_COLOR_LCD
+					*(Uint16 *)(char_surf->pixels + (k << 1) + (j << 4)) = (Uint16)color;
+#else
+					*(Uint8 *)(char_surf->pixels + k + (j << 3)) = (Uint8)color;
+#endif
+				}
+			}
+		SDL_UnlockSurface(char_surf);
+		font->chars[i] = char_surf;
+	}
+	return(font);
 }
 
-int SDL_NSP_DrawString(SDL_Surface *surface, char *s, int x, int y, NSP_Font font, Uint32 color) {
+void SDL_NSP_FreeFont(SDL_NSP_Font *font) {
+	int i;
+	for ( i = 0; i < NSP_FONT_NUMCHARS; ++i )
+		SDL_FreeSurface(font->chars[i]);
+	SDL_free(font);
+}
+
+int SDL_NSP_DrawChar(SDL_Surface *surface, int c, SDL_Rect *pos, SDL_NSP_Font *font) {
+	return(SDL_BlitSurface(font->chars[c], NULL, surface, pos));
+}
+
+int SDL_NSP_DrawString(SDL_Surface *surface, char *s, int x, int y, SDL_NSP_Font *font) {
 	int length = (int)strlen(s);
 	int i;
 	SDL_Rect pos;
 	pos.x = x;
 	pos.y = y;
 	for ( i = 0; i < length; ++i ) {
-		if ( SDL_NSP_DrawChar(surface, (unsigned char)s[i], &pos, font, color) == -1 )
+		if ( SDL_NSP_DrawChar(surface, (int)s[i], &pos, font) == -1 )
 			return(-1);
 		pos.x += 8;
 	}

@@ -253,6 +253,24 @@ typedef enum {
 #define SDL_PHYSPAL 0x02
 /*@}*/
 
+/* Public TI-Nspire-specific stuff */
+#ifdef __TINSPIRE__
+#define NSP_FONT_NUMCHARS   256
+#define NSP_FONT_WIDTH  8
+#define NSP_FONT_HEIGHT 8
+
+typedef struct SDL_NSP_Font {
+    SDL_Surface *chars[NSP_FONT_NUMCHARS];
+    int spacing;
+} SDL_NSP_Font;
+
+int SDL_NSP_CreatePalette(SDL_Surface *surface);
+SDL_NSP_Font *SDL_NSP_LoadFont(int font_index, Uint32 color);
+void SDL_NSP_FreeFont(SDL_NSP_Font *font);
+int SDL_NSP_DrawChar(SDL_Surface *surface, int c, SDL_Rect *pos, SDL_NSP_Font *font);
+int SDL_NSP_DrawString(SDL_Surface *surface, char *s, int x, int y, SDL_NSP_Font *font);
+#endif
+
 /* Function prototypes */
 
 /**
@@ -941,13 +959,6 @@ extern DECLSPEC SDL_GrabMode SDLCALL SDL_WM_GrabInput(SDL_GrabMode mode);
 /** @internal Not in public API at the moment - do not use! */
 extern DECLSPEC int SDLCALL SDL_SoftStretch(SDL_Surface *src, SDL_Rect *srcrect,
                                     SDL_Surface *dst, SDL_Rect *dstrect);
-
-#ifdef __TINSPIRE__
-/* Public TI-Nspire-specific functions */
-int SDL_NSP_CreatePalette(SDL_Surface *surface);
-int SDL_NSP_DrawChar(SDL_Surface *surface, unsigned char c, SDL_Rect *pos, NSP_Font font, Uint32 color);
-int SDL_NSP_DrawString(SDL_Surface *surface, char *s, int x, int y, NSP_Font font, Uint32 color);
-#endif
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
