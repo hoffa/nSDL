@@ -29,11 +29,7 @@
 
 #include "SDL_tinspirevideo.h"
 #include "SDL_tinspireevents_c.h"
-
-#include "fonts/THIN_SS.h"
-#include "fonts/SPACE8.h"
-#include "fonts/VGA-ROM.h"
-#include "fonts/FANTASY.h"
+#include "SDL_tinspirefonts.h"
 
 /* Initialization/Query functions */
 static int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat);
@@ -364,11 +360,6 @@ int NSP_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
 
 /* Note:  If we are terminated, this could be called in the middle of
    another SDL video routine -- notably UpdateRects.
-*/
-/* FIXME?: If I use the dummy version of this function (i.e. the one that frees
-   this->screen->pixels) the calculator reboots if SDL_Init fails. I'm not sure
-   if anything should even be here; DC and NDS don't do anything at the end as
-   far as this->screen->pixels is concerned.
 */
 void NSP_VideoQuit(_THIS)
 {

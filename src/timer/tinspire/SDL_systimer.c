@@ -30,8 +30,8 @@
 static volatile unsigned *value = (unsigned *)0x900C0004;
 static volatile unsigned *control = (unsigned *)0x900C0008;
 #else
-static volatile unsigned *value = (unsigned *)0x900C000C;
-static volatile unsigned *control = (unsigned *)0x900C0014;
+static volatile unsigned *value = (unsigned *)0x900C0000;
+static volatile unsigned *control = (unsigned *)0x900C0008;
 Uint32 tick_sum = 0;
 #endif
 
@@ -46,7 +46,7 @@ void SDL_StartTicks(void)
 	start = *value;
 #else
 	*control = 0b10000;
-	*(volatile unsigned *)0x900C0010 = 32;
+	*(volatile unsigned *)0x900C0004 = 32;
 	*value = 0;
 	*control = 0b01111;
 #endif

@@ -32,7 +32,6 @@ static t_key nspk_keymap[NSP_NUMKEYS];
 static SDLKey sdlk_keymap[NSP_NUMKEYS] = {SDLK_UNKNOWN};
 static char key_state[NSP_NUMKEYS] = {SDL_RELEASED};
 
-/* FIXME: Same as joystick: diagonal keys? */
 void NSP_PumpEvents(_THIS)
 {
 	BOOL key_pressed;

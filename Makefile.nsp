@@ -10,6 +10,14 @@ SOURCES = \
 	src/SDL.c \
 	src/SDL_error.c \
 	src/SDL_fatal.c \
+	src/audio/SDL_audio.c \
+	src/audio/SDL_audiocvt.c \
+	src/audio/SDL_audiodev.c \
+	src/audio/SDL_mixer.c \
+	src/audio/SDL_mixer_m68k.c \
+	src/audio/SDL_mixer_MMX.c \
+	src/audio/SDL_mixer_MMX_VC.c \
+	src/audio/SDL_wave.c \
 	src/cpuinfo/SDL_cpuinfo.c \
 	src/events/SDL_active.c \
 	src/events/SDL_events.c \

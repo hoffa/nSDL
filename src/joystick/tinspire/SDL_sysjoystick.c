@@ -32,7 +32,6 @@
 
 static t_key js_keymap[NSP_NUMBUTTONS];
 
-/* No bitmasks for easier extensibility and cleaner code */
 static char ja_state[NSP_NUMAXES] = {SDL_RELEASED};
 static char jb_state[NSP_NUMBUTTONS] = {SDL_RELEASED};
 
@@ -100,7 +99,6 @@ int SDL_SYS_JoystickOpen(SDL_Joystick *joystick)
  * but instead should call SDL_PrivateJoystick*() to deliver events
  * and update joystick device state.
  */
-/* FIXME: Diagonal arrows handling? */
 void SDL_SYS_JoystickUpdate(SDL_Joystick *joystick)
 {
 	BOOL key_pressed;

@@ -261,7 +261,6 @@ typedef enum {
 
 typedef struct SDL_NSP_Font {
     SDL_Surface *chars[NSP_FONT_NUMCHARS];
-    int spacing;
 } SDL_NSP_Font;
 
 int SDL_NSP_CreatePalette(SDL_Surface *surface);
