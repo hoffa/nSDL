@@ -29,7 +29,7 @@
 #include "SDL_platform.h"
 
 /* 1 if CX, 0 if Touchpad/Clickpad */
-#define NSP_COLOR_LCD	0
+#define NSP_COLOR_LCD	1
 
 #if 1
 #define NSP_DEBUG	1
@@ -44,7 +44,7 @@
 #define DEBUG_ERROR	1
 #endif
 
-#define NSP_VERSION	"0.1.0"
+#define NSP_VERSION	"0.1.1"
 #define NSP_JOYAXISVALUE	1
 
 /* A few convenience macros */
@@ -216,7 +216,8 @@ enum {
 	NSP_FONT_DEFAULT,
 	NSP_FONT_SPACE,
 	NSP_FONT_VGA,
-	NSP_FONT_FANTASY
+	NSP_FONT_FANTASY,
+	NSP_FONT_TINYTYPE
 };
 
 #endif /* _SDL_config_tinspire_h */

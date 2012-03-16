@@ -51,10 +51,11 @@ static unsigned char *nsp_font_charmaps[] = {
 	nsp_font_default,
 	nsp_font_space,
 	nsp_font_vga,
-	nsp_font_fantasy
+	nsp_font_fantasy,
+	nsp_font_tinytype
 };
 
-int SDL_NSP_CreatePalette(SDL_Surface *surface) {
+int SDL_nCreatePalette(SDL_Surface *surface) {
 	SDL_Color colors[256];
 	int i;
 	for ( i = 0; i < 256; ++i )
@@ -66,14 +67,15 @@ int SDL_NSP_CreatePalette(SDL_Surface *surface) {
 	return(1);
 }
 
-SDL_NSP_Font *SDL_NSP_LoadFont(int font_index, Uint32 color) {
+SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color) {
 	unsigned char *charmap = nsp_font_charmaps[font_index];
 	int i, j, k;
-	SDL_NSP_Font *font = SDL_malloc(sizeof *font);
+	SDL_nFont *font = SDL_malloc(sizeof *font);
 	if ( font == NULL ) {
 		SDL_OutOfMemory();
 		return(NULL);
 	}
+	font->spacing = 0;
 	for ( i = 0; i < NSP_FONT_NUMCHARS; ++i ) {
 		int offset = i << 3;
 		SDL_Surface *char_surf = SDL_CreateRGBSurface(SDL_SWSURFACE, NSP_FONT_WIDTH,
@@ -81,7 +83,7 @@ SDL_NSP_Font *SDL_NSP_LoadFont(int font_index, Uint32 color) {
 		if ( char_surf == NULL )
 			return(NULL);
 #if !NSP_COLOR_LCD
-		if ( ! SDL_NSP_CreatePalette(char_surf) ) {
+		if ( ! SDL_nCreatePalette(char_surf) ) {
 			SDL_FreeSurface(char_surf);
 			return(NULL);
 		}
@@ -107,27 +109,27 @@ SDL_NSP_Font *SDL_NSP_LoadFont(int font_index, Uint32 color) {
 	return(font);
 }
 
-void SDL_NSP_FreeFont(SDL_NSP_Font *font) {
+void SDL_nFreeFont(SDL_nFont *font) {
 	int i;
 	for ( i = 0; i < NSP_FONT_NUMCHARS; ++i )
 		SDL_FreeSurface(font->chars[i]);
 	SDL_free(font);
 }
 
-int SDL_NSP_DrawChar(SDL_Surface *surface, int c, SDL_Rect *pos, SDL_NSP_Font *font) {
+int SDL_nDrawChar(SDL_Surface *surface, int c, SDL_Rect *pos, SDL_nFont *font) {
 	return(SDL_BlitSurface(font->chars[c], NULL, surface, pos));
 }
 
-int SDL_NSP_DrawString(SDL_Surface *surface, char *s, int x, int y, SDL_NSP_Font *font) {
+int SDL_nDrawString(SDL_Surface *surface, char *s, int x, int y, SDL_nFont *font) {
 	int length = (int)strlen(s);
 	int i;
 	SDL_Rect pos;
 	pos.x = x;
 	pos.y = y;
 	for ( i = 0; i < length; ++i ) {
-		if ( SDL_NSP_DrawChar(surface, (int)s[i], &pos, font) == -1 )
+		if ( SDL_nDrawChar(surface, (int)s[i], &pos, font) == -1 )
 			return(-1);
-		pos.x += 8;
+		pos.x += NSP_FONT_WIDTH + font->spacing;
 	}
 	return(0);
 }
@@ -274,7 +276,7 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 	current->pitch = NSP_DBL_IF_CX(current->w);
 	current->pixels = this->hidden->buffer;
 #if !NSP_COLOR_LCD
-	if ( ! SDL_NSP_CreatePalette(current) ) {
+	if ( ! SDL_nCreatePalette(current) ) {
 		SDL_FreeSurface(current);
 		return(NULL);
 	}

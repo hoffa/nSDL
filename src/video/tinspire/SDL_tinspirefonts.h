@@ -5,5 +5,6 @@
 #include "fonts/SPACE8.h"
 #include "fonts/VGA-ROM.h"
 #include "fonts/FANTASY.h"
+#include "fonts/TINYTYPE.h"
 
 #endif /* _SDL_tinspirefonts_h */
