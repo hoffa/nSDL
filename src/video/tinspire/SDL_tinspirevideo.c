@@ -48,7 +48,7 @@ static void NSP_FreeHWSurface(_THIS, SDL_Surface *surface);
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects);
 
 static unsigned char *nsp_font_charmaps[] = {
-	nsp_font_default,
+	nsp_font_thin,
 	nsp_font_space,
 	nsp_font_vga,
 	nsp_font_fantasy,
@@ -67,7 +67,7 @@ int SDL_nCreatePalette(SDL_Surface *surface) {
 	return(1);
 }
 
-SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color) {
+SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags) {
 	unsigned char *charmap = nsp_font_charmaps[font_index];
 	int i, j, k;
 	SDL_nFont *font = SDL_malloc(sizeof *font);
@@ -75,7 +75,6 @@ SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color) {
 		SDL_OutOfMemory();
 		return(NULL);
 	}
-	font->spacing = 0;
 	for ( i = 0; i < NSP_FONT_NUMCHARS; ++i ) {
 		int offset = i << 3;
 		SDL_Surface *char_surf = SDL_CreateRGBSurface(SDL_SWSURFACE, NSP_FONT_WIDTH,
@@ -88,10 +87,11 @@ SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color) {
 			return(NULL);
 		}
 #endif
-		if ( SDL_SetColorKey(char_surf, SDL_SRCCOLORKEY | SDL_RLEACCEL, 0) == -1 ) {
-			SDL_FreeSurface(char_surf);
-			return(NULL);
-		}
+		if ( ! ( flags & NSP_FONT_OPAQUE ) )
+			if ( SDL_SetColorKey(char_surf, SDL_SRCCOLORKEY | SDL_RLEACCEL, 0) == -1 ) {
+				SDL_FreeSurface(char_surf);
+				return(NULL);
+			}
 		SDL_LockSurface(char_surf);
 		for ( j = 0; j < 8; ++j )
 			for ( k = 0; k < 8; ++k ) {
@@ -105,6 +105,9 @@ SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color) {
 			}
 		SDL_UnlockSurface(char_surf);
 		font->chars[i] = char_surf;
+		font->hspacing = 0;
+		font->vspacing = 0;
+		font->flags = flags;
 	}
 	return(font);
 }
@@ -120,6 +123,7 @@ int SDL_nDrawChar(SDL_Surface *surface, int c, SDL_Rect *pos, SDL_nFont *font) {
 	return(SDL_BlitSurface(font->chars[c], NULL, surface, pos));
 }
 
+#define NSP_TAB_WIDTH_PXL	(NSP_TAB_WIDTH * NSP_FONT_WIDTH)
 int SDL_nDrawString(SDL_Surface *surface, char *s, int x, int y, SDL_nFont *font) {
 	int length = (int)strlen(s);
 	int i;
@@ -127,9 +131,26 @@ int SDL_nDrawString(SDL_Surface *surface, char *s, int x, int y, SDL_nFont *font
 	pos.x = x;
 	pos.y = y;
 	for ( i = 0; i < length; ++i ) {
-		if ( SDL_nDrawChar(surface, (int)s[i], &pos, font) == -1 )
-			return(-1);
-		pos.x += NSP_FONT_WIDTH + font->spacing;
+		switch ( s[i] ) {
+			case '\n':
+				pos.x = x;
+				pos.y += NSP_FONT_HEIGHT + font->vspacing;
+				break;
+			case '\t':
+				pos.x += NSP_TAB_WIDTH_PXL - (pos.x % NSP_TAB_WIDTH_PXL);
+				break;
+			default:
+				if ( ( font->flags & NSP_FONT_TEXTWRAP )
+				&& pos.x + NSP_FONT_WIDTH > surface->w ) {
+					pos.x = 0;
+					pos.y += NSP_FONT_HEIGHT + font->vspacing;
+				} else {
+					if ( SDL_nDrawChar(surface, (int)s[i], &pos, font) == -1 )
+						return(-1);
+					pos.x += NSP_FONT_WIDTH + font->hspacing;
+				}
+				break;
+		}
 	}
 	return(0);
 }

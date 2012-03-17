@@ -46,6 +46,7 @@
 
 #define NSP_VERSION	"0.1.1"
 #define NSP_JOYAXISVALUE	1
+#define NSP_TAB_WIDTH	4
 
 /* A few convenience macros */
 #define NSP_ARRAY_SIZE(array)	(sizeof(array) / sizeof(array[0]))
@@ -211,9 +212,16 @@ enum {
 	NSP_NUMBUTTONS
 };
 
-/* Fonts; needs to match the nsp_font_charmaps array in SDL_tinspirevideo.c */
+/* Font flags */
 enum {
-	NSP_FONT_DEFAULT,
+	NSP_FONT_DEFAULT = 0,
+	NSP_FONT_OPAQUE = 1,
+	NSP_FONT_TEXTWRAP = 2
+};
+
+/* Fonts; needs to match nsp_font_charmaps in SDL_tinspirevideo.c */
+enum {
+	NSP_FONT_THIN = 0,
 	NSP_FONT_SPACE,
 	NSP_FONT_VGA,
 	NSP_FONT_FANTASY,
