@@ -312,12 +312,7 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 	this->hidden->h = current->h = height;
 	current->pitch = NSP_DBL_IF_CX(current->w);
 	current->pixels = this->hidden->buffer;
-#if !NSP_COLOR_LCD
-	if ( ! SDL_nCreatePalette(current) ) {
-		SDL_FreeSurface(current);
-		return(NULL);
-	}
-#endif
+
 	NSP_DPRINT("Done (0x%p)\n", current);
 
 	/* We're done */
@@ -395,8 +390,7 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 
 int NSP_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
 {
-	/* do nothing of note. */
-	return(1);
+	return(SDL_nCreatePalette(SDL_VideoSurface));
 }
 
 /* Note:  If we are terminated, this could be called in the middle of
