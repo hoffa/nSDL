@@ -1,4 +1,4 @@
-SDL for TI-Nspire calculators (version 0.1.1 beta)
+SDL for TI-Nspire calculators (version 0.1.2 beta)
 =============================
 
 Ported by Christoffer Rehn (christoffer.rehn@telenet.be)
@@ -12,9 +12,9 @@ Compile with:
 make clean all -f Makefile.nsp
 
 Todo:
-- Map more keys to SDLKs
 - Add mouse support
-- Add more font options
+- Map more keys to SDLKs
 - Handle the 16-bit timer better
-(- Add support for diagonal arrow keys in events & joystick)
-(- Merge changes from SDL 1.2.15)
+- Add support for diagonal arrow keys in events & joystick
+- Have a look at device->SetColors
+- Have a look at bit check from font load

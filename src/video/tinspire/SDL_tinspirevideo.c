@@ -124,14 +124,23 @@ int SDL_nDrawChar(SDL_Surface *surface, int c, SDL_Rect *pos, SDL_nFont *font) {
 }
 
 #define NSP_TAB_WIDTH_PXL	(NSP_TAB_WIDTH * NSP_FONT_WIDTH)
-int SDL_nDrawString(SDL_Surface *surface, char *s, int x, int y, SDL_nFont *font) {
-	int length = (int)strlen(s);
+#define NSP_BUF_SIZE	256
+
+int SDL_nDrawString(SDL_Surface *surface, SDL_nFont *font, int x, int y, const char *format, ...) {
+	int length;;
 	int i;
 	SDL_Rect pos;
+	char buffer[NSP_BUF_SIZE];
+	va_list args;
+
+	va_start(args, format);
+	vsprintf(buffer, format, args); /* FIXME: possibility of overflow */
+	va_end(args);
 	pos.x = x;
 	pos.y = y;
+	length = (int)strlen(buffer);
 	for ( i = 0; i < length; ++i ) {
-		switch ( s[i] ) {
+		switch ( buffer[i] ) {
 			case '\n':
 				pos.x = x;
 				pos.y += NSP_FONT_HEIGHT + font->vspacing;
@@ -145,13 +154,14 @@ int SDL_nDrawString(SDL_Surface *surface, char *s, int x, int y, SDL_nFont *font
 					pos.x = 0;
 					pos.y += NSP_FONT_HEIGHT + font->vspacing;
 				} else {
-					if ( SDL_nDrawChar(surface, (int)s[i], &pos, font) == -1 )
+					if ( SDL_nDrawChar(surface, (int)buffer[i], &pos, font) == -1 )
 						return(-1);
 					pos.x += NSP_FONT_WIDTH + font->hspacing;
 				}
 				break;
 		}
 	}
+
 	return(0);
 }
 
@@ -211,9 +221,16 @@ static SDL_VideoDevice *NSP_CreateDevice(int devindex)
 	device->SetIcon = NULL;
 	device->IconifyWindow = NULL;
 	device->GrabInput = NULL;
-	device->GetWMInfo = NULL;
 	device->InitOSKeymap = NSP_InitOSKeymap;
 	device->PumpEvents = NSP_PumpEvents;
+	device->GetWMInfo = NULL;
+	device->CreateWMCursor = NULL;
+	device->UpdateMouse = NULL;
+	device->FreeWMCursor = NULL;
+	device->ShowWMCursor = NULL;
+	device->WarpWMCursor = NULL;
+	device->MoveWMCursor = NULL;
+	device->CheckMouseMode = NULL;
 
 	device->free = NSP_DeleteDevice;
 

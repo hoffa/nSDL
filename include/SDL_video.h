@@ -269,7 +269,7 @@ int SDL_nCreatePalette(SDL_Surface *surface);
 SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags);
 void SDL_nFreeFont(SDL_nFont *font);
 int SDL_nDrawChar(SDL_Surface *surface, int c, SDL_Rect *pos, SDL_nFont *font);
-int SDL_nDrawString(SDL_Surface *surface, char *s, int x, int y, SDL_nFont *font);
+int SDL_nDrawString(SDL_Surface *surface, SDL_nFont *font, int x, int y, const char *format, ...);
 #endif
 
 /* Function prototypes */
