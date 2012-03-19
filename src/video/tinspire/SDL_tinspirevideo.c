@@ -87,7 +87,7 @@ SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags) {
 			return(NULL);
 		}
 #endif
-		if ( ! ( flags & NSP_FONT_OPAQUE ) )
+		if ( ! (flags & NSP_FONT_OPAQUE) )
 			if ( SDL_SetColorKey(char_surf, SDL_SRCCOLORKEY | SDL_RLEACCEL, 0) == -1 ) {
 				SDL_FreeSurface(char_surf);
 				return(NULL);
@@ -134,7 +134,7 @@ int SDL_nDrawString(SDL_Surface *surface, SDL_nFont *font, int x, int y, const c
 	va_list args;
 
 	va_start(args, format);
-	vsprintf(buffer, format, args); /* FIXME: possibility of overflow */
+	vsprintf(buffer, format, args); /* Warning: possibility of overflow */
 	va_end(args);
 	pos.x = x;
 	pos.y = y;
@@ -149,7 +149,7 @@ int SDL_nDrawString(SDL_Surface *surface, SDL_nFont *font, int x, int y, const c
 				pos.x += NSP_TAB_WIDTH_PXL - (pos.x % NSP_TAB_WIDTH_PXL);
 				break;
 			default:
-				if ( ( font->flags & NSP_FONT_TEXTWRAP )
+				if ( (font->flags & NSP_FONT_TEXTWRAP)
 				&& pos.x + NSP_FONT_WIDTH > surface->w ) {
 					pos.x = 0;
 					pos.y += NSP_FONT_HEIGHT + font->vspacing;
@@ -238,9 +238,12 @@ static SDL_VideoDevice *NSP_CreateDevice(int devindex)
 }
 
 VideoBootStrap NSP_bootstrap = {
-	"NSPVID", "SDL TI-Nspire video driver",
+	"tinspire", "SDL TI-Nspire video driver",
 	NSP_Available, NSP_CreateDevice
 };
+
+#define NSP_INCOMP_CALC_MSG(color_or_grayscale)	"Pixel format not supported.\nThis program has been " \
+						"compiled for TI-Nspire calculators with a " color_or_grayscale " display."
 
 int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 {
@@ -248,21 +251,17 @@ int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 	NSP_NL_RELOCDATA(nsp_font_charmaps, NSP_ARRAY_SIZE(nsp_font_charmaps));
 #if NSP_COLOR_LCD
 	if ( is_classic ) {
-		show_msgbox("SDL", "Pixel format not supported.\nThis program has been " \
-				"compiled for TI-Nspire calculators with a color display.");
+		show_msgbox(NSP_NAME_FULL, NSP_INCOMP_CALC_MSG("color"));
 		SDL_SetError("[NSP] Pixel format not supported");
 		return(-1);
 	}
 #else
 	if ( is_cx ) {
-		show_msgbox("SDL", "Pixel format not supported.\nThis program has been " \
-				"compiled for TI-Nspire calculators with a grayscale display.");
+		show_msgbox(NSP_NAME_FULL, NSP_INCOMP_CALC_MSG("grayscale"));
 		SDL_SetError("[NSP] Pixel format not supported");
 		return(-1);
 	}
 #endif
-	/* Non-CX is 4 BPP; if not CX we pretend it's 8 BPP and do the
-	conversion at the very end */
 	vformat->BitsPerPixel = NSP_BPP;
 	vformat->BytesPerPixel = vformat->BitsPerPixel / 8;
 	vformat->Rmask = NSP_RMASK;
@@ -351,9 +350,13 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 	Uint8 *src_addr, *dst_addr;
 	int rect_x, rect_y, rect_w, rect_h;
 	int i;
-#if !NSP_COLOR_LCD
-	int j;
-	int dst_skip = SDL_VideoSurface->w >> 1;
+#if NSP_COLOR_LCD
+	int src_skip = SDL_VideoSurface->pitch;
+	int dst_skip = SDL_VideoSurface->pitch;
+#else
+	int j, k;
+	int src_skip = SDL_VideoSurface->w;
+	int dst_skip = SDL_VideoSurface->w / 2;
 #endif
 	for ( i = 0; i < numrects; ++i ) {
 		SDL_Rect *rect = &rects[i];
@@ -375,19 +378,17 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 #if NSP_COLOR_LCD
 		dst_addr = (Uint8 *)(SCREEN_BASE_ADDRESS + rect_x + (rect_y * SDL_VideoSurface->w));
 #else
-		dst_addr = (Uint8 *)(SCREEN_BASE_ADDRESS + (rect_x >> 1) + ((rect_y >> 1) * SDL_VideoSurface->w));
+		dst_addr = (Uint8 *)(SCREEN_BASE_ADDRESS + (rect_x / 2) + ((rect_y / 2) * SDL_VideoSurface->w));
 #endif
 		while ( rect_h-- ) {
 #if NSP_COLOR_LCD
 			memcpy(dst_addr, src_addr, rect_w);
-			src_addr += SDL_VideoSurface->pitch;
-			dst_addr += SDL_VideoSurface->pitch;
 #else
-			for ( j = 0; j < rect_w; j += 2 )
-				dst_addr[j >> 1] = ((src_addr[j] >> 4) << 4) | (src_addr[j + 1] >> 4);
-			src_addr += SDL_VideoSurface->w;
-			dst_addr += dst_skip;
+			for ( j = 0, k = 0; j < rect_w; j += 2, ++k )
+				dst_addr[k] = ((src_addr[j] / 16) << 4) | (src_addr[j + 1] / 16);
 #endif
+			src_addr += src_skip;
+			dst_addr += dst_skip;
 		}
 	}
 }

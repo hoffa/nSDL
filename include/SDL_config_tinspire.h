@@ -42,23 +42,27 @@
 #define DEBUG_QSORT	1
 #define DEBUG_THREADS	1
 #define DEBUG_ERROR	1
-#define DEBUG_IMGLIB
+#define DEBUG_IMGLIB	1
 #endif
 
+#define NSP_NAME	"nSDL"
 #define NSP_VERSION	"0.1.2beta"
+#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION)
 #define NSP_JOYAXISVALUE	1
 #define NSP_TAB_WIDTH	4
 
 /* A few convenience macros */
 #define NSP_ARRAY_SIZE(array)	(sizeof(array) / sizeof(array[0]))
 #define NSP_NL_RELOCDATA(ptr, size)	nl_relocdata((unsigned *)(ptr), size)
+#define NSP_COL(col)	(8 * (col))
+#define NSP_ROW		NSP_COL
 
 #if NSP_COLOR_LCD
-#define NSP_DBL_IF_CX(n)	(n << 1)
+#define NSP_DBL_IF_CX(n)	(2 * n)
 #define NSP_BPP	16
 #define NSP_RMASK	0xF800
-#define NSP_GMASK	0x7E0
-#define NSP_BMASK	0x1F
+#define NSP_GMASK	0x07E0
+#define NSP_BMASK	0x001F
 #else
 #define NSP_BPP	8
 #define NSP_DBL_IF_CX(n)	(n)
@@ -70,7 +74,7 @@
 #if NSP_DEBUG
 #define NSP_DPRINT(fmt, args...)	fprintf(stderr, "[NSP] %s():%d: " fmt, __FUNCTION__, __LINE__, ## args)
 #else
-#define NSP_DPRINT(fmt, ...)
+#define NSP_DPRINT(fmt, args...)
 #endif
 
 #define SDL_HAS_64BIT_TYPE	1

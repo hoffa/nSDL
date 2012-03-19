@@ -42,13 +42,13 @@ void SDL_StartTicks(void)
 	*(volatile unsigned *)0x900B0018 &= ~(1 << 11);
 	*(volatile unsigned *)0x900C0080 = 0xA;
 #if NSP_COLOR_LCD
-	*control = 0b10100110;
+	*control = 0xA6;
 	start = *value;
 #else
-	*control = 0b10000;
+	*control = 0x10;
 	*(volatile unsigned *)0x900C0004 = 32;
 	*value = 0;
-	*control = 0b01111;
+	*control = 0x0F;
 #endif
 }
 

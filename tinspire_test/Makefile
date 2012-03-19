@@ -1,7 +1,7 @@
 CC = nspire-gcc
 LD = nspire-ld
 OBJCOPY = arm-none-eabi-objcopy
-CFLAGS = -Wall -Wextra -I../include
+CFLAGS = -Wall -Wextra -nostdlib -I../include
 LDFLAGS =
 
 SOURCES = tinspire_test.c

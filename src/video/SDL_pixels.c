@@ -313,7 +313,7 @@ Uint16 SDL_CalculatePitch(SDL_Surface *surface)
 Uint8 SDL_FindColor(SDL_Palette *pal, Uint8 r, Uint8 g, Uint8 b)
 {
 #ifdef __TINSPIRE__
-	return((r + (g << 1) + b) >> 2);
+	return((r + (2 * g) + b) / 4);
 #else
 	/* Do colorspace distance matching */
 	unsigned int smallest;
