@@ -28,7 +28,6 @@
 /* General platform specific identifiers */
 #include "SDL_platform.h"
 
-/* 1 if CX, 0 if Touchpad/Clickpad */
 #define NSP_COLOR_LCD	1
 
 #if 1

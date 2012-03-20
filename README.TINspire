@@ -16,5 +16,3 @@ Todo:
 - Map more keys to SDLKs
 - Handle the 16-bit timer better
 - Add support for diagonal arrow keys in events & joystick
-- Have a look at device->SetColors
-- Have a look at bit check from font load
