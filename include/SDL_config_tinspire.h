@@ -28,7 +28,7 @@
 /* General platform specific identifiers */
 #include "SDL_platform.h"
 
-#define NSP_COLOR_LCD	1
+#define NSP_COLOR_LCD	0
 
 #if 1
 #define NSP_DEBUG	1

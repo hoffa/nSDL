@@ -124,7 +124,7 @@ int SDL_nDrawChar(SDL_Surface *surface, int c, SDL_Rect *pos, SDL_nFont *font) {
 }
 
 #define NSP_TAB_WIDTH_PXL	(NSP_TAB_WIDTH * NSP_FONT_WIDTH)
-#define NSP_BUF_SIZE	256
+#define NSP_BUF_SIZE	512
 
 int SDL_nDrawString(SDL_Surface *surface, SDL_nFont *font, int x, int y, const char *format, ...) {
 	int length;;
