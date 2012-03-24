@@ -36,6 +36,7 @@ void NSP_PumpEvents(_THIS)
 {
 	BOOL key_pressed;
 	SDL_keysym keysym;
+	touchpad_report_t tp;
 	int i;
 	for ( i = 0; i < NSP_NUMKEYS; ++i ) {
 		keysym.scancode = i;
@@ -51,6 +52,9 @@ void NSP_PumpEvents(_THIS)
 			key_state[i] = SDL_RELEASED;
 		}
 	}
+	touchpad_scan(&tp);
+	if ( tp.x_velocity || tp.y_velocity )
+		SDL_PrivateMouseMotion(0, 0, tp.x_velocity, tp.y_velocity);
 }
 
 void NSP_InitOSKeymap(_THIS)

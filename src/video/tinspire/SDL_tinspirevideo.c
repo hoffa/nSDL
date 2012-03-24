@@ -119,7 +119,7 @@ void SDL_nFreeFont(SDL_nFont *font) {
 	SDL_free(font);
 }
 
-int SDL_nDrawChar(SDL_Surface *surface, int c, SDL_Rect *pos, SDL_nFont *font) {
+int SDL_nDrawChar(SDL_Surface *surface, SDL_nFont *font, SDL_Rect *pos, int c) {
 	return(SDL_BlitSurface(font->chars[c], NULL, surface, pos));
 }
 
@@ -154,7 +154,7 @@ int SDL_nDrawString(SDL_Surface *surface, SDL_nFont *font, int x, int y, const c
 					pos.x = 0;
 					pos.y += NSP_FONT_HEIGHT + font->vspacing;
 				} else {
-					if ( SDL_nDrawChar(surface, (int)buffer[i], &pos, font) == -1 )
+					if ( SDL_nDrawChar(surface, font, &pos, (int)buffer[i]) == -1 )
 						return(-1);
 					pos.x += NSP_FONT_WIDTH + font->hspacing;
 				}

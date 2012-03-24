@@ -1,17 +1,10 @@
 #include <os.h>
 #include <SDL.h>
 
-#define NUM_BLITS	10000
-
 int main(void) {
-	SDL_Surface *screen, *tmp, *image;
-	SDL_nFont *font_vga;
-	Uint32 start, end;
-	SDL_Rect pos;
-	int max_x;
-	int incdec;
-	int i;
-
+	SDL_Surface *screen;
+	SDL_nFont *font;
+	int done = 0;
 	if(SDL_Init(SDL_INIT_VIDEO) == -1) {
 		printf("SDL_Init error: %s\n", SDL_GetError());
 		return 1;
@@ -21,36 +14,26 @@ int main(void) {
 		printf("SDL_SetVideoMode error: %s\n", SDL_GetError());
 		return 1;
 	}
-	font_vga = SDL_nLoadFont(NSP_FONT_VGA, SDL_MapRGB(screen->format, 255, 0, 255), NSP_FONT_OPAQUE);
-	tmp = SDL_LoadBMP("Examples/image.bmp.tns");
-	if(tmp == NULL) {
-		printf("SDL_LoadBMP error: %s\n", SDL_GetError());
-		return 1;
+	font = SDL_nLoadFont(NSP_FONT_VGA, SDL_MapRGB(screen->format, 255, 255, 255), NSP_FONT_DEFAULT);
+	while(!done) {
+		SDL_Event event;
+		SDL_FillRect(screen, NULL, 0);
+		SDL_nDrawString(screen, font, NSP_COL(1), NSP_ROW(1), NSP_NAME_FULL);
+		SDL_WaitEvent(&event);
+		switch(event.type) {
+			case SDL_KEYDOWN:
+				if(event.key.keysym.sym == SDLK_ESCAPE)
+					done = 1;
+				break;
+			case SDL_MOUSEMOTION:
+				SDL_nDrawString(screen, font, NSP_COL(1), NSP_ROW(3), "mouse: %d\t%d", event.motion.x, event.motion.y);
+				break;
+			default:
+				break;
+		}
+		SDL_Flip(screen);
 	}
-	image = SDL_DisplayFormat(tmp);
-	SDL_FreeSurface(tmp);
-	incdec = 1;
-	max_x = SCREEN_WIDTH - image->w;
-	pos.x = 0;
-	pos.y = 0;
-	SDL_FillRect(screen, NULL, 0);
-	start = SDL_GetTicks();
-	for(i = 0; i < NUM_BLITS; ++i) {
-		SDL_BlitSurface(image, NULL, screen, &pos);
-		SDL_UpdateRect(screen, pos.x, pos.y, image->w, image->h);
-		pos.x += incdec;
-		if(pos.x == 0)
-			incdec = 1;
-		else if(pos.x == max_x)
-			incdec = -1;
-	}
-	end = SDL_GetTicks();
-	SDL_nDrawString(screen, font_vga, NSP_COL(1), NSP_ROW(1), "%s\n\n%d blits in %u ms", NSP_NAME_FULL, NUM_BLITS, (unsigned int)(end - start));
-	SDL_Flip(screen);
-	SDL_Delay(5000);
-	SDL_nFreeFont(font_vga);
-	SDL_FreeSurface(image);
+	SDL_nFreeFont(font);
 	SDL_Quit();
-
 	return 0;
 }
