@@ -12,10 +12,10 @@ nSDL includes a few useful TI-Nspire-only functions (i.e., functions not part of
 
 <tr><td><code>void</code></td><td><code>SDL_nFreeFont</code></td><td><pre>(SDL_nFont *font)</pre></td><td>Frees a font from memory.</td></tr>
 
-<tr><td><code>int</code></td><td><code>SDL_nDrawChar</code></td><td><pre>SDL_Surface *surface,
+<tr><td><code>int</code></td><td><code>SDL_nDrawChar</code></td><td><pre>(SDL_Surface *surface,
  SDL_nFont *font,
  SDL_Rect *pos,
- int c</pre></td><td>Draws a character to <code>surface</code>. Returns -1 if the character could not be drawn.</td></tr>
+ int c)</pre></td><td>Draws a character to <code>surface</code>. Returns -1 if the character could not be drawn.</td></tr>
 
 <tr><td><code>int</code></td><td><code>SDL_nDrawString</code></td><td><pre>
 (SDL_Surface *surface,
