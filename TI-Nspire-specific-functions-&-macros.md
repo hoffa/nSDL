@@ -4,14 +4,14 @@ nSDL includes a few useful TI-Nspire-only functions (i.e., functions not part of
 
 <tr><td><b>Return type</b></td><td><b>Name</b></td><td><b>Parameters</b></td><td><b>Notes</b></td></tr>
 
-<tr><td>`int`</td><td>`SDL_nCreatePalette`</td><td>`(SDL_Surface *surface)`</td><td>Should be used on surfaces explicitly created with `SDL_CreateRGBSurface()` if compiling for Touchpad/Clickpad models. Returns 0 if there was an error.</td></tr>
+<tr><td><code>int</code></td><td><code>SDL_nCreatePalette</code></td><td><code>(SDL_Surface *surface)</code></td><td>Should be used on surfaces explicitly created with <code>SDL_CreateRGBSurface()</code> if compiling for Touchpad/Clickpad models. Returns 0 if there was an error.</td></tr>
 
-<tr><td>`SDL_nFont *`</td><td>`SDL_nLoadFont`</td><td>`(int font_index, Uint32 color, Uint32 flags)`</td><td>Loads a font. `font_index` should be either `NSP_FONT_THIN`, `NSP_FONT_SPACE`, `NSP_FONT_VGA`, `NSP_FONT_FANTASY` or `NSP_FONT_TINYTYPE`. If `flags` is `NSP_FONT_DEFAULT`, default font settings are used (transparent background, no text wrap). Other possible values for `flags` are `NSP_FONT_OPAQUE` and `NSP_FONT_TEXTWRAP`, which can be OR'd together. Returns NULL if there was an error.</td></tr>
+<tr><td><code>SDL_nFont *</code></td><td><code>SDL_nLoadFont</code></td><td><code>(int font_index, Uint32 color, Uint32 flags)</code></td><td>Loads a font. <code>font_index</code> should be either <code>NSP_FONT_THIN</code>, <code>NSP_FONT_SPACE</code>, <code>NSP_FONT_VGA</code>, <code>NSP_FONT_FANTASY</code> or <code>NSP_FONT_TINYTYPE</code>. If <code>flags</code> is <code>NSP_FONT_DEFAULT</code>, default font settings are used (transparent background, no text wrap). Other possible values for <code>flags</code> are <code>NSP_FONT_OPAQUE</code> and <code>NSP_FONT_TEXTWRAP</code>, which can be OR'd together. Returns NULL if there was an error.</td></tr>
 
-<tr><td>`void`</td><td>`SDL_nFreeFont`</td><td>`(SDL_nFont *font)`</td><td>Frees a font from memory.</td></tr>
+<tr><td><code>void</code></td><td><code>SDL_nFreeFont</code></td><td><code>(SDL_nFont *font)</code></td><td>Frees a font from memory.</td></tr>
 
-<tr><td>`int`</td><td>`SDL_nDrawChar`</td><td>`(SDL_Surface *surface, SDL_nFont *font, SDL_Rect *pos, int c)`</td><td>Draws a character to `surface`. Returns -1 if the character could not be drawn.</td></tr>
+<tr><td><code>int</code></td><td><code>SDL_nDrawChar</code></td><td><code>(SDL_Surface *surface, SDL_nFont *font, SDL_Rect *pos, int c)</code></td><td>Draws a character to <code>surface</code>. Returns -1 if the character could not be drawn.</td></tr>
 
-<tr><td>`int`</td><td>`SDL_nDrawString`</td><td>`(SDL_Surface *surface, SDL_nFont *font, int x, int y, const char *format, ...)`</td><td>Draws a string to `surface`. Supports printf-like string formatting. Returns -1 if the whole string could not be drawn.</td></tr>
+<tr><td><code>int</code></td><td><code>SDL_nDrawString</code></td><td><code>(SDL_Surface *surface, SDL_nFont *font, int x, int y, const char *format, ...)</code></td><td>Draws a string to <code>surface</code>. Supports printf-like string formatting. Returns -1 if the whole string could not be drawn.</td></tr>
 
 </table>
