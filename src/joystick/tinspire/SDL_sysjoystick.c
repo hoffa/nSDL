@@ -101,7 +101,6 @@ int SDL_SYS_JoystickOpen(SDL_Joystick *joystick)
  */
 void SDL_SYS_JoystickUpdate(SDL_Joystick *joystick)
 {
-	BOOL key_pressed;
 	int i;
 
 	/* Update axes */
@@ -124,7 +123,7 @@ void SDL_SYS_JoystickUpdate(SDL_Joystick *joystick)
 
 	/* Update buttons */
 	for ( i = 0; i < NSP_NUMBUTTONS; ++i ) {
-		key_pressed = isKeyPressed(js_keymap[i]);
+		BOOL key_pressed = isKeyPressed(js_keymap[i]);
 		if ( jb_state[i] == SDL_RELEASED ) {
 			if ( key_pressed ) {
 				SDL_PrivateJoystickButton(joystick, i, SDL_PRESSED);

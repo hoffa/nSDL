@@ -11,7 +11,7 @@ ifneq ($(findstring cx,$(MAKECMDGOALS)),)
 	CFLAGS += -D NSP_COLOR_LCD
 	LIBS = -lSDL-CX
 else
-	LIBS = -lSDL
+	LIBS = -lSDL-TC
 endif
 
 cx: all
