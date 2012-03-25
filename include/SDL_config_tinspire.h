@@ -28,7 +28,7 @@
 /* General platform specific identifiers */
 #include "SDL_platform.h"
 
-#define NSP_COLOR_LCD	1
+/* NSP_COLOR_LCD should be defined through the compiler for simplicity's sake */
 
 #if 1
 #define NSP_DEBUG	1
@@ -45,7 +45,7 @@
 #endif
 
 #define NSP_NAME	"nSDL"
-#define NSP_VERSION	"0.1.3beta"
+#define NSP_VERSION	"0.1.4beta"
 #define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION)
 #define NSP_JOYAXISVALUE	1
 #define NSP_TAB_WIDTH	4

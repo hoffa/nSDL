@@ -1,8 +1,11 @@
 CC = nspire-gcc
 AR = arm-none-eabi-ar
 RANLIB = arm-none-eabi-ranlib
-INCLUDE = -Iinclude
+INCLUDE = -I include/
 CFLAGS = -Wall -Wextra -nostdlib -O3
+ifneq ($(findstring cx,$(MAKECMDGOALS)),)
+	CFLAGS += -D NSP_COLOR_LCD
+endif
 
 TARGET = libSDL.a
 CONFIG_H = include/SDL_config.h
@@ -63,6 +66,8 @@ SOURCES = \
 	src/video/tinspire/SDL_tinspirevideo.c
 OBJECTS = $(SOURCES:.c=.o)
 
+cx: all
+tc: all
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS)

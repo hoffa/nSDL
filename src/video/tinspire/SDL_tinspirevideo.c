@@ -249,6 +249,12 @@ int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 {
 	NSP_DPRINT("Initializing video format\n");
 	NSP_NL_RELOCDATA(nsp_font_charmaps, NSP_ARRAY_SIZE(nsp_font_charmaps));
+	vformat->BitsPerPixel = NSP_BPP;
+	vformat->BytesPerPixel = vformat->BitsPerPixel / 8;
+	vformat->Rmask = NSP_RMASK;
+	vformat->Gmask = NSP_GMASK;
+	vformat->Bmask = NSP_BMASK;
+
 #if NSP_COLOR_LCD
 	if ( is_classic ) {
 		show_msgbox(NSP_NAME_FULL, NSP_INCOMP_CALC_MSG("color"));
@@ -262,11 +268,6 @@ int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 		return(-1);
 	}
 #endif
-	vformat->BitsPerPixel = NSP_BPP;
-	vformat->BytesPerPixel = vformat->BitsPerPixel / 8;
-	vformat->Rmask = NSP_RMASK;
-	vformat->Gmask = NSP_GMASK;
-	vformat->Bmask = NSP_BMASK;
 
 	return(0);
 }
