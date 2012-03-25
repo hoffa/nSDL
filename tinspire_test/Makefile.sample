@@ -1,0 +1,29 @@
+SOURCES = foo.c bar.c
+TARGET = sample.tns
+OBJECTS = $(SOURCES:.c=.o)
+
+CC = nspire-gcc
+LD = nspire-ld
+OBJCOPY = arm-none-eabi-objcopy
+CFLAGS = -Wall -Wextra -nostdlib -O3
+LDFLAGS =
+ifneq ($(findstring cx,$(MAKECMDGOALS)),)
+	CFLAGS += -D NSP_COLOR_LCD
+	LIBS = -lSDL-CX
+else
+	LIBS = -lSDL
+endif
+
+cx: all
+tc: all
+all: $(TARGET)
+
+$(TARGET): $(OBJECTS)
+	$(LD) $(LDFLAGS) $^ $(LIBS) -o $(@:.tns=.elf)
+	$(OBJCOPY) -O binary $(@:.tns=.elf) $(TARGET)
+
+.c.o:
+	$(CC) $(CFLAGS) -c $< -o $@
+
+clean:
+	rm -f $(OBJECTS) *.elf
