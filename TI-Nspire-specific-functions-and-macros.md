@@ -9,7 +9,7 @@ nSDL includes a few useful TI-Nspire-only functions (i.e., functions not part of
 <tr><td><code>SDL_nFont *</code></td><td><code>SDL_nLoadFont</code></td><td><pre>
 (int font_index,
  Uint32 color,
- Uint32 flags)</pre></td><td>Loads a font. <code>font_index</code> should be either <code>NSP_FONT_THIN</code>, <code>NSP_FONT_SPACE</code>, <code>NSP_FONT_VGA</code>, <code>NSP_FONT_FANTASY</code> or <code>NSP_FONT_TINYTYPE</code>. If <code>flags</code> is <code>NSP_FONT_DEFAULT</code>, default font settings are used (transparent background, no text wrap). Other possible values for <code>flags</code> are <code>NSP_FONT_OPAQUE</code> and <code>NSP_FONT_TEXTWRAP</code>, which can be OR'd together. Returns NULL if there was an error.</td></tr>
+ Uint32 flags)</pre></td><td>Loads a font. <code>font_index</code> should be either <code>NSP_FONT_THIN</code>, <code>NSP_FONT_SPACE</code>, <code>NSP_FONT_VGA</code>, <code>NSP_FONT_FANTASY</code> or <code>NSP_FONT_TINYTYPE</code>. If <code>flags</code> is <code>NSP_FONT_DEFAULT</code>, default font settings are used (transparent background, no text wrap). Other possible values for <code>flags</code> are <code>NSP_FONT_OPAQUE</code> and <code>NSP_FONT_TEXTWRAP</code>, which can be OR'd together. Returns <code>NULL</code> if there was an error.</td></tr>
 
 <tr><td><code>void</code></td><td><code>SDL_nFreeFont</code></td><td><pre>(SDL_nFont *font)</pre></td><td>Frees a font from memory.</td></tr>
 
