@@ -258,14 +258,14 @@ int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 #if NSP_COLOR_LCD
 	if ( is_classic ) {
 		show_msgbox(NSP_NAME_FULL, NSP_INCOMP_CALC_MSG("color"));
-		SDL_SetError("[NSP] Pixel format not supported");
-		return(-1);
+		SDL_Quit();
+		exit(EXIT_FAILURE);
 	}
 #else
 	if ( is_cx ) {
 		show_msgbox(NSP_NAME_FULL, NSP_INCOMP_CALC_MSG("grayscale"));
-		SDL_SetError("[NSP] Pixel format not supported");
-		return(-1);
+		SDL_Quit();
+		exit(EXIT_FAILURE);
 	}
 #endif
 
