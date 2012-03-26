@@ -17,7 +17,7 @@ int main(void) {
 		return 1;
 	}
 	font_vga = SDL_nLoadFont(NSP_FONT_VGA, SDL_MapRGB(screen->format, 255, 255, 255), NSP_FONT_OPAQUE);
-	image = SDL_LoadBMP("Examples/image.bmp.tns");
+	image = SDL_LoadBMP("Examples/image.bmp");
 	while(!done) {
 		SDL_Event event;
 		SDL_FillRect(screen, NULL, 0);
