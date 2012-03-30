@@ -45,7 +45,7 @@
 #endif
 
 #define NSP_NAME	"nSDL"
-#define NSP_VERSION	"0.2.0beta"
+#define NSP_VERSION	"0.1.4beta"
 #define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION)
 #define NSP_JOYAXISVALUE	1
 #define NSP_TAB_WIDTH	4
@@ -71,9 +71,7 @@
 #endif
 
 #if NSP_DEBUG
-#define NSP_DPRINT(fmt, args...) \
-		fprintf(stderr, "[NSP] %s():%d: " fmt, \
-			__FUNCTION__, __LINE__, ## args)
+#define NSP_DPRINT(fmt, args...)	fprintf(stderr, "[NSP] %s():%d: " fmt, __FUNCTION__, __LINE__, ## args)
 #else
 #define NSP_DPRINT(fmt, args...)
 #endif

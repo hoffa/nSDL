@@ -23,7 +23,7 @@ int main(void) {
 		SDL_FillRect(screen, NULL, 0);
 		touchpad_scan(tp);
 		SDL_nDrawString(screen, font_vga, NSP_COL(1), NSP_ROW(1), "nSDL " NSP_VERSION " test program");
-		SDL_nDrawString(screen, font_vga, NSP_COL(1), NSP_ROW(3), "Mouse:\n Position: %d\t%d\n Velocity: %d\t%d\n Contact:  %d\n", tp->x, tp->y, (Sint8)tp->x_velocity, (Sint8)tp->y_velocity, tp->contact);
+		SDL_nDrawString(screen, font_vga, NSP_COL(1), NSP_ROW(3), "Mouse:\n Position: %d\t%d\n Velocity: %d\t%d\n Contact:  %d\n", tp->x, tp->y, (Sint8)tp->x_velocity, (Sint8)(-tp->y_velocity), tp->contact);
 		SDL_BlitSurface(image, NULL, screen, NULL);
 		SDL_Flip(screen);
 		while(SDL_PollEvent(&event))

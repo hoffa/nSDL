@@ -1,16 +1,18 @@
+SOURCES = foo.c bar.c
+TARGET = sample.tns
+OBJECTS = $(SOURCES:.c=.o)
+
 CC = nspire-gcc
 LD = nspire-ld
 OBJCOPY = arm-none-eabi-objcopy
-CFLAGS = -Wall -Wextra -nostdlib -I../include -O3
+CFLAGS = -Wall -Wextra -O3
 LDFLAGS =
 ifneq ($(findstring cx,$(MAKECMDGOALS)),)
 	CFLAGS += -D NSP_COLOR_LCD
+	LIBS = -lSDL-CX
+else
+	LIBS = -lSDL-TC
 endif
-
-SOURCES = tinspire_test.c
-OBJECTS = tinspire_test.o
-LIBS = ../libSDL.a
-TARGET = sdl_test.tns
 
 cx: all
 tc: all

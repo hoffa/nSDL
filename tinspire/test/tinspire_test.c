@@ -1,5 +1,6 @@
 #include <os.h>
 #include <SDL.h>
+#include "../../src/video/SDL_cursor_c.h"
 
 int main(void) {
 	SDL_Surface *screen;
@@ -18,19 +19,12 @@ int main(void) {
 	while(!done) {
 		SDL_Event event;
 		SDL_FillRect(screen, NULL, 0);
-		SDL_nDrawString(screen, font, NSP_COL(1), NSP_ROW(1), NSP_NAME_FULL);
+		SDL_nDrawString(screen, font, NSP_COL(5), NSP_ROW(5), "(%d,%d)", SDL_cursor->area.x, SDL_cursor->area.y);
+		//SDL_nDrawString(screen, font, NSP_COL(1), NSP_ROW(1), NSP_NAME_FULL);
+		//while(SDL_PollEvent(&event))
 		SDL_WaitEvent(&event);
-		switch(event.type) {
-			case SDL_KEYDOWN:
-				if(event.key.keysym.sym == SDLK_ESCAPE)
-					done = 1;
-				break;
-			case SDL_MOUSEMOTION:
-				SDL_nDrawString(screen, font, NSP_COL(1), NSP_ROW(3), "mouse: %d\t%d", event.motion.x, event.motion.y);
-				break;
-			default:
-				break;
-		}
+		if(event.key.keysym.sym == SDLK_TAB)
+			done = 1;
 		SDL_Flip(screen);
 	}
 	SDL_nFreeFont(font);

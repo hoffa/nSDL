@@ -177,7 +177,6 @@ void SDL_SetCursor (SDL_Cursor *cursor)
 
 	/* Prevent the event thread from moving the mouse */
 	SDL_LockCursor();
-
 	/* Set the new cursor */
 	if ( cursor && (cursor != SDL_cursor) ) {
 		/* Erase the current mouse position */

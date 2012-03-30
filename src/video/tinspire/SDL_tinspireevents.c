@@ -36,7 +36,15 @@ void NSP_PumpEvents(_THIS)
 {
 	BOOL key_pressed;
 	SDL_keysym keysym;
+	touchpad_report_t tp;
+	Sint8 mouse_dx, mouse_dy;
 	int i;
+
+	touchpad_scan(&tp);
+	mouse_dx = (Sint8)tp.x_velocity;
+	mouse_dy = -((Sint8)tp.y_velocity);
+	if ( mouse_dx || mouse_dy )
+		SDL_PrivateMouseMotion(0, SDL_TRUE, (Sint16)mouse_dx, (Sint16)mouse_dy);
 
 	for ( i = 0; i < NSP_NUMKEYS; ++i ) {
 		keysym.scancode = i;

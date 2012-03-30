@@ -1,15 +1,11 @@
-SDL for TI-Nspire calculators (version 0.1.4 beta)
+SDL for TI-Nspire calculators (version 0.2.0 beta)
 =============================
 
 Ported by Christoffer Rehn (christoffer.rehn@telenet.be)
 
-Ndless 3.1 is required to use SDL on the TI-Nspire calculators. All models
-should be compatible, although you need to change the NSP_COLOR_LCD macro in
-include/SDL_config_tinspire.h based on what calculator model (i.e., CX or not)
-you are building for.
-
 Compile with:
-make clean all -f Makefile.nsp
+make cx -f Makefile.nsp (CX)
+make tc -f Makefile.nsp (Touchpad/Clickpad)
 
 Todo:
 - Add mouse support

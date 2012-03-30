@@ -26,6 +26,7 @@
 #include "../SDL_sysvideo.h"
 #include "../SDL_pixels_c.h"
 #include "../../events/SDL_events_c.h"
+#include "../SDL_cursor_c.h"
 
 #include "SDL_tinspirevideo.h"
 #include "SDL_tinspireevents_c.h"
@@ -354,6 +355,7 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 	int src_skip = SDL_VideoSurface->w;
 	int dst_skip = SDL_VideoSurface->w / 2;
 #endif
+
 	for ( i = 0; i < numrects; ++i ) {
 		SDL_Rect *rect = &rects[i];
 		if ( ! rect )
