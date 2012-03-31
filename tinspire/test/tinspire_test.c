@@ -16,15 +16,16 @@ int main(void) {
 		return 1;
 	}
 	font = SDL_nLoadFont(NSP_FONT_VGA, SDL_MapRGB(screen->format, 255, 255, 255), NSP_FONT_DEFAULT);
+	SDL_DrawCursor(SDL_cursor);
 	while(!done) {
 		SDL_Event event;
 		SDL_FillRect(screen, NULL, 0);
-		SDL_nDrawString(screen, font, NSP_COL(5), NSP_ROW(5), "(%d,%d)", SDL_cursor->area.x, SDL_cursor->area.y);
 		//SDL_nDrawString(screen, font, NSP_COL(1), NSP_ROW(1), NSP_NAME_FULL);
 		//while(SDL_PollEvent(&event))
 		SDL_WaitEvent(&event);
-		if(event.key.keysym.sym == SDLK_TAB)
+		if(event.key.keysym.sym == SDLK_ESCAPE)
 			done = 1;
+		SDL_nDrawString(screen, font, NSP_COL(5), NSP_ROW(5), "(%d,%d)", SDL_cursor->area.x, SDL_cursor->area.y);
 		SDL_Flip(screen);
 	}
 	SDL_nFreeFont(font);
