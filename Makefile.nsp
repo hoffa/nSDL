@@ -79,4 +79,4 @@ $(TARGET): $(OBJECTS)
 	$(CC) $(INCLUDE) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJECTS)
+	rm -f $(OBJECTS) $(TARGET)

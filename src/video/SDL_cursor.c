@@ -654,6 +654,7 @@ void SDL_DrawCursor(SDL_Surface *screen)
 	if ( SDL_MUSTLOCK(screen) ) {
 		SDL_UnlockSurface(screen);
 	}
+
 	if ( (screen == SDL_VideoSurface) &&
 	     ((screen->flags & SDL_HWSURFACE) != SDL_HWSURFACE) ) {
 		SDL_VideoDevice *video = current_video;

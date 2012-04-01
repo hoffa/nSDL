@@ -15,8 +15,15 @@ int main(void) {
 		printf("SDL_SetVideoMode error: %s\n", SDL_GetError());
 		return 1;
 	}
-	font = SDL_nLoadFont(NSP_FONT_VGA, SDL_MapRGB(screen->format, 255, 255, 255), NSP_FONT_DEFAULT);
-	SDL_DrawCursor(SDL_cursor);
+	font = SDL_nLoadFont(NSP_FONT_THIN, SDL_MapRGB(screen->format, 255, 255, 255),
+		NSP_FONT_TEXTWRAP | NSP_FONT_AUTOSIZE);
+	SDL_FillRect(screen, NULL, 0);
+	SDL_nDrawString(screen, font, NSP_COL(0), NSP_ROW(1),
+		"The quick brown fox jumps over the lazy dog.");
+	SDL_Flip(screen);
+	SDL_Delay(5000);
+#if 0
+	SDL_DrawCursor(screen);
 	while(!done) {
 		SDL_Event event;
 		SDL_FillRect(screen, NULL, 0);
@@ -28,6 +35,7 @@ int main(void) {
 		SDL_nDrawString(screen, font, NSP_COL(5), NSP_ROW(5), "(%d,%d)", SDL_cursor->area.x, SDL_cursor->area.y);
 		SDL_Flip(screen);
 	}
+#endif
 	SDL_nFreeFont(font);
 	SDL_Quit();
 	return 0;

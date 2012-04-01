@@ -78,25 +78,30 @@ SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags) {
 	}
 	for ( i = 0; i < NSP_FONT_NUMCHARS; ++i ) {
 		int offset = i << 3;
+		int max_width = 0;
 		SDL_Surface *char_surf = SDL_CreateRGBSurface(SDL_SWSURFACE, NSP_FONT_WIDTH,
 			NSP_FONT_HEIGHT, NSP_BPP, NSP_RMASK, NSP_GMASK, NSP_BMASK, 0);
 		if ( char_surf == NULL )
 			return(NULL);
+		font->char_width[i] = NSP_FONT_WIDTH;
 #if !NSP_COLOR_LCD
 		if ( ! SDL_nCreatePalette(char_surf) ) {
 			SDL_FreeSurface(char_surf);
 			return(NULL);
 		}
 #endif
-		if ( ! (flags & NSP_FONT_OPAQUE) )
-			if ( SDL_SetColorKey(char_surf, SDL_SRCCOLORKEY | SDL_RLEACCEL, 0) == -1 ) {
-				SDL_FreeSurface(char_surf);
-				return(NULL);
-			}
+		if ( SDL_SetColorKey(char_surf, SDL_SRCCOLORKEY | SDL_RLEACCEL, 0) == -1 ) {
+			SDL_FreeSurface(char_surf);
+			return(NULL);
+		}
 		SDL_LockSurface(char_surf);
 		for ( j = 0; j < 8; ++j )
 			for ( k = 0; k < 8; ++k ) {
-				if ( charmap[offset + j] & (1 << (7 - k)) ) {
+				if ( charmap[offset + j] & (1 << (7 - k)) ) { /* "Pixel" set */
+					if ( k > max_width ) {
+						font->char_width[i] = k + 1;
+						max_width = k;
+					}
 #if NSP_COLOR_LCD
 					*(Uint16 *)(char_surf->pixels + (k << 1) + (j << 4)) = (Uint16)color;
 #else
@@ -106,7 +111,7 @@ SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags) {
 			}
 		SDL_UnlockSurface(char_surf);
 		font->chars[i] = char_surf;
-		font->hspacing = 0;
+		font->hspacing = 1;
 		font->vspacing = 0;
 		font->flags = flags;
 	}
@@ -121,14 +126,18 @@ void SDL_nFreeFont(SDL_nFont *font) {
 }
 
 int SDL_nDrawChar(SDL_Surface *surface, SDL_nFont *font, SDL_Rect *pos, int c) {
-	return(SDL_BlitSurface(font->chars[c], NULL, surface, pos));
+	SDL_Rect rect = {0, 0};
+	rect.w = font->char_width[c] + 1;
+	rect.h = NSP_FONT_HEIGHT;
+	return(SDL_BlitSurface(font->chars[c], &rect, surface, pos));
 }
 
 #define NSP_TAB_WIDTH_PXL	(NSP_TAB_WIDTH * NSP_FONT_WIDTH)
 #define NSP_BUF_SIZE	512
 
 int SDL_nDrawString(SDL_Surface *surface, SDL_nFont *font, int x, int y, const char *format, ...) {
-	int length;;
+	int length;
+	int char_w = NSP_FONT_WIDTH;
 	int i;
 	SDL_Rect pos;
 	char buffer[NSP_BUF_SIZE];
@@ -137,10 +146,13 @@ int SDL_nDrawString(SDL_Surface *surface, SDL_nFont *font, int x, int y, const c
 	va_start(args, format);
 	vsprintf(buffer, format, args); /* Warning: possibility of overflow */
 	va_end(args);
+
 	pos.x = x;
 	pos.y = y;
 	length = (int)strlen(buffer);
 	for ( i = 0; i < length; ++i ) {
+		if ( font->flags & NSP_FONT_AUTOSIZE )
+			char_w = font->char_width[buffer[i]];
 		switch ( buffer[i] ) {
 			case '\n':
 				pos.x = x;
@@ -150,14 +162,15 @@ int SDL_nDrawString(SDL_Surface *surface, SDL_nFont *font, int x, int y, const c
 				pos.x += NSP_TAB_WIDTH_PXL - (pos.x % NSP_TAB_WIDTH_PXL);
 				break;
 			default:
-				if ( (font->flags & NSP_FONT_TEXTWRAP)
-				&& pos.x + NSP_FONT_WIDTH > surface->w ) {
-					pos.x = 0;
-					pos.y += NSP_FONT_HEIGHT + font->vspacing;
-				} else {
-					if ( SDL_nDrawChar(surface, font, &pos, (int)buffer[i]) == -1 )
-						return(-1);
-					pos.x += NSP_FONT_WIDTH + font->hspacing;
+				if ( SDL_nDrawChar(surface, font, &pos, (int)buffer[i]) == -1 )
+					return(-1);
+				if ( i < length - 1 ) {
+					if ( (font->flags & NSP_FONT_TEXTWRAP)
+					&& pos.x + char_w + font->hspacing + font->char_width[buffer[i + 1]] >= surface->w ) {
+						pos.x = 0;
+						pos.y += NSP_FONT_HEIGHT + font->vspacing;
+					} else
+						pos.x += char_w + font->hspacing;
 				}
 				break;
 		}
@@ -243,12 +256,13 @@ VideoBootStrap NSP_bootstrap = {
 	NSP_Available, NSP_CreateDevice
 };
 
-#define NSP_INCOMP_CALC_MSG(color_or_grayscale)	"Pixel format not supported.\nThis program has been " \
+#define NSP_MSG_INCOMP_CALC(color_or_grayscale)	"Pixel format not supported.\nThis program has been " \
 						"compiled for TI-Nspire calculators with a " color_or_grayscale " display."
 
 int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 {
 	NSP_DPRINT("Initializing video format\n");
+
 	NSP_NL_RELOCDATA(nsp_font_charmaps, NSP_ARRAY_SIZE(nsp_font_charmaps));
 	vformat->BitsPerPixel = NSP_BPP;
 	vformat->BytesPerPixel = vformat->BitsPerPixel / 8;
@@ -258,13 +272,13 @@ int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 
 #if NSP_COLOR_LCD
 	if ( is_classic ) {
-		show_msgbox(NSP_NAME_FULL, NSP_INCOMP_CALC_MSG("color"));
+		show_msgbox(NSP_NAME_FULL, NSP_MSG_INCOMP_CALC("color"));
 		SDL_Quit();
 		exit(EXIT_FAILURE);
 	}
 #else
 	if ( is_cx ) {
-		show_msgbox(NSP_NAME_FULL, NSP_INCOMP_CALC_MSG("grayscale"));
+		show_msgbox(NSP_NAME_FULL, NSP_MSG_INCOMP_CALC("grayscale"));
 		SDL_Quit();
 		exit(EXIT_FAILURE);
 	}
@@ -292,13 +306,13 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 		SDL_free( this->hidden->buffer );
 	}
 
-	this->hidden->buffer = SDL_malloc(NSP_DBL_IF_CX(width * height));
+	this->hidden->buffer = SDL_malloc(NSP_2x_IF_CX(width * height));
 	if ( ! this->hidden->buffer ) {
 		SDL_SetError("Couldn't allocate buffer for requested mode");
 		return(NULL);
 	}
 
-	memset(this->hidden->buffer, 0, NSP_DBL_IF_CX(width * height));
+	memset(this->hidden->buffer, 0, NSP_2x_IF_CX(width * height));
 
 	/* Allocate the new pixel format for the screen */
 	if ( ! SDL_ReallocFormat(current, bpp, NSP_RMASK, NSP_GMASK, NSP_BMASK, 0) ) {
@@ -312,7 +326,7 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 	current->flags = flags;
 	this->hidden->w = current->w = width;
 	this->hidden->h = current->h = height;
-	current->pitch = NSP_DBL_IF_CX(current->w);
+	current->pitch = NSP_2x_IF_CX(current->w);
 	current->pixels = this->hidden->buffer;
 
 	NSP_DPRINT("Done (0x%p)\n", current);
@@ -360,17 +374,19 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 		SDL_Rect *rect = &rects[i];
 		if ( ! rect )
 			continue;
-#if !NSP_COLOR_LCD
-		/* Single nibbles go to hell! */
+
+		/* Single nibbles go to hell! (not required for CX, but keeps
+		   everything consistent) */
 		if ( rect->x & 1 )
 			--rect->x;
 		if ( rect->w & 1 )
 			++rect->w;
-#endif
-		rect_x = NSP_DBL_IF_CX(rect->x);
-		rect_y = NSP_DBL_IF_CX(rect->y);
-		rect_w = NSP_DBL_IF_CX(rect->w);
+
+		rect_x = NSP_2x_IF_CX(rect->x);
+		rect_y = NSP_2x_IF_CX(rect->y);
+		rect_w = NSP_2x_IF_CX(rect->w);
 		rect_h = rect->h;
+
 		/* NSP_DPRINT("Updating: (%d, %d) %dx%d\n", rect->x, rect->y, rect->w, rect->h); */
 		src_addr = (Uint8 *)(SDL_VideoSurface->pixels + rect_x + (rect_y * SDL_VideoSurface->w));
 #if NSP_COLOR_LCD

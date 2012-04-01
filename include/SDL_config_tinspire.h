@@ -57,14 +57,14 @@
 #define NSP_ROW		NSP_COL
 
 #if NSP_COLOR_LCD
-#define NSP_DBL_IF_CX(n)	(2 * n)
+#define NSP_2x_IF_CX(n)	(2 * n)
 #define NSP_BPP	16
 #define NSP_RMASK	0xF800
 #define NSP_GMASK	0x07E0
 #define NSP_BMASK	0x001F
 #else
+#define NSP_2x_IF_CX(n)	(n)
 #define NSP_BPP	8
-#define NSP_DBL_IF_CX(n)	(n)
 #define NSP_RMASK	0
 #define NSP_GMASK	0
 #define NSP_BMASK	0
@@ -221,8 +221,8 @@ enum {
 /* Font flags */
 enum {
 	NSP_FONT_DEFAULT = 0,
-	NSP_FONT_OPAQUE = 1,
-	NSP_FONT_TEXTWRAP = 2
+	NSP_FONT_TEXTWRAP = 1,
+	NSP_FONT_AUTOSIZE = 2
 };
 
 /* Fonts; needs to match nsp_font_charmaps in SDL_tinspirevideo.c */

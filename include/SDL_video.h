@@ -261,6 +261,7 @@ typedef enum {
 
 typedef struct SDL_nFont {
     SDL_Surface *chars[NSP_FONT_NUMCHARS];
+    Uint8 char_width[NSP_FONT_NUMCHARS];
     int hspacing, vspacing;
     Uint32 flags;
 } SDL_nFont;
