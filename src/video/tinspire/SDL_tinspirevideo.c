@@ -111,11 +111,16 @@ SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags) {
 			}
 		SDL_UnlockSurface(char_surf);
 		font->chars[i] = char_surf;
-		font->hspacing = 1;
-		font->vspacing = 0;
+		font->hspacing = NSP_HSPACING_DEFAULT;
+		font->vspacing = NSP_VSPACING_DEFAULT;
 		font->flags = flags;
 	}
 	return(font);
+}
+
+void SDL_nSetFontSpacing(SDL_nFont *font, int hspacing, int vspacing) {
+	font->hspacing = hspacing;
+	font->vspacing = vspacing;
 }
 
 void SDL_nFreeFont(SDL_nFont *font) {
@@ -127,7 +132,7 @@ void SDL_nFreeFont(SDL_nFont *font) {
 
 int SDL_nDrawChar(SDL_Surface *surface, SDL_nFont *font, SDL_Rect *pos, int c) {
 	SDL_Rect rect = {0, 0};
-	rect.w = font->char_width[c] + 1;
+	rect.w = font->char_width[c];
 	rect.h = NSP_FONT_HEIGHT;
 	return(SDL_BlitSurface(font->chars[c], &rect, surface, pos));
 }
