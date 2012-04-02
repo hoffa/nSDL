@@ -26,7 +26,7 @@
 #include "SDL_timer.h"
 #include "../SDL_timer_c.h"
 
-#if NSP_COLOR_LCD
+#if NSP_CX
 static volatile unsigned *value = (unsigned *)0x900C0004;
 static volatile unsigned *control = (unsigned *)0x900C0008;
 #else
@@ -41,7 +41,7 @@ void SDL_StartTicks(void)
 {
 	*(volatile unsigned *)0x900B0018 &= ~(1 << 11);
 	*(volatile unsigned *)0x900C0080 = 0xA;
-#if NSP_COLOR_LCD
+#if NSP_CX
 	*control = 0xA6;
 	start = *value;
 #else
@@ -54,7 +54,7 @@ void SDL_StartTicks(void)
 
 Uint32 SDL_GetTicks (void)
 {
-#if NSP_COLOR_LCD
+#if NSP_CX
 	return((start - *value) >> 1);
 #else
 	tick_sum += *value;

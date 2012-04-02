@@ -20,8 +20,8 @@
     slouken@libsdl.org
 */
 
+#include "SDL.h"
 #include "SDL_config.h"
-#include "SDL_video.h"
 #include "SDL_mouse.h"
 #include "../SDL_sysvideo.h"
 #include "../SDL_pixels_c.h"
@@ -84,7 +84,7 @@ SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags) {
 		if ( char_surf == NULL )
 			return(NULL);
 		font->char_width[i] = NSP_FONT_WIDTH;
-#if !NSP_COLOR_LCD
+#if !NSP_CX_16BIT
 		if ( ! SDL_nCreatePalette(char_surf) ) {
 			SDL_FreeSurface(char_surf);
 			return(NULL);
@@ -102,7 +102,7 @@ SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags) {
 						font->char_width[i] = k + 1;
 						max_width = k;
 					}
-#if NSP_COLOR_LCD
+#if NSP_CX_16BIT
 					*(Uint16 *)(char_surf->pixels + (k << 1) + (j << 4)) = (Uint16)color;
 #else
 					*(Uint8 *)(char_surf->pixels + k + (j << 3)) = (Uint8)color;
@@ -131,7 +131,7 @@ void SDL_nFreeFont(SDL_nFont *font) {
 }
 
 int SDL_nDrawChar(SDL_Surface *surface, SDL_nFont *font, SDL_Rect *pos, int c) {
-	SDL_Rect rect = {0, 0};
+	SDL_Rect rect = {0, 0, 0, 0};
 	rect.w = font->char_width[c];
 	rect.h = NSP_FONT_HEIGHT;
 	return(SDL_BlitSurface(font->chars[c], &rect, surface, pos));
@@ -157,7 +157,7 @@ int SDL_nDrawString(SDL_Surface *surface, SDL_nFont *font, int x, int y, const c
 	length = (int)strlen(buffer);
 	for ( i = 0; i < length; ++i ) {
 		if ( font->flags & NSP_FONT_AUTOSIZE )
-			char_w = font->char_width[buffer[i]];
+			char_w = font->char_width[(int)buffer[i]];
 		switch ( buffer[i] ) {
 			case '\n':
 				pos.x = x;
@@ -171,7 +171,7 @@ int SDL_nDrawString(SDL_Surface *surface, SDL_nFont *font, int x, int y, const c
 					return(-1);
 				if ( i < length - 1 ) {
 					if ( (font->flags & NSP_FONT_TEXTWRAP)
-					&& pos.x + char_w + font->hspacing + font->char_width[buffer[i + 1]] >= surface->w ) {
+					&& pos.x + char_w + font->hspacing + font->char_width[(int)buffer[i + 1]] >= surface->w ) {
 						pos.x = 0;
 						pos.y += NSP_FONT_HEIGHT + font->vspacing;
 					} else
@@ -257,7 +257,7 @@ static SDL_VideoDevice *NSP_CreateDevice(int devindex)
 }
 
 VideoBootStrap NSP_bootstrap = {
-	"tinspire", "SDL TI-Nspire video driver",
+	"NSPVID", "SDL TI-Nspire video driver",
 	NSP_Available, NSP_CreateDevice
 };
 
@@ -270,12 +270,12 @@ int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 
 	NSP_NL_RELOCDATA(nsp_font_charmaps, NSP_ARRAY_SIZE(nsp_font_charmaps));
 	vformat->BitsPerPixel = NSP_BPP;
-	vformat->BytesPerPixel = vformat->BitsPerPixel / 8;
+	vformat->BytesPerPixel = NSP_BYTESPP;
 	vformat->Rmask = NSP_RMASK;
 	vformat->Gmask = NSP_GMASK;
 	vformat->Bmask = NSP_BMASK;
 
-#if NSP_COLOR_LCD
+#if NSP_CX
 	if ( is_classic ) {
 		show_msgbox(NSP_NAME_FULL, NSP_MSG_INCOMP_CALC("color"));
 		SDL_Quit();
@@ -300,24 +300,24 @@ SDL_Rect **NSP_ListModes(_THIS, SDL_PixelFormat *format, Uint32 flags)
 SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 				int width, int height, int bpp, Uint32 flags)
 {
+	NSP_DPRINT("Initializing display (%dx%dx%d)\n", width, height, bpp);
+
 	if ( bpp <= 8 )
 		bpp = 8;
 	else
 		bpp = 16;
 
-	NSP_DPRINT("Initializing display (%dx%dx%d)\n", width, height, bpp);
-
 	if ( this->hidden->buffer ) {
 		SDL_free( this->hidden->buffer );
 	}
 
-	this->hidden->buffer = SDL_malloc(NSP_2x_IF_CX(width * height));
+	this->hidden->buffer = SDL_malloc(NSP_BYTESPP * width * height);
 	if ( ! this->hidden->buffer ) {
 		SDL_SetError("Couldn't allocate buffer for requested mode");
 		return(NULL);
 	}
 
-	memset(this->hidden->buffer, 0, NSP_2x_IF_CX(width * height));
+	memset(this->hidden->buffer, 0, NSP_BYTESPP * width * height);
 
 	/* Allocate the new pixel format for the screen */
 	if ( ! SDL_ReallocFormat(current, bpp, NSP_RMASK, NSP_GMASK, NSP_BMASK, 0) ) {
@@ -331,7 +331,7 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 	current->flags = flags;
 	this->hidden->w = current->w = width;
 	this->hidden->h = current->h = height;
-	current->pitch = NSP_2x_IF_CX(current->w);
+	current->pitch = NSP_BYTESPP * current->w;
 	current->pixels = this->hidden->buffer;
 
 	NSP_DPRINT("Done (0x%p)\n", current);
@@ -361,18 +361,27 @@ static void NSP_UnlockHWSurface(_THIS, SDL_Surface *surface)
 	return;
 }
 
+#define NSP_8TO16(r, g, b)	(((r / 8) << 11) | ((g / 4) << 5) | (b / 8))
+
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 {
-	Uint8 *src_addr, *dst_addr;
+	Uint8 *src_addr;
 	int rect_x, rect_y, rect_w, rect_h;
-	int i;
-#if NSP_COLOR_LCD
+	int i, j, k;
+#if NSP_CX_16BIT
 	int src_skip = SDL_VideoSurface->pitch;
-	int dst_skip = SDL_VideoSurface->pitch;
 #else
-	int j, k;
 	int src_skip = SDL_VideoSurface->w;
+#if NSP_CX_8BIT
+	SDL_Palette *palette = SDL_VideoSurface->format->palette;
+#endif
+#endif
+#if NSP_CX
+	int dst_skip = SDL_VideoSurface->w;
+	Uint16 *dst_addr;
+#else
 	int dst_skip = SDL_VideoSurface->w / 2;
+	Uint8 *dst_addr;
 #endif
 
 	for ( i = 0; i < numrects; ++i ) {
@@ -387,21 +396,25 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 		if ( rect->w & 1 )
 			++rect->w;
 
-		rect_x = NSP_2x_IF_CX(rect->x);
-		rect_y = NSP_2x_IF_CX(rect->y);
-		rect_w = NSP_2x_IF_CX(rect->w);
+		rect_w = NSP_BYTESPP * rect->w;
 		rect_h = rect->h;
 
 		/* NSP_DPRINT("Updating: (%d, %d) %dx%d\n", rect->x, rect->y, rect->w, rect->h); */
-		src_addr = (Uint8 *)(SDL_VideoSurface->pixels + rect_x + (rect_y * SDL_VideoSurface->w));
-#if NSP_COLOR_LCD
-		dst_addr = (Uint8 *)(SCREEN_BASE_ADDRESS + rect_x + (rect_y * SDL_VideoSurface->w));
+		src_addr = (Uint8 *)(SDL_VideoSurface->pixels + (NSP_BYTESPP * rect->x)
+			 + ((NSP_BYTESPP * rect->y) * SDL_VideoSurface->w));
+#if NSP_CX
+		dst_addr = (Uint16 *)(SCREEN_BASE_ADDRESS + rect->x + (rect->y * SDL_VideoSurface->w));
 #else
-		dst_addr = (Uint8 *)(SCREEN_BASE_ADDRESS + (rect_x / 2) + ((rect_y / 2) * SDL_VideoSurface->w));
+		dst_addr = (Uint8 *)(SCREEN_BASE_ADDRESS + rect->x + (rect->y * SDL_VideoSurface->w));
 #endif
 		while ( rect_h-- ) {
-#if NSP_COLOR_LCD
+#if NSP_CX_16BIT
 			memcpy(dst_addr, src_addr, rect_w);
+#elif NSP_CX_8BIT
+			for ( j = 0; j < rect->w; ++j ) {
+				SDL_Color color = palette->colors[src_addr[j]];
+				dst_addr[j] = NSP_8TO16(color.r, color.g, color.b);
+			}
 #else
 			for ( j = 0, k = 0; j < rect_w; j += 2, ++k )
 				dst_addr[k] = ((src_addr[j] / 16) << 4) | (src_addr[j + 1] / 16);

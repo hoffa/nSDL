@@ -3,8 +3,12 @@ AR = arm-none-eabi-ar
 RANLIB = arm-none-eabi-ranlib
 INCLUDE = -I include/
 CFLAGS = -Wall -Wextra -nostdlib -O3
-ifneq ($(findstring cx,$(MAKECMDGOALS)),)
-	CFLAGS += -D NSP_COLOR_LCD
+ifneq ($(findstring cx8,$(MAKECMDGOALS)),)
+	CFLAGS += -D NSP_CX_8BIT
+else
+	ifneq ($(findstring cx,$(MAKECMDGOALS)),)
+		CFLAGS += -D NSP_CX_16BIT
+	endif
 endif
 
 TARGET = libSDL.a
@@ -67,6 +71,7 @@ SOURCES = \
 OBJECTS = $(SOURCES:.c=.o)
 
 cx: all
+cx8: all
 tc: all
 all: $(TARGET)
 

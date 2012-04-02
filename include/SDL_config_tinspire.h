@@ -28,7 +28,14 @@
 /* General platform specific identifiers */
 #include "SDL_platform.h"
 
-/* NSP_COLOR_LCD should be defined through the compiler for simplicity's sake */
+/* NSP_CX_16BIT and NSP_CX_8BIT should be defined through the compiler for simplicity's sake.
+   Note: only one of either two should be defined. */
+
+#define NSP_CX_8BIT	1
+
+#if NSP_CX_16BIT || NSP_CX_8BIT
+#define NSP_CX	1
+#endif
 
 #if 1
 #define NSP_DEBUG	1
@@ -46,7 +53,13 @@
 
 #define NSP_NAME	"nSDL"
 #define NSP_VERSION	"0.2.0beta"
-#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION)
+#if NSP_CX_16BIT
+#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION " CX-16")
+#elif NSP_CX_8BIT
+#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION " CX-8")
+#else
+#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION " TC-8")
+#endif
 #define NSP_JOYAXISVALUE	1
 #define NSP_TAB_WIDTH	4
 
@@ -56,19 +69,18 @@
 #define NSP_COL(col)	(8 * (col))
 #define NSP_ROW		NSP_COL
 
-#if NSP_COLOR_LCD
-#define NSP_2x_IF_CX(n)	(2 * n)
+#if NSP_CX_16BIT
 #define NSP_BPP	16
 #define NSP_RMASK	0xF800
 #define NSP_GMASK	0x07E0
 #define NSP_BMASK	0x001F
 #else
-#define NSP_2x_IF_CX(n)	(n)
 #define NSP_BPP	8
 #define NSP_RMASK	0
 #define NSP_GMASK	0
 #define NSP_BMASK	0
 #endif
+#define NSP_BYTESPP	(NSP_BPP / 8)
 
 #if NSP_DEBUG
 #define NSP_DPRINT(fmt, args...) \

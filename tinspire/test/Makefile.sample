@@ -8,7 +8,7 @@ OBJCOPY = arm-none-eabi-objcopy
 CFLAGS = -Wall -Wextra -O3
 LDFLAGS =
 ifneq ($(findstring cx,$(MAKECMDGOALS)),)
-	CFLAGS += -D NSP_COLOR_LCD
+	CFLAGS += -D NSP_CX_16BIT
 	LIBS = -lSDL-CX
 else
 	LIBS = -lSDL-TC
@@ -26,4 +26,4 @@ $(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJECTS) *.elf
+	rm -f $(OBJECTS) *.elf $(TARGET)

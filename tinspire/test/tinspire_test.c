@@ -15,9 +15,9 @@ int main(void) {
 		printf("SDL_SetVideoMode error: %s\n", SDL_GetError());
 		return 1;
 	}
-	font = SDL_nLoadFont(NSP_FONT_THIN, SDL_MapRGB(screen->format, 255, 255, 255),
+	font = SDL_nLoadFont(NSP_FONT_THIN, SDL_MapRGB(screen->format, 255, 0, 255),
 		NSP_FONT_TEXTWRAP | NSP_FONT_AUTOSIZE);
-	SDL_nSetFontSpacing(font, 5, NSP_VSPACING_DEFAULT);
+	SDL_nSetFontSpacing(font, 0, NSP_VSPACING_DEFAULT);
 	SDL_FillRect(screen, NULL, 0);
 	SDL_nDrawString(screen, font, NSP_COL(0), NSP_ROW(1),
 		"The quick brown fox jumps over the lazy dog.");
