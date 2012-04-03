@@ -3,9 +3,10 @@
 #include "../../src/video/SDL_cursor_c.h"
 
 int main(void) {
-	SDL_Surface *screen;
+	SDL_Surface *screen, *img;
 	SDL_nFont *font;
 	int done = 0;
+	int i;
 	if(SDL_Init(SDL_INIT_VIDEO) == -1) {
 		printf("SDL_Init error: %s\n", SDL_GetError());
 		return 1;
@@ -15,12 +16,22 @@ int main(void) {
 		printf("SDL_SetVideoMode error: %s\n", SDL_GetError());
 		return 1;
 	}
-	font = SDL_nLoadFont(NSP_FONT_THIN, SDL_MapRGB(screen->format, 255, 0, 255),
+	font = SDL_nLoadFont(NSP_FONT_THIN, SDL_MapRGB(screen->format, 255, 255, 255),
 		NSP_FONT_TEXTWRAP | NSP_FONT_AUTOSIZE);
+	img = SDL_LoadBMP("Examples/image.bmp");
 	SDL_nSetFontSpacing(font, 0, NSP_VSPACING_DEFAULT);
 	SDL_FillRect(screen, NULL, 0);
+	for(i = 0; i < 200; ++i) {
+		SDL_Rect rect;
+		rect.x = i;
+		rect.y = 0;
+		rect.w = 1;
+		rect.h = 240;
+		SDL_FillRect(screen, &rect, SDL_MapRGB(screen->format, i, i, i));
+	}
+	SDL_BlitSurface(img, NULL, screen, NULL);
 	SDL_nDrawString(screen, font, NSP_COL(0), NSP_ROW(1),
-		"The quick brown fox jumps over the lazy dog.");
+		"The quick brown fox jumps over the lazy dogg\nish");
 	SDL_Flip(screen);
 	SDL_Delay(5000);
 #if 0
@@ -37,6 +48,7 @@ int main(void) {
 		SDL_Flip(screen);
 	}
 #endif
+	SDL_FreeSurface(img);
 	SDL_nFreeFont(font);
 	SDL_Quit();
 	return 0;

@@ -12,3 +12,5 @@ Todo:
 - Map more keys to SDLKs
 - Handle the 16-bit timer better
 - Add support for diagonal arrow keys in events & joystick
+- Add string width/height getter function
+- Add draw string to box function

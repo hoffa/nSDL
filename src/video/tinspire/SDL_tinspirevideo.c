@@ -32,6 +32,12 @@
 #include "SDL_tinspireevents_c.h"
 #include "SDL_tinspirefonts.h"
 
+#if NSP_CX_8BIT
+#define NSP_MAP(r, g, b)	(Uint16)(((r / 8) << 11) | ((g / 4) << 5) | (b / 8))
+#elif NSP_TC
+#define NSP_MAP(r, g, b)	((r + g + b) / 48)
+#endif
+
 /* Initialization/Query functions */
 static int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat);
 static SDL_Rect **NSP_ListModes(_THIS, SDL_PixelFormat *format, Uint32 flags);
@@ -55,6 +61,12 @@ static unsigned char *nsp_font_charmaps[] = {
 	nsp_font_fantasy,
 	nsp_font_tinytype
 };
+
+#if NSP_CX_8BIT
+static Uint16 nsp_palette[256] = {NSP_MAP(255, 255, 255)};
+#elif NSP_TC
+static Uint8 nsp_palette[256] = {NSP_MAP(255, 255, 255)};
+#endif
 
 int SDL_nCreatePalette(SDL_Surface *surface) {
 	SDL_Color colors[256];
@@ -173,7 +185,9 @@ int SDL_nDrawString(SDL_Surface *surface, SDL_nFont *font, int x, int y, const c
 					if ( (font->flags & NSP_FONT_TEXTWRAP)
 					&& pos.x + char_w + font->hspacing + font->char_width[(int)buffer[i + 1]] >= surface->w ) {
 						pos.x = 0;
-						pos.y += NSP_FONT_HEIGHT + font->vspacing;
+						if ( buffer[i + 1] != '\n' )
+							pos.y += NSP_FONT_HEIGHT;
+						pos.y += font->vspacing;
 					} else
 						pos.x += char_w + font->hspacing;
 				}
@@ -361,8 +375,6 @@ static void NSP_UnlockHWSurface(_THIS, SDL_Surface *surface)
 	return;
 }
 
-#define NSP_8TO16(r, g, b)	(((r / 8) << 11) | ((g / 4) << 5) | (b / 8))
-
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 {
 	Uint8 *src_addr;
@@ -411,13 +423,11 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 #if NSP_CX_16BIT
 			memcpy(dst_addr, src_addr, rect_w);
 #elif NSP_CX_8BIT
-			for ( j = 0; j < rect->w; ++j ) {
-				SDL_Color color = palette->colors[src_addr[j]];
-				dst_addr[j] = NSP_8TO16(color.r, color.g, color.b);
-			}
+			for ( j = 0; j < rect->w; ++j )
+				dst_addr[j] = nsp_palette[src_addr[j]];
 #else
 			for ( j = 0, k = 0; j < rect_w; j += 2, ++k )
-				dst_addr[k] = ((src_addr[j] / 16) << 4) | (src_addr[j + 1] / 16);
+				dst_addr[k] = (nsp_palette[src_addr[j]] << 4) | nsp_palette[src_addr[j + 1]];
 #endif
 			src_addr += src_skip;
 			dst_addr += dst_skip;
@@ -427,7 +437,12 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 
 int NSP_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
 {
-	return(SDL_nCreatePalette(SDL_VideoSurface));
+#if NSP_CX_8BIT || NSP_TC
+	int i;
+	for ( i = firstcolor; i < ncolors; ++i )
+		nsp_palette[i] = NSP_MAP(colors[i].r, colors[i].g, colors[i].b);
+#endif
+	return(1);
 }
 
 /* Note:  If we are terminated, this could be called in the middle of
