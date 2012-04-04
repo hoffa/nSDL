@@ -34,8 +34,6 @@ static char key_state[NSP_NUMKEYS] = {SDL_RELEASED};
 
 void NSP_PumpEvents(_THIS)
 {
-	BOOL key_pressed;
-	SDL_keysym keysym;
 	touchpad_report_t tp;
 	Sint8 mouse_dx, mouse_dy;
 	int i;
@@ -47,9 +45,10 @@ void NSP_PumpEvents(_THIS)
 		SDL_PrivateMouseMotion(0, SDL_TRUE, (Sint16)mouse_dx, (Sint16)mouse_dy);
 
 	for ( i = 0; i < NSP_NUMKEYS; ++i ) {
+		BOOL key_pressed = isKeyPressed(nspk_keymap[i]);
+		SDL_keysym keysym;
 		keysym.scancode = i;
 		keysym.sym = sdlk_keymap[i];
-		key_pressed = isKeyPressed(nspk_keymap[i]);
 		if ( key_state[i] == SDL_RELEASED ) {
 			if ( key_pressed ) {
 				SDL_PrivateKeyboard(SDL_PRESSED, &keysym);

@@ -28,6 +28,15 @@
 /* General platform specific identifiers */
 #include "SDL_platform.h"
 
+/*
+ * #define NSP_CX_16BIT for CX models (HW 16-bit, SW 16-bit).
+ * #define NSP_CX_8BIT for CX models (HW 16-bit, SW 8-bit).
+ * #define NSP_TC_8BIT for Touchpad/Clickpad models (HW 8-bit, SW 8-bit). Experimental.
+ *	If none of the previous three is defined, TC HW 4-bit, SW 8-bit is used.
+ * #define NSP_ALT_FINDCOLOR to use the alternative, slightly faster but less
+ *	tested (and less accurate?) SDL_FindColor(). Only for palettized surfaces.
+ */
+
 #if NSP_CX_16BIT && NSP_CX_8BIT
 #error "Only one of NSP_CX_16BIT and NSP_CX_8BIT should be defined."
 #endif
@@ -58,12 +67,14 @@
 #define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-cx16")
 #elif NSP_CX_8BIT
 #define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-cx8")
-#else
+#elif NSP_TC_8BIT
 #define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-tc8")
+#else
+#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-tc4")
 #endif
 #define NSP_JOYAXISVALUE	1
 #define NSP_TAB_WIDTH	4
-#define NSP_ALT_FINDCOLOR	0 /* Use alternative SDL_FindColor(); faster but less accurate and less tested */
+#define NSP_ALT_FINDCOLOR	0
 
 /* A few convenience macros */
 #define NSP_ARRAY_SIZE(array)	(sizeof(array) / sizeof(array[0]))

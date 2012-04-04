@@ -68,6 +68,39 @@ static Uint16 nsp_palette[256] = {NSP_MAP(255, 255, 255)};
 static Uint8 nsp_palette[256] = {NSP_MAP(255, 255, 255)};
 #endif
 
+#define NSP_TAB_WIDTH_PXL	(NSP_TAB_WIDTH * NSP_FONT_WIDTH)
+
+/* Private */
+static void nsp_handle_char(SDL_Surface *surface, SDL_nFont *font,
+			    SDL_Rect *pos, int c, int c1, int init_x) {
+	int char_w = NSP_FONT_WIDTH;
+	if ( font->flags & NSP_FONT_AUTOSIZE )
+		char_w = font->char_width[c];
+	switch ( c ) {
+		case '\n':
+			pos->x = init_x;
+			pos->y += NSP_FONT_HEIGHT + font->vspacing;
+			break;
+		case '\t':
+			pos->x += NSP_TAB_WIDTH_PXL - (pos->x % NSP_TAB_WIDTH_PXL);
+			break;
+		default:
+			if ( SDL_nDrawChar(surface, font, pos, c) == -1 )
+				return(-1);
+			if ( c1 != '\0' ) {
+				if ( (font->flags & NSP_FONT_TEXTWRAP)
+				&& pos->x + char_w + font->hspacing + font->char_width[c1] >= surface->w ) {
+					pos->x = 0;
+					if ( c1 != '\n' )
+						pos->y += NSP_FONT_HEIGHT;
+					pos->y += font->vspacing;
+				} else
+					pos->x += char_w + font->hspacing;
+			}
+			break;
+	}
+}
+
 int SDL_nCreatePalette(SDL_Surface *surface) {
 	SDL_Color colors[256];
 	int i;
@@ -149,12 +182,10 @@ int SDL_nDrawChar(SDL_Surface *surface, SDL_nFont *font, SDL_Rect *pos, int c) {
 	return(SDL_BlitSurface(font->chars[c], &rect, surface, pos));
 }
 
-#define NSP_TAB_WIDTH_PXL	(NSP_TAB_WIDTH * NSP_FONT_WIDTH)
 #define NSP_BUF_SIZE	512
 
 int SDL_nDrawString(SDL_Surface *surface, SDL_nFont *font, int x, int y, const char *format, ...) {
 	int length;
-	int char_w = NSP_FONT_WIDTH;
 	int i;
 	SDL_Rect pos;
 	char buffer[NSP_BUF_SIZE];
@@ -163,39 +194,41 @@ int SDL_nDrawString(SDL_Surface *surface, SDL_nFont *font, int x, int y, const c
 	va_start(args, format);
 	vsprintf(buffer, format, args); /* Warning: possibility of overflow */
 	va_end(args);
-
 	pos.x = x;
 	pos.y = y;
 	length = (int)strlen(buffer);
-	for ( i = 0; i < length; ++i ) {
-		if ( font->flags & NSP_FONT_AUTOSIZE )
-			char_w = font->char_width[(int)buffer[i]];
-		switch ( buffer[i] ) {
-			case '\n':
-				pos.x = x;
-				pos.y += NSP_FONT_HEIGHT + font->vspacing;
-				break;
-			case '\t':
-				pos.x += NSP_TAB_WIDTH_PXL - (pos.x % NSP_TAB_WIDTH_PXL);
-				break;
-			default:
-				if ( SDL_nDrawChar(surface, font, &pos, (int)buffer[i]) == -1 )
-					return(-1);
-				if ( i < length - 1 ) {
-					if ( (font->flags & NSP_FONT_TEXTWRAP)
-					&& pos.x + char_w + font->hspacing + font->char_width[(int)buffer[i + 1]] >= surface->w ) {
-						pos.x = 0;
-						if ( buffer[i + 1] != '\n' )
-							pos.y += NSP_FONT_HEIGHT;
-						pos.y += font->vspacing;
-					} else
-						pos.x += char_w + font->hspacing;
-				}
-				break;
-		}
-	}
-
+	for ( i = 0; i < length; ++i )
+		nsp_handle_char(surface, font, &pos, (int)buffer[i],
+				(i < length - 1) ? (int)buffer[i + 1] : '\0', x);
 	return(0);
+}
+
+int SDL_nGetLineWidth(SDL_nFont *font, const char *s) {
+	int width = 0;
+	int i;
+	for ( i = 0; s[i] && s[i] != '\n'; ++i ) {
+		int char_w = NSP_FONT_WIDTH;
+		if ( font->flags & NSP_FONT_AUTOSIZE )
+			char_w = font->char_width[s[i]];
+		width += char_w + font->hspacing;
+	}
+	if ( ! (font->flags & NSP_FONT_AUTOSIZE) )
+		width -= NSP_FONT_WIDTH - font->char_width[s[i - 1]];
+	return width - font->hspacing;
+}
+
+int SDL_nGetStringWidth(SDL_nFont *font, const char *s) {
+	return 0;
+}
+
+int SDL_nGetStringHeight(SDL_nFont *font, const char *s) {
+	int length = (int)strlen(s);
+	int height = NSP_FONT_HEIGHT;
+	int i;
+	for ( i = 0; i < length; ++i )
+		if ( s[i] == '\n' )
+			height += NSP_FONT_HEIGHT + font->vspacing;
+	return height;
 }
 
 /* NSP driver bootstrap functions */

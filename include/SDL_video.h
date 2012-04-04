@@ -275,6 +275,9 @@ void SDL_nSetFontSpacing(SDL_nFont *font, int hspacing, int vspacing);
 void SDL_nFreeFont(SDL_nFont *font);
 int SDL_nDrawChar(SDL_Surface *surface, SDL_nFont *font, SDL_Rect *pos, int c);
 int SDL_nDrawString(SDL_Surface *surface, SDL_nFont *font, int x, int y, const char *format, ...);
+int SDL_nGetLineWidth(SDL_nFont *font, const char *s);
+int SDL_nGetStringWidth(SDL_nFont *font, const char *s);
+int SDL_nGetStringHeight(SDL_nFont *font, const char *s);
 #endif
 
 /* Function prototypes */

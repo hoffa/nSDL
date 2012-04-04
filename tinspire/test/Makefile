@@ -13,7 +13,7 @@ endif
 
 SOURCES = tinspire_test.c
 OBJECTS = tinspire_test.o
-LIBS = ../../libSDL.a
+LIBS = ../../libSDL.a libm.a
 TARGET = sdl_test.tns
 
 cx: all

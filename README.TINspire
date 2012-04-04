@@ -5,6 +5,7 @@ Ported by Christoffer Rehn (christoffer.rehn@telenet.be)
 
 Compile with:
 make cx -f Makefile.nsp (CX)
+make cx8 -f Makefile.nsp (CX, using software 8 bpp)
 make tc -f Makefile.nsp (Touchpad/Clickpad)
 
 Todo:
@@ -14,3 +15,4 @@ Todo:
 - Add support for diagonal arrow keys in events & joystick
 - Add string width/height getter function
 - Add draw string to box function
+- Make joystick only use touchpad
