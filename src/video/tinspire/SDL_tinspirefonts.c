@@ -3,6 +3,7 @@
 #include "SDL_tinspirefonts.h"
 
 #define NSP_TAB_WIDTH_PXL	(NSP_TAB_WIDTH * NSP_FONT_WIDTH)
+#define NSP_BUF_SIZE	512
 
 static unsigned char *nsp_font_charmaps[] = {
 	nsp_font_thin,
@@ -37,7 +38,7 @@ SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags) {
 		if ( char_surf == NULL )
 			return(NULL);
 		font->char_width[i] = NSP_FONT_WIDTH;
-#if !NSP_CX_16BIT
+#if NSP_BPP_SW8
 		if ( ! SDL_nCreatePalette(char_surf) ) {
 			SDL_FreeSurface(char_surf);
 			return(NULL);
@@ -55,7 +56,7 @@ SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags) {
 						font->char_width[i] = k + 1;
 						max_width = k;
 					}
-#if NSP_CX_16BIT
+#if NSP_BPP_SW16
 					*(Uint16 *)(char_surf->pixels + (k << 1) + (j << 4)) = (Uint16)color;
 #else
 					*(Uint8 *)(char_surf->pixels + k + (j << 3)) = (Uint8)color;
@@ -90,8 +91,6 @@ int SDL_nDrawChar(SDL_Surface *surface, SDL_nFont *font, SDL_Rect *pos, int c) {
 	rect.h = NSP_FONT_HEIGHT;
 	return(SDL_BlitSurface(font->chars[c], &rect, surface, pos));
 }
-
-#define NSP_BUF_SIZE	512
 
 int SDL_nDrawString(SDL_Surface *surface, SDL_nFont *font, int x, int y, const char *format, ...) {
 	int length;

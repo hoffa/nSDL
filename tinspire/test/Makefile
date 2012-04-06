@@ -3,11 +3,24 @@ LD = nspire-ld
 OBJCOPY = arm-none-eabi-objcopy
 CFLAGS = -Wall -Wextra -nostdlib -I../../include -O3
 LDFLAGS =
-ifneq ($(findstring cx8,$(MAKECMDGOALS)),)
-	CFLAGS += -D NSP_CX_8BIT
+
+ifneq ($(findstring cx8s,$(MAKECMDGOALS)),)
+	CFLAGS += -D NSP_BPP_SW8_HW16 -D NSP_CX
 else
-	ifneq ($(findstring cx,$(MAKECMDGOALS)),)
-		CFLAGS += -D NSP_CX_16BIT
+	ifneq ($(findstring cx8,$(MAKECMDGOALS)),)
+		CFLAGS += -D NSP_BPP_SW8_HW8 -D NSP_CX
+	else
+		ifneq ($(findstring cx,$(MAKECMDGOALS)),)
+			CFLAGS += -D NSP_BPP_SW16_HW16 -D NSP_CX
+		endif
+	endif
+endif
+
+ifneq ($(findstring tc4,$(MAKECMDGOALS)),)
+	CFLAGS += -D NSP_BPP_SW8_HW4 -D NSP_TC
+else
+	ifneq ($(findstring tc,$(MAKECMDGOALS)),)
+		CFLAGS += -D NSP_BPP_SW8_HW8 -D NSP_TC
 	endif
 endif
 
@@ -18,7 +31,9 @@ TARGET = sdl_test.tns
 
 cx: all
 cx8: all
+cx8s: all
 tc: all
+tc4: all
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS)

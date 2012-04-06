@@ -31,10 +31,12 @@
 #include "SDL_tinspirevideo.h"
 #include "SDL_tinspireevents_c.h"
 
-#if NSP_CX_8BIT
-#define NSP_MAP(r, g, b)	(Uint16)(((r / 8) << 11) | ((g / 4) << 5) | (b / 8))
-#elif NSP_TC
-#define NSP_MAP(r, g, b)	((r + g + b) / 48)
+#if NSP_BPP_SW8_HW16
+#define NSP_MAP_RGB(r, g, b)	(Uint16)(((r / 8) << 11) | ((g / 4) << 5) | (b / 8))
+static Uint16 nsp_palette[256] = {NSP_MAP_RGB(255, 255, 255)};
+#elif NSP_BPP_SW8_HW4
+#define NSP_MAP_RGB(r, g, b)	((r + g + b) / 48)
+static Uint8 nsp_palette[256] = {NSP_MAP_RGB(255, 255, 255)};
 #endif
 
 /* Initialization/Query functions */
@@ -52,12 +54,6 @@ static void NSP_FreeHWSurface(_THIS, SDL_Surface *surface);
 
 /* etc. */
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects);
-
-#if NSP_CX_8BIT
-static Uint16 nsp_palette[256] = {NSP_MAP(255, 255, 255)};
-#elif NSP_TC
-static Uint8 nsp_palette[256] = {NSP_MAP(255, 255, 255)};
-#endif
 
 int SDL_nCreatePalette(SDL_Surface *surface) {
 	SDL_Color colors[256];
@@ -186,12 +182,9 @@ SDL_Rect **NSP_ListModes(_THIS, SDL_PixelFormat *format, Uint32 flags)
 SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 				int width, int height, int bpp, Uint32 flags)
 {
-	NSP_DPRINT("Initializing display (%dx%dx%d)\n", width, height, bpp);
+	NSP_DPRINT("Initializing display (%dx%dx%d)\n", width, height, NSP_BPP);
 
-	if ( bpp <= 8 )
-		bpp = 8;
-	else
-		bpp = 16;
+	/* Sorry bro, we don't actually care about bpp, NSP_BPP is how we roll. */
 
 	if ( this->hidden->buffer ) {
 		SDL_free( this->hidden->buffer );
@@ -206,7 +199,7 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 	memset(this->hidden->buffer, 0, NSP_BYTESPP * width * height);
 
 	/* Allocate the new pixel format for the screen */
-	if ( ! SDL_ReallocFormat(current, bpp, NSP_RMASK, NSP_GMASK, NSP_BMASK, 0) ) {
+	if ( ! SDL_ReallocFormat(current, NSP_BPP, NSP_RMASK, NSP_GMASK, NSP_BMASK, 0) ) {
 		SDL_free(this->hidden->buffer);
 		this->hidden->buffer = NULL;
 		SDL_SetError("Couldn't allocate new pixel format for requested mode");
@@ -249,39 +242,35 @@ static void NSP_UnlockHWSurface(_THIS, SDL_Surface *surface)
 
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 {
-	Uint8 *src_addr;
-	int i;
-#if NSP_CX_16BIT
-	const int src_skip = SDL_VideoSurface->pitch;
+	const int src_skip = NSP_BYTESPP * SDL_VideoSurface->w;
+#if NSP_BPP_SW8_HW4
+	const int dst_skip = SDL_VideoSurface->w / 2;
 #else
-	const int src_skip = SDL_VideoSurface->w;
-#if NSP_CX_8BIT
-	SDL_Palette *palette = SDL_VideoSurface->format->palette;
-#endif
-#endif
-#if NSP_CX
 	const int dst_skip = SDL_VideoSurface->w;
+#endif
+	Uint8 *src_addr;
+#if NSP_CX
 	Uint16 *dst_addr;
 #else
-	const int dst_skip = SDL_VideoSurface->w / 2;
 	Uint8 *dst_addr;
 #endif
+	int i;
 
 	for ( i = 0; i < numrects; ++i ) {
-		int rect_w, rect_h;
+		int row_bytes, rows;
 		SDL_Rect *rect = &rects[i];
 		if ( ! rect )
 			continue;
 
-		/* Single nibbles go to hell! (not required for CX, but keeps
+		/* Single nibbles go to hell! (not required for >= 8 bpp, but keeps
 		   everything consistent) */
 		if ( rect->x & 1 )
 			--rect->x;
 		if ( rect->w & 1 )
 			++rect->w;
 
-		rect_w = NSP_BYTESPP * rect->w;
-		rect_h = rect->h;
+		row_bytes = NSP_BYTESPP * rect->w;
+		rows = rect->h;
 
 		/* NSP_DPRINT("Updating: (%d, %d) %dx%d\n", rect->x, rect->y, rect->w, rect->h); */
 		src_addr = (Uint8 *)(SDL_VideoSurface->pixels + (NSP_BYTESPP * rect->x)
@@ -291,17 +280,15 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 #else
 		dst_addr = (Uint8 *)(SCREEN_BASE_ADDRESS + rect->x + (rect->y * SDL_VideoSurface->w));
 #endif
-		while ( rect_h-- ) {
-#if NSP_CX_8BIT || NSP_TC
+		while ( rows-- ) {
 			int j, k;
-#endif
-#if NSP_CX_16BIT
-			memcpy(dst_addr, src_addr, rect_w);
-#elif NSP_CX_8BIT
-			for ( j = 0; j < rect->w; ++j )
+#if NSP_BPP_SW16_HW16 || NSP_BPP_SW8_HW8
+			memcpy(dst_addr, src_addr, row_bytes);
+#elif NSP_BPP_SW8_HW16
+			for ( j = 0; j < row_bytes; ++j )
 				dst_addr[j] = nsp_palette[src_addr[j]];
-#else
-			for ( j = 0, k = 0; j < rect_w; j += 2, ++k )
+#elif NSP_BPP_SW8_HW4
+			for ( j = 0, k = 0; j < row_bytes; j += 2, ++k )
 				dst_addr[k] = (nsp_palette[src_addr[j]] << 4) | nsp_palette[src_addr[j + 1]];
 #endif
 			src_addr += src_skip;
@@ -312,10 +299,10 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 
 int NSP_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
 {
-#if NSP_CX_8BIT || NSP_TC
+#if NSP_BPP_SW8_HW16 || NSP_BPP_SW8_HW4
 	int i;
 	for ( i = firstcolor; i < ncolors; ++i )
-		nsp_palette[i] = NSP_MAP(colors[i].r, colors[i].g, colors[i].b);
+		nsp_palette[i] = NSP_MAP_RGB(colors[i].r, colors[i].g, colors[i].b);
 #endif
 	return(1);
 }

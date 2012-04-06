@@ -29,22 +29,37 @@
 #include "SDL_platform.h"
 
 /*
- * #define NSP_CX_16BIT for CX models (HW 16-bit, SW 16-bit).
- * #define NSP_CX_8BIT for CX models (HW 16-bit, SW 8-bit).
- * #define NSP_TC_8BIT for Touchpad/Clickpad models (HW 8-bit, SW 8-bit). Experimental.
- *	If none of the previous three is defined, TC HW 4-bit, SW 8-bit is used.
+ * #define NSP_CX for CX models.
+ * #define NSP_TC for TC models.
+ * #define NSP_BPP_SW16_HW16 for CX models (unsafe, fast).	(cx)
+ * #define NSP_BPP_SW8_HW16 for CX models (safe, slow).		(cx8s)
+ * #define NSP_BPP_SW8_HW8 for CX/TC models (unsafe, fast).	(cx8, tc)
+ * #define NSP_BPP_SW8_HW4 for TC models (safe, slow).		(tc4)
  * #define NSP_ALT_FINDCOLOR to use the alternative, slightly faster but less
  *	tested (and less accurate?) SDL_FindColor(). Only for palettized surfaces.
  */
 
-#if NSP_CX_16BIT && NSP_CX_8BIT
-#error "Only one of NSP_CX_16BIT and NSP_CX_8BIT should be defined."
+#if !NSP_BPP_SW16_HW16
+#define NSP_BPP_SW16_HW16	0
+#endif
+#if !NSP_BPP_SW8_HW16
+#define NSP_BPP_SW8_HW16	0
+#endif
+#if !NSP_BPP_SW8_HW8
+#define NSP_BPP_SW8_HW8	0
+#endif
+#if !NSP_BPP_SW8_HW4
+#define NSP_BPP_SW8_HW4	0
 #endif
 
-#if NSP_CX_16BIT || NSP_CX_8BIT
-#define NSP_CX	1
+#if NSP_BPP_SW16_HW16 + NSP_BPP_SW8_HW16 + NSP_BPP_SW8_HW8 + NSP_BPP_SW8_HW4 > 1
+#error "Only one bpp mode should be defined."
+#endif
+
+#if NSP_BPP_SW8_HW16 || NSP_BPP_SW8_HW8 || NSP_BPP_SW8_HW4
+#define NSP_BPP_SW8	1
 #else
-#define NSP_TC	1
+#define NSP_BPP_SW16	1
 #endif
 
 #if 1
@@ -63,14 +78,16 @@
 
 #define NSP_NAME	"nSDL"
 #define NSP_VERSION	"0.2.0beta"
-#if NSP_CX_16BIT
-#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-cx16")
-#elif NSP_CX_8BIT
-#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-cx8")
-#elif NSP_TC_8BIT
-#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-tc8")
-#else
-#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-tc4")
+#if NSP_BPP_SW16_HW16
+#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-16/16-cx")
+#elif NSP_BPP_SW8_HW16
+#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-8/16-cx")
+#elif NSP_BPP_SW8_HW8 && NSP_CX
+#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-8/8-cx")
+#elif NSP_BPP_SW8_HW8 && NSP_TC
+#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-8/8-tc")
+#elif NSP_BPP_SW8_HW4
+#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-8/4-tc")
 #endif
 #define NSP_JOYAXISVALUE	1
 #define NSP_TAB_WIDTH	4
@@ -82,7 +99,7 @@
 #define NSP_COL(col)	(8 * (col))
 #define NSP_ROW		NSP_COL
 
-#if NSP_CX_16BIT
+#if NSP_BPP_SW16
 #define NSP_BPP	16
 #define NSP_RMASK	0xF800
 #define NSP_GMASK	0x07E0
