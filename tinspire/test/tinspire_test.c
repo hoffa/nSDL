@@ -21,7 +21,6 @@ int main(void) {
 	font = SDL_nLoadFont(NSP_FONT_THIN, SDL_MapRGB(screen->format, 255, 255, 255),
 		NSP_FONT_TEXTWRAP);
 	img = SDL_LoadBMP("Examples/image.bmp");
-	SDL_nSetFontSpacing(font, 5, NSP_VSPACING_DEFAULT);
 	printf("width: %d, height: %d\n", SDL_nGetStringWidth(font, STR), SDL_nGetStringHeight(font, STR));
 	SDL_FillRect(screen, NULL, 0);
 	for(i = 0; i < 200; ++i) {
