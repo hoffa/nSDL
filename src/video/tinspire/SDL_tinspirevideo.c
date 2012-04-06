@@ -70,37 +70,6 @@ static Uint8 nsp_palette[256] = {NSP_MAP(255, 255, 255)};
 
 #define NSP_TAB_WIDTH_PXL	(NSP_TAB_WIDTH * NSP_FONT_WIDTH)
 
-/* Private */
-static void nsp_handle_char(SDL_Surface *surface, SDL_nFont *font,
-			    SDL_Rect *pos, int c, int c1, int init_x) {
-	int char_w = NSP_FONT_WIDTH;
-	if ( font->flags & NSP_FONT_AUTOSIZE )
-		char_w = font->char_width[c];
-	switch ( c ) {
-		case '\n':
-			pos->x = init_x;
-			pos->y += NSP_FONT_HEIGHT + font->vspacing;
-			break;
-		case '\t':
-			pos->x += NSP_TAB_WIDTH_PXL - (pos->x % NSP_TAB_WIDTH_PXL);
-			break;
-		default:
-			if ( SDL_nDrawChar(surface, font, pos, c) == -1 )
-				return(-1);
-			if ( c1 != '\0' ) {
-				if ( (font->flags & NSP_FONT_TEXTWRAP)
-				&& pos->x + char_w + font->hspacing + font->char_width[c1] >= surface->w ) {
-					pos->x = 0;
-					if ( c1 != '\n' )
-						pos->y += NSP_FONT_HEIGHT;
-					pos->y += font->vspacing;
-				} else
-					pos->x += char_w + font->hspacing;
-			}
-			break;
-	}
-}
-
 int SDL_nCreatePalette(SDL_Surface *surface) {
 	SDL_Color colors[256];
 	int i;
@@ -197,18 +166,48 @@ int SDL_nDrawString(SDL_Surface *surface, SDL_nFont *font, int x, int y, const c
 	pos.x = x;
 	pos.y = y;
 	length = (int)strlen(buffer);
-	for ( i = 0; i < length; ++i )
-		nsp_handle_char(surface, font, &pos, (int)buffer[i],
-				(i < length - 1) ? (int)buffer[i + 1] : '\0', x);
+	for ( i = 0; i < length; ++i ) {
+		int char_w = NSP_FONT_WIDTH;
+		int c = buffer[i];
+		if ( font->flags & NSP_FONT_AUTOSIZE )
+			char_w = font->char_width[c];
+		switch ( c ) {
+			case '\n':
+				pos.x = x;
+				pos.y += NSP_FONT_HEIGHT + font->vspacing;
+				break;
+			case '\t':
+				pos.x += NSP_TAB_WIDTH_PXL - (pos.x % NSP_TAB_WIDTH_PXL);
+				break;
+			default:
+				if ( SDL_nDrawChar(surface, font, &pos, c) == -1 )
+					return(-1);
+				if ( i < length - 1 ) {
+					if ( (font->flags & NSP_FONT_TEXTWRAP)
+					&& pos.x + char_w + font->hspacing + font->char_width[buffer[i + 1]] >= surface->w ) {
+						pos.x = 0;
+						if ( buffer[i + 1] != '\n' )
+							pos.y += NSP_FONT_HEIGHT;
+						pos.y += font->vspacing;
+					} else
+						pos.x += char_w + font->hspacing;
+				}
+				break;
+		}
+	}
 	return(0);
 }
 
 int SDL_nGetLineWidth(SDL_nFont *font, const char *s) {
 	int width = 0;
 	int i;
+	if ( *s == '\n' )
+		return 0;
 	for ( i = 0; s[i] && s[i] != '\n'; ++i ) {
 		int char_w = NSP_FONT_WIDTH;
-		if ( font->flags & NSP_FONT_AUTOSIZE )
+		if ( s[i] == '\t' )
+			char_w = NSP_TAB_WIDTH_PXL;
+		else if ( font->flags & NSP_FONT_AUTOSIZE )
 			char_w = font->char_width[s[i]];
 		width += char_w + font->hspacing;
 	}
@@ -218,7 +217,16 @@ int SDL_nGetLineWidth(SDL_nFont *font, const char *s) {
 }
 
 int SDL_nGetStringWidth(SDL_nFont *font, const char *s) {
-	return 0;
+	int length = (int)strlen(s);
+	int max_width = SDL_nGetLineWidth(font, s);
+	int i;
+	for ( i = 0; i < length; ++i )
+		if ( i > 0 && s[i - 1] == '\n' ) {
+			int width = SDL_nGetLineWidth(font, &s[i]);
+			if ( width > max_width )
+				max_width = width;
+		}
+	return max_width;
 }
 
 int SDL_nGetStringHeight(SDL_nFont *font, const char *s) {
@@ -411,25 +419,25 @@ static void NSP_UnlockHWSurface(_THIS, SDL_Surface *surface)
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 {
 	Uint8 *src_addr;
-	int rect_x, rect_y, rect_w, rect_h;
-	int i, j, k;
+	int i;
 #if NSP_CX_16BIT
-	int src_skip = SDL_VideoSurface->pitch;
+	const int src_skip = SDL_VideoSurface->pitch;
 #else
-	int src_skip = SDL_VideoSurface->w;
+	const int src_skip = SDL_VideoSurface->w;
 #if NSP_CX_8BIT
 	SDL_Palette *palette = SDL_VideoSurface->format->palette;
 #endif
 #endif
 #if NSP_CX
-	int dst_skip = SDL_VideoSurface->w;
+	const int dst_skip = SDL_VideoSurface->w;
 	Uint16 *dst_addr;
 #else
-	int dst_skip = SDL_VideoSurface->w / 2;
+	const int dst_skip = SDL_VideoSurface->w / 2;
 	Uint8 *dst_addr;
 #endif
 
 	for ( i = 0; i < numrects; ++i ) {
+		int rect_w, rect_h;
 		SDL_Rect *rect = &rects[i];
 		if ( ! rect )
 			continue;
@@ -453,6 +461,9 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 		dst_addr = (Uint8 *)(SCREEN_BASE_ADDRESS + rect->x + (rect->y * SDL_VideoSurface->w));
 #endif
 		while ( rect_h-- ) {
+#if NSP_CX_8BIT || NSP_TC
+			int j, k;
+#endif
 #if NSP_CX_16BIT
 			memcpy(dst_addr, src_addr, rect_w);
 #elif NSP_CX_8BIT

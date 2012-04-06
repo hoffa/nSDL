@@ -13,7 +13,7 @@ endif
 
 SOURCES = tinspire_test.c
 OBJECTS = tinspire_test.o
-LIBS = ../../libSDL.a libm.a
+LIBS = ../../libSDL.a
 TARGET = sdl_test.tns
 
 cx: all
@@ -29,4 +29,4 @@ $(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJECTS) *.elf $(TARGET)
+	rm -f $(OBJECTS) $(TARGET:.tns=.elf) $(TARGET)

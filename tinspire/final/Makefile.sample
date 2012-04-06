@@ -32,4 +32,4 @@ $(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJECTS) *.elf $(TARGET)
+	rm -f $(OBJECTS) $(TARGET:.tns=.elf) $(TARGET)
