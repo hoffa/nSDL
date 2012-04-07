@@ -33,10 +33,10 @@
 
 #if NSP_BPP_SW8_HW16
 #define NSP_MAP_RGB(r, g, b)	(Uint16)(((r / 8) << 11) | ((g / 4) << 5) | (b / 8))
-static Uint16 nsp_palette[256] = {NSP_MAP_RGB(255, 255, 255)};
+static Uint16 nsp_palette[256] = {0x0000};
 #elif NSP_BPP_SW8_HW4
-#define NSP_MAP_RGB(r, g, b)	((r + g + b) / 48)
-static Uint8 nsp_palette[256] = {NSP_MAP_RGB(255, 255, 255)};
+#define NSP_MAP_RGB(r, g, b)	((r + (2 * g) + b) / 64) /* ((r + g + b) / 48) */
+static Uint8 nsp_palette[256] = {0x00};
 #endif
 
 /* Initialization/Query functions */
@@ -54,6 +54,19 @@ static void NSP_FreeHWSurface(_THIS, SDL_Surface *surface);
 
 /* etc. */
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects);
+
+#if NSP_BPP_SW8_HW8
+#if NSP_CX
+#define NSP_MAP_PALETTE(r, g, b)
+#else
+#define NSP_MAP_PALETTE(r, g, b)	((15 - ((r + (2 * g) + b) / 64)) << 1)
+#endif
+	static Uint8 *nsp_lcd_buffer;
+	static Uint16 nsp_hw_palette[256] = {0x0000};
+	static Uint16 nsp_orig_hw_palette[16];
+	static Uint32 *nsp_orig_base;
+	static volatile unsigned *nsp_lcd_ctrl;
+#endif
 
 int SDL_nCreatePalette(SDL_Surface *surface) {
 	SDL_Color colors[256];
@@ -150,6 +163,26 @@ VideoBootStrap NSP_bootstrap = {
 int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 {
 	NSP_DPRINT("Initializing video format\n");
+
+#if NSP_BPP_SW8_HW8
+	NSP_DPRINT("Switching to hardware 8 bpp\n");
+
+	nsp_lcd_ctrl = IO_LCD_CONTROL;
+	nsp_lcd_buffer = SDL_malloc(NSP_LCDBUF_SIZE);
+	if ( nsp_lcd_buffer == NULL ) {
+		SDL_OutOfMemory();
+		SDL_Quit();
+		exit(EXIT_FAILURE);
+	}
+	SDL_memset(nsp_lcd_buffer, 0, NSP_LCDBUF_SIZE);
+
+	nsp_orig_base = *(volatile unsigned *)NSP_BASE_ADDR;
+	*nsp_lcd_ctrl &= 0xF1;
+	*nsp_lcd_ctrl |= 0x6;
+	*(volatile unsigned *)NSP_BASE_ADDR = (unsigned)nsp_lcd_buffer;
+
+	SDL_memcpy(nsp_orig_hw_palette, (unsigned *)NSP_PALETTE_ADDR, 32);
+#endif
 
 	vformat->BitsPerPixel = NSP_BPP;
 	vformat->BytesPerPixel = NSP_BYTESPP;
@@ -299,10 +332,13 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 
 int NSP_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
 {
-#if NSP_BPP_SW8_HW16 || NSP_BPP_SW8_HW4
 	int i;
 	for ( i = firstcolor; i < ncolors; ++i )
+#if NSP_BPP_SW8_HW16 || NSP_BPP_SW8_HW4
 		nsp_palette[i] = NSP_MAP_RGB(colors[i].r, colors[i].g, colors[i].b);
+#elif NSP_BPP_SW8_HW8
+		nsp_hw_palette[i] = NSP_MAP_PALETTE(colors[i].r, colors[i].g, colors[i].b);
+	memcpy((unsigned *)NSP_PALETTE_ADDR, nsp_hw_palette, 512);
 #endif
 	return(1);
 }
@@ -313,4 +349,17 @@ int NSP_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
 void NSP_VideoQuit(_THIS)
 {
 	NSP_DPRINT("Closing video\n");
+
+#if NSP_BPP_SW8_HW8
+	NSP_DPRINT("Quitting hardware 8 bpp\n");
+#if NSP_CX
+	*nsp_lcd_ctrl |= 0x100;
+	lcd_incolor();
+#else
+	lcd_ingray();
+#endif
+	*(volatile unsigned *)NSP_BASE_ADDR = nsp_orig_base;
+	SDL_memcpy((unsigned *)NSP_PALETTE_ADDR, nsp_orig_hw_palette, 32);
+	SDL_free(nsp_lcd_buffer);
+#endif
 }

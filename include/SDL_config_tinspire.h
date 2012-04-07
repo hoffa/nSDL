@@ -31,7 +31,7 @@
 /*
  * #define NSP_CX for CX models.
  * #define NSP_TC for TC models.
- * #define NSP_BPP_SW16_HW16 for CX models (unsafe, fast).	(cx)
+ * #define NSP_BPP_SW16_HW16 for CX models (safe, fast).	(cx)
  * #define NSP_BPP_SW8_HW16 for CX models (safe, slow).		(cx8s)
  * #define NSP_BPP_SW8_HW8 for CX/TC models (unsafe, fast).	(cx8, tc)
  * #define NSP_BPP_SW8_HW4 for TC models (safe, slow).		(tc4)
@@ -111,6 +111,10 @@
 #define NSP_BMASK	0
 #endif
 #define NSP_BYTESPP	(NSP_BPP / 8)
+
+#define NSP_LCDBUF_SIZE	(SCREEN_WIDTH * SCREEN_HEIGHT)
+#define NSP_BASE_ADDR	0xC0000010
+#define NSP_PALETTE_ADDR	0xC0000200
 
 #if NSP_DEBUG
 #define NSP_DPRINT(fmt, args...) \
