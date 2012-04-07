@@ -35,7 +35,7 @@
 #define NSP_MAP_RGB(r, g, b)	(Uint16)(((r / 8) << 11) | ((g / 4) << 5) | (b / 8))
 static Uint16 nsp_palette[256] = {0x0000};
 #elif NSP_BPP_SW8_HW4
-#define NSP_MAP_RGB(r, g, b)	((r + (2 * g) + b) / 64) /* ((r + g + b) / 48) */
+#define NSP_MAP_RGB(r, g, b)	(Uint8)((r + (2 * g) + b) / 64) /* ((r + g + b) / 48) */
 static Uint8 nsp_palette[256] = {0x00};
 #endif
 
@@ -57,7 +57,7 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects);
 
 #if NSP_BPP_SW8_HW8
 #if NSP_CX
-#define NSP_MAP_PALETTE(r, g, b)
+#define NSP_MAP_PALETTE(r, g, b)	(((r / 8) << 10) | ((g / 8) << 5) | (b / 8))
 #else
 #define NSP_MAP_PALETTE(r, g, b)	((15 - ((r + (2 * g) + b) / 64)) << 1)
 #endif
@@ -164,32 +164,6 @@ int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 {
 	NSP_DPRINT("Initializing video format\n");
 
-#if NSP_BPP_SW8_HW8
-	NSP_DPRINT("Switching to hardware 8 bpp\n");
-
-	nsp_lcd_ctrl = IO_LCD_CONTROL;
-	nsp_lcd_buffer = SDL_malloc(NSP_LCDBUF_SIZE);
-	if ( nsp_lcd_buffer == NULL ) {
-		SDL_OutOfMemory();
-		SDL_Quit();
-		exit(EXIT_FAILURE);
-	}
-	SDL_memset(nsp_lcd_buffer, 0, NSP_LCDBUF_SIZE);
-
-	nsp_orig_base = *(volatile unsigned *)NSP_BASE_ADDR;
-	*nsp_lcd_ctrl &= 0xF1;
-	*nsp_lcd_ctrl |= 0x6;
-	*(volatile unsigned *)NSP_BASE_ADDR = (unsigned)nsp_lcd_buffer;
-
-	SDL_memcpy(nsp_orig_hw_palette, (unsigned *)NSP_PALETTE_ADDR, 32);
-#endif
-
-	vformat->BitsPerPixel = NSP_BPP;
-	vformat->BytesPerPixel = NSP_BYTESPP;
-	vformat->Rmask = NSP_RMASK;
-	vformat->Gmask = NSP_GMASK;
-	vformat->Bmask = NSP_BMASK;
-
 #if NSP_CX
 	if ( is_classic ) {
 		show_msgbox(NSP_NAME_FULL, NSP_MSG_INCOMP_CALC("color"));
@@ -203,6 +177,32 @@ int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 		exit(EXIT_FAILURE);
 	}
 #endif
+
+#if NSP_BPP_SW8_HW8
+	NSP_DPRINT("Switching to hardware 8 bpp\n");
+
+	nsp_lcd_ctrl = IO_LCD_CONTROL;
+	nsp_lcd_buffer = SDL_malloc(NSP_LCDBUF_SIZE);
+	if ( nsp_lcd_buffer == NULL ) {
+		SDL_OutOfMemory();
+		SDL_Quit();
+		exit(EXIT_FAILURE);
+	}
+	SDL_memset(nsp_lcd_buffer, 0, NSP_LCDBUF_SIZE);
+
+	nsp_orig_base = *(volatile unsigned *)NSP_BASE_ADDR;
+	*nsp_lcd_ctrl &= 0x1F1;
+	*nsp_lcd_ctrl |= 0x6;
+	*(volatile unsigned *)NSP_BASE_ADDR = (unsigned)nsp_lcd_buffer;
+
+	SDL_memcpy(nsp_orig_hw_palette, (unsigned *)NSP_PALETTE_ADDR, 32);
+#endif
+
+	vformat->BitsPerPixel = NSP_BPP;
+	vformat->BytesPerPixel = NSP_BYTESPP;
+	vformat->Rmask = NSP_RMASK;
+	vformat->Gmask = NSP_GMASK;
+	vformat->Bmask = NSP_BMASK;
 
 	return(0);
 }
@@ -282,7 +282,7 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 	const int dst_skip = SDL_VideoSurface->w;
 #endif
 	Uint8 *src_addr;
-#if NSP_CX
+#if NSP_BPP_SW16_HW16 || NSP_BPP_SW8_HW16
 	Uint16 *dst_addr;
 #else
 	Uint8 *dst_addr;
@@ -337,7 +337,7 @@ int NSP_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
 #if NSP_BPP_SW8_HW16 || NSP_BPP_SW8_HW4
 		nsp_palette[i] = NSP_MAP_RGB(colors[i].r, colors[i].g, colors[i].b);
 #elif NSP_BPP_SW8_HW8
-		nsp_hw_palette[i] = NSP_MAP_PALETTE(colors[i].r, colors[i].g, colors[i].b);
+		nsp_hw_palette[i] = (Uint16)NSP_MAP_PALETTE(colors[i].r, colors[i].g, colors[i].b);
 	memcpy((unsigned *)NSP_PALETTE_ADDR, nsp_hw_palette, 512);
 #endif
 	return(1);
