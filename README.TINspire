@@ -3,11 +3,6 @@ SDL for TI-Nspire calculators (version 0.2.0 beta)
 
 Ported by Christoffer Rehn (christoffer.rehn@telenet.be)
 
-Compile with:
-make cx -f Makefile.nsp (CX)
-make cx8 -f Makefile.nsp (CX, using software 8 bpp)
-make tc -f Makefile.nsp (Touchpad/Clickpad)
-
 Todo:
 - Add mouse support
 - Map more keys to SDLKs

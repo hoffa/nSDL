@@ -64,7 +64,7 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects);
 	static Uint8 *nsp_lcd_buffer;
 	static Uint16 nsp_hw_palette[256] = {0x0000};
 	static Uint16 nsp_orig_hw_palette[16];
-	static Uint32 *nsp_orig_base;
+	static unsigned *nsp_orig_base;
 	static volatile unsigned *nsp_lcd_ctrl;
 #endif
 
@@ -191,8 +191,8 @@ int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 	SDL_memset(nsp_lcd_buffer, 0, NSP_LCDBUF_SIZE);
 
 	nsp_orig_base = *(volatile unsigned *)NSP_BASE_ADDR;
-	*nsp_lcd_ctrl &= 0x1F1;
-	*nsp_lcd_ctrl |= 0x6;
+	*nsp_lcd_ctrl &= ~0b000001110;
+	*nsp_lcd_ctrl |=  0b000000110;
 	*(volatile unsigned *)NSP_BASE_ADDR = (unsigned)nsp_lcd_buffer;
 
 	SDL_memcpy(nsp_orig_hw_palette, (unsigned *)NSP_PALETTE_ADDR, 32);
@@ -275,19 +275,26 @@ static void NSP_UnlockHWSurface(_THIS, SDL_Surface *surface)
 
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 {
-	const int src_skip = NSP_BYTESPP * SDL_VideoSurface->w;
+	const int src_skip = SDL_VideoSurface->w;
+	int i;
+
 #if NSP_BPP_SW8_HW4
 	const int dst_skip = SDL_VideoSurface->w / 2;
 #else
 	const int dst_skip = SDL_VideoSurface->w;
 #endif
+
+#if NSP_BPP_SW16
+	Uint16 *src_addr;
+#else
 	Uint8 *src_addr;
+#endif
+
 #if NSP_BPP_SW16_HW16 || NSP_BPP_SW8_HW16
 	Uint16 *dst_addr;
 #else
 	Uint8 *dst_addr;
 #endif
-	int i;
 
 	for ( i = 0; i < numrects; ++i ) {
 		int row_bytes, rows;
@@ -295,32 +302,40 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 		if ( ! rect )
 			continue;
 
-		/* Single nibbles go to hell! (not required for >= 8 bpp, but keeps
-		   everything consistent) */
+#if NSP_BPP_SW8_HW4
+		/* Single nibbles go to hell! */
 		if ( rect->x & 1 )
 			--rect->x;
 		if ( rect->w & 1 )
 			++rect->w;
+#endif
 
 		row_bytes = NSP_BYTESPP * rect->w;
 		rows = rect->h;
 
 		/* NSP_DPRINT("Updating: (%d, %d) %dx%d\n", rect->x, rect->y, rect->w, rect->h); */
-		src_addr = (Uint8 *)(SDL_VideoSurface->pixels + (NSP_BYTESPP * rect->x)
-			 + ((NSP_BYTESPP * rect->y) * SDL_VideoSurface->w));
-#if NSP_CX
+
+#if NSP_BPP_SW16
+		src_addr = (Uint16 *)(SDL_VideoSurface->pixels + rect->x + (rect->y * SDL_VideoSurface->w));
+#else
+		src_addr = (Uint8 *)(SDL_VideoSurface->pixels + rect->x + (rect->y * SDL_VideoSurface->w));
+#endif
+
+#if NSP_BPP_SW16_HW16 || NSP_BPP_SW8_HW16
 		dst_addr = (Uint16 *)(SCREEN_BASE_ADDRESS + rect->x + (rect->y * SDL_VideoSurface->w));
 #else
 		dst_addr = (Uint8 *)(SCREEN_BASE_ADDRESS + rect->x + (rect->y * SDL_VideoSurface->w));
 #endif
+
 		while ( rows-- ) {
-			int j, k;
 #if NSP_BPP_SW16_HW16 || NSP_BPP_SW8_HW8
 			memcpy(dst_addr, src_addr, row_bytes);
 #elif NSP_BPP_SW8_HW16
+			int j;
 			for ( j = 0; j < row_bytes; ++j )
 				dst_addr[j] = nsp_palette[src_addr[j]];
 #elif NSP_BPP_SW8_HW4
+			int j, k;
 			for ( j = 0, k = 0; j < row_bytes; j += 2, ++k )
 				dst_addr[k] = (nsp_palette[src_addr[j]] << 4) | nsp_palette[src_addr[j + 1]];
 #endif
@@ -353,12 +368,12 @@ void NSP_VideoQuit(_THIS)
 #if NSP_BPP_SW8_HW8
 	NSP_DPRINT("Quitting hardware 8 bpp\n");
 #if NSP_CX
-	*nsp_lcd_ctrl |= 0x100;
+	*nsp_lcd_ctrl |= 0b100000000;
 	lcd_incolor();
 #else
 	lcd_ingray();
 #endif
-	*(volatile unsigned *)NSP_BASE_ADDR = nsp_orig_base;
+	*(volatile unsigned *)NSP_BASE_ADDR = (unsigned)nsp_orig_base;
 	SDL_memcpy((unsigned *)NSP_PALETTE_ADDR, nsp_orig_hw_palette, 32);
 	SDL_free(nsp_lcd_buffer);
 #endif

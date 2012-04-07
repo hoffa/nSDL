@@ -2,7 +2,7 @@ CC = nspire-gcc
 AR = arm-none-eabi-ar
 RANLIB = arm-none-eabi-ranlib
 INCLUDE = -I include/
-CFLAGS = -Wall -Wextra -nostdlib
+CFLAGS = -Wall -Wextra -nostdlib -O3
 
 ifneq ($(findstring cx8s,$(MAKECMDGOALS)),)
 	CFLAGS += -D NSP_BPP_SW8_HW16 -D NSP_CX

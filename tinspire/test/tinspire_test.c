@@ -1,14 +1,17 @@
 #include <os.h>
 #include <SDL.h>
-#include "../../src/video/SDL_cursor_c.h"
 
-#define STR "Hello world\nderpdhehrhe\trhhtdepr !!!!\n  sadsaddasdah\n"
+#define NUM_BLITS	10000
 
 int main(void) {
-	SDL_Surface *screen, *img;
-	SDL_nFont *font;
-	int done = 0;
+	SDL_Surface *screen, *tmp, *image;
+	SDL_nFont *font_vga;
+	Uint32 start, end;
+	SDL_Rect pos;
+	int max_x;
+	int incdec;
 	int i;
+
 	if(SDL_Init(SDL_INIT_VIDEO) == -1) {
 		printf("SDL_Init error: %s\n", SDL_GetError());
 		return 1;
@@ -18,39 +21,38 @@ int main(void) {
 		printf("SDL_SetVideoMode error: %s\n", SDL_GetError());
 		return 1;
 	}
-	font = SDL_nLoadFont(NSP_FONT_THIN, SDL_MapRGB(screen->format, 255, 255, 255),
-		NSP_FONT_TEXTWRAP);
-	img = SDL_LoadBMP("Examples/image.bmp");
-	printf("width: %d, height: %d\n", SDL_nGetStringWidth(font, STR), SDL_nGetStringHeight(font, STR));
-	SDL_FillRect(screen, NULL, 0);
-	for(i = 0; i < 200; ++i) {
-		SDL_Rect rect;
-		rect.x = i;
-		rect.y = 0;
-		rect.w = 1;
-		rect.h = 240;
-		SDL_FillRect(screen, &rect, SDL_MapRGB(screen->format, i, i, i));
+	font_vga = SDL_nLoadFont(NSP_FONT_VGA, SDL_MapRGB(screen->format, 255, 0, 255), NSP_FONT_DEFAULT);
+	tmp = SDL_LoadBMP("Examples/image.bmp");
+	if(tmp == NULL) {
+		printf("SDL_LoadBMP error: %s\n", SDL_GetError());
+		return 1;
 	}
-	SDL_BlitSurface(img, NULL, screen, NULL);
-	SDL_nDrawString(screen, font, NSP_COL(0), NSP_ROW(1), STR);
+	image = SDL_DisplayFormat(tmp);
+	SDL_FreeSurface(tmp);
+	incdec = 1;
+	max_x = SCREEN_WIDTH - image->w;
+	pos.x = 0;
+	pos.y = 0;
+	SDL_FillRect(screen, NULL, 0);
+	start = SDL_GetTicks();
+	puts("START");
+	for(i = 0; i < NUM_BLITS; ++i) {
+		SDL_BlitSurface(image, NULL, screen, &pos);
+		SDL_UpdateRect(screen, pos.x, pos.y, image->w, image->h);
+		pos.x += incdec;
+		if(pos.x == 0)
+			incdec = 1;
+		else if(pos.x == max_x)
+			incdec = -1;
+	}
+	puts("END");
+	end = SDL_GetTicks();
+	SDL_nDrawString(screen, font_vga, NSP_COL(1), NSP_ROW(1), "%s\n\n%d blits in %u ms", NSP_NAME_FULL, NUM_BLITS, (unsigned int)(end - start));
 	SDL_Flip(screen);
 	SDL_Delay(5000);
-#if 0
-	SDL_DrawCursor(screen);
-	while(!done) {
-		SDL_Event event;
-		SDL_FillRect(screen, NULL, 0);
-		//SDL_nDrawString(screen, font, NSP_COL(1), NSP_ROW(1), NSP_NAME_FULL);
-		//while(SDL_PollEvent(&event))
-		SDL_WaitEvent(&event);
-		if(event.key.keysym.sym == SDLK_ESCAPE)
-			done = 1;
-		SDL_nDrawString(screen, font, NSP_COL(5), NSP_ROW(5), "(%d,%d)", SDL_cursor->area.x, SDL_cursor->area.y);
-		SDL_Flip(screen);
-	}
-#endif
-	SDL_FreeSurface(img);
-	SDL_nFreeFont(font);
+	SDL_nFreeFont(font_vga);
+	SDL_FreeSurface(image);
 	SDL_Quit();
+
 	return 0;
 }
