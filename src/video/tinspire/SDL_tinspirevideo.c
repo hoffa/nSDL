@@ -61,11 +61,11 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects);
 #else
 #define NSP_MAP_PALETTE(r, g, b)	((15 - ((r + (2 * g) + b) / 64)) << 1)
 #endif
-	static Uint8 *nsp_lcd_buffer;
-	static Uint16 nsp_hw_palette[256] = {0x0000};
-	static Uint16 nsp_orig_hw_palette[16];
-	static unsigned *nsp_orig_base;
-	static volatile unsigned *nsp_lcd_ctrl;
+static Uint8 *nsp_lcd_buffer;
+static Uint16 nsp_hw_palette[256] = {0x0000};
+static Uint16 nsp_orig_hw_palette[16];
+static unsigned *nsp_orig_base;
+static volatile unsigned *nsp_lcd_ctrl;
 #endif
 
 int SDL_nCreatePalette(SDL_Surface *surface) {
@@ -217,7 +217,7 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 {
 	NSP_DPRINT("Initializing display (%dx%dx%d)\n", width, height, NSP_BPP);
 
-	/* Sorry bro, we don't actually care about bpp, NSP_BPP is how we roll. */
+	/* Sorry bro, we don't actually care about bpp, NSP_BPP is how we roll! */
 
 	if ( this->hidden->buffer ) {
 		SDL_free( this->hidden->buffer );
@@ -354,6 +354,8 @@ int NSP_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
 #elif NSP_BPP_SW8_HW8
 		nsp_hw_palette[i] = (Uint16)NSP_MAP_PALETTE(colors[i].r, colors[i].g, colors[i].b);
 	memcpy((unsigned *)NSP_PALETTE_ADDR, nsp_hw_palette, 512);
+#else
+		return(1);
 #endif
 	return(1);
 }

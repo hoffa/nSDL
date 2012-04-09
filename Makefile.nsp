@@ -16,11 +16,11 @@ else
 	endif
 endif
 
-ifneq ($(findstring tc4,$(MAKECMDGOALS)),)
-	CFLAGS += -D NSP_BPP_SW8_HW4 -D NSP_TC
+ifneq ($(findstring tc8,$(MAKECMDGOALS)),)
+	CFLAGS += -D NSP_BPP_SW8_HW8 -D NSP_TC
 else
 	ifneq ($(findstring tc,$(MAKECMDGOALS)),)
-		CFLAGS += -D NSP_BPP_SW8_HW8 -D NSP_TC
+		CFLAGS += -D NSP_BPP_SW8_HW4 -D NSP_TC
 	endif
 endif
 

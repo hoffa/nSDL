@@ -4,10 +4,12 @@ SDL for TI-Nspire calculators (version 0.2.0 beta)
 Ported by Christoffer Rehn (christoffer.rehn@telenet.be)
 
 Todo:
-- Add mouse support
+- Add mouse support (try with SDL_EventState for debug)
 - Map more keys to SDLKs
 - Handle the 16-bit timer better
-- Add support for diagonal arrow keys in events & joystick
+- Add support for diagonal arrow keys in events
 - Add draw string to box function
-- Make joystick only use touchpad
 - Implement double buffer
+- Make joystick only use touchpad (CORRECT: MAKE JOYSTICK):
+	center touchpad: (0, 0)
+	etc.

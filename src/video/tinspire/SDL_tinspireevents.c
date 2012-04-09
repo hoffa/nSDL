@@ -32,6 +32,9 @@ static t_key nspk_keymap[NSP_NUMKEYS];
 static SDLKey sdlk_keymap[NSP_NUMKEYS] = {SDLK_UNKNOWN};
 static char key_state[NSP_NUMKEYS] = {SDL_RELEASED};
 
+extern Sint16 *__nsp_mouse_x;
+extern Sint16 *__nsp_mouse_y;
+
 void NSP_PumpEvents(_THIS)
 {
 	touchpad_report_t tp;
@@ -43,6 +46,8 @@ void NSP_PumpEvents(_THIS)
 	mouse_dy = -((Sint8)tp.y_velocity);
 	if ( mouse_dx || mouse_dy )
 		SDL_PrivateMouseMotion(0, SDL_TRUE, (Sint16)mouse_dx, (Sint16)mouse_dy);
+	if ( isKeyPressed(KEY_NSPIRE_CLICK) )
+		SDL_PrivateMouseButton(SDL_PRESSED, 0, *__nsp_mouse_x, *__nsp_mouse_y);
 
 	for ( i = 0; i < NSP_NUMKEYS; ++i ) {
 		BOOL key_pressed = isKeyPressed(nspk_keymap[i]);
@@ -133,7 +138,6 @@ void NSP_InitOSKeymap(_THIS)
 	nspk_keymap[NSP_KEY_DEL] =	KEY_NSPIRE_DEL;
 	nspk_keymap[NSP_KEY_LTHAN] =	KEY_NSPIRE_LTHAN;
 	nspk_keymap[NSP_KEY_FLAG] =	KEY_NSPIRE_FLAG;
-	nspk_keymap[NSP_KEY_CLICK] =	KEY_NSPIRE_CLICK;
 	nspk_keymap[NSP_KEY_C] =	KEY_NSPIRE_C;
 	nspk_keymap[NSP_KEY_HOME] =	KEY_NSPIRE_HOME;
 	nspk_keymap[NSP_KEY_B] =	KEY_NSPIRE_B;
@@ -224,7 +228,6 @@ void NSP_InitOSKeymap(_THIS)
 	sdlk_keymap[NSP_KEY_RIGHTDOWN] = SDLK_UNKNOWN;
 	sdlk_keymap[NSP_KEY_DOWNLEFT] =	SDLK_UNKNOWN;
 	sdlk_keymap[NSP_KEY_LEFTUP] =	SDLK_UNKNOWN;
-	sdlk_keymap[NSP_KEY_CLICK] =	SDLK_UNKNOWN;
 	sdlk_keymap[NSP_KEY_BAR] =	SDLK_UNKNOWN;
 	sdlk_keymap[NSP_KEY_VAR] =	SDLK_LALT;
 	sdlk_keymap[NSP_KEY_DOC] =	SDLK_LMETA;

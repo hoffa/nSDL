@@ -33,8 +33,8 @@
  * #define NSP_TC for TC models.
  * #define NSP_BPP_SW16_HW16 for CX models (safe, fast).	(cx)
  * #define NSP_BPP_SW8_HW16 for CX models (safe, slow).		(cx8s)
- * #define NSP_BPP_SW8_HW8 for CX/TC models (unsafe, fast).	(cx8, tc)
- * #define NSP_BPP_SW8_HW4 for TC models (safe, slow).		(tc4)
+ * #define NSP_BPP_SW8_HW8 for CX/TC models (unsafe, fast).	(cx8, tc8)
+ * #define NSP_BPP_SW8_HW4 for TC models (safe, slow).		(tc)
  * #define NSP_ALT_FINDCOLOR to use the alternative, slightly faster but less
  *	tested (and less accurate?) SDL_FindColor(). Only for palettized surfaces.
  */
@@ -89,7 +89,6 @@
 #elif NSP_BPP_SW8_HW4
 #define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-8/4-tc")
 #endif
-#define NSP_JOYAXISVALUE	1
 #define NSP_TAB_WIDTH	4
 #define NSP_ALT_FINDCOLOR	0
 
@@ -227,42 +226,6 @@
 
 /* Enable assembly routines */
 #define SDL_ASSEMBLY_ROUTINES	1
-
-/* Joystick axes */
-enum {
-	NSP_JA_H = 0,
-	NSP_JA_V,
-	NSP_NUMAXES
-};
-
-/* Joystick buttons */
-enum {
-	NSP_JB_ESC = 0,
-	NSP_JB_SCRATCHPAD,
-	NSP_JB_TAB,
-	NSP_JB_HOME,
-	NSP_JB_DOC,
-	NSP_JB_MENU,
-	NSP_JB_CTRL,
-	NSP_JB_SHIFT,
-	NSP_JB_VAR,
-	NSP_JB_DEL,
-	NSP_JB_0,
-	NSP_JB_1,
-	NSP_JB_2,
-	NSP_JB_3,
-	NSP_JB_4,
-	NSP_JB_5,
-	NSP_JB_6,
-	NSP_JB_7,
-	NSP_JB_8,
-	NSP_JB_9,
-	NSP_JB_PERIOD,
-	NSP_JB_NEGATIVE,
-	NSP_JB_ENTER,
-	NSP_JB_CLICK,
-	NSP_NUMBUTTONS
-};
 
 /* Font flags */
 enum {
