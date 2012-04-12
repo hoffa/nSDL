@@ -157,6 +157,8 @@ VideoBootStrap NSP_bootstrap = {
 	NSP_Available, NSP_CreateDevice
 };
 
+#define NSP_CLEAN_EXIT()	{ SDL_Quit(); \
+				  exit(EXIT_FAILURE); }
 #define NSP_MSG_INCOMP_CALC(color_or_grayscale)	"Pixel format not supported.\nThis program has been " \
 						"compiled for TI-Nspire calculators with a " color_or_grayscale " display."
 
@@ -164,19 +166,26 @@ int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 {
 	NSP_DPRINT("Initializing video format\n");
 
+/* Check pixel format compatibility */
 #if NSP_CX
 	if ( is_classic ) {
 		show_msgbox(NSP_NAME_FULL, NSP_MSG_INCOMP_CALC("color"));
-		SDL_Quit();
-		exit(EXIT_FAILURE);
+		NSP_CLEAN_EXIT();
 	}
 #else
 	if ( is_cx ) {
 		show_msgbox(NSP_NAME_FULL, NSP_MSG_INCOMP_CALC("grayscale"));
-		SDL_Quit();
-		exit(EXIT_FAILURE);
+		NSP_CLEAN_EXIT();
 	}
 #endif
+
+/* Warn the user if using mouse but running on a Clickpad */
+if ( ! is_touchpad
+&& SDL_strcmp(SDL_getenv("NSP_WARN_NOMOUSE"), "1") == 0
+&& show_msgbox_2b(NSP_NAME_FULL, "This program requires a mouse, but your calculator does not have a touchpad. "
+				 "Some features might not work. Continue at your own risk.",
+		  "Return", "Continue") == 1 )
+	NSP_CLEAN_EXIT();
 
 #if NSP_BPP_SW8_HW8
 	NSP_DPRINT("Switching to hardware 8 bpp\n");
@@ -185,8 +194,7 @@ int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 	nsp_lcd_buffer = SDL_malloc(NSP_LCDBUF_SIZE);
 	if ( nsp_lcd_buffer == NULL ) {
 		SDL_OutOfMemory();
-		SDL_Quit();
-		exit(EXIT_FAILURE);
+		NSP_CLEAN_EXIT();
 	}
 	SDL_memset(nsp_lcd_buffer, 0, NSP_LCDBUF_SIZE);
 
