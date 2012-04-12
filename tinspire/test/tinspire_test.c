@@ -37,8 +37,8 @@ int main(void) {
 		}
 		SDL_Flip(screen);
 	}
-	SDL_nFreeFont(font_vga);
-	SDL_Quit();
+	//SDL_nFreeFont(font_vga);
+	//SDL_Quit();
 
 	return 0;
 }

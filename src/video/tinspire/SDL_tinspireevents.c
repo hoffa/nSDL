@@ -33,9 +33,6 @@ static SDLKey sdlk_keymap[NSP_NUMKEYS] = {SDLK_UNKNOWN};
 static char key_state[NSP_NUMKEYS] = {SDL_RELEASED};
 static char mousebutton_state = SDL_RELEASED;
 
-extern Sint16 *__nsp_mouse_x;
-extern Sint16 *__nsp_mouse_y;
-
 void NSP_PumpEvents(_THIS)
 {
 	touchpad_report_t tp;
@@ -46,20 +43,18 @@ void NSP_PumpEvents(_THIS)
 	touchpad_scan(&tp);
 	mouse_dx = (Sint8)tp.x_velocity;
 	mouse_dy = -((Sint8)tp.y_velocity);
-	//if ( mouse_dx || mouse_dy )
-	//	SDL_PrivateMouseMotion(0, SDL_TRUE, (Sint16)mouse_dx, (Sint16)mouse_dy);
-#if 0
+	if ( mouse_dx || mouse_dy )
+		SDL_PrivateMouseMotion(0, SDL_TRUE, (Sint16)mouse_dx, (Sint16)mouse_dy);
 	mousebutton_pressed = isKeyPressed(KEY_NSPIRE_CLICK);
 	if ( mousebutton_state == SDL_RELEASED ) {
 		if ( mousebutton_pressed ) {
-			SDL_PrivateMouseButton(SDL_PRESSED, 0, *__nsp_mouse_x, *__nsp_mouse_y);
+			SDL_PrivateMouseButton(SDL_PRESSED, 0, 0, 0);
 			mousebutton_state = SDL_PRESSED;
 		}
 	} else if ( ! mousebutton_pressed ) {
-		SDL_PrivateMouseButton(SDL_RELEASED, 0, *__nsp_mouse_x, *__nsp_mouse_y);
+		SDL_PrivateMouseButton(SDL_RELEASED, 0, 0, 0);
 		mousebutton_state = SDL_RELEASED;
 	}
-#endif
 
 	for ( i = 0; i < NSP_NUMKEYS; ++i ) {
 		BOOL key_pressed = isKeyPressed(nspk_keymap[i]);

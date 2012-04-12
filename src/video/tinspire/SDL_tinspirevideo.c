@@ -157,7 +157,8 @@ VideoBootStrap NSP_bootstrap = {
 	NSP_Available, NSP_CreateDevice
 };
 
-#define NSP_CLEAN_EXIT()	{ SDL_Quit(); \
+#define NSP_CLEAN_EXIT()	{ NSP_DPRINT("Aborting\n"); \
+				  SDL_Quit(); \
 				  exit(EXIT_FAILURE); }
 #define NSP_MSG_INCOMP_CALC(color_or_grayscale)	"Pixel format not supported.\nThis program has been " \
 						"compiled for TI-Nspire calculators with a " color_or_grayscale " display."
