@@ -322,7 +322,11 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 			continue;
 
 		if ( this->hidden->show_mouse )
-			SDL_DrawCursorNoLock(SDL_VideoSurface);
+			if ( ( SDL_cursor->area.x + 10 > rect->x
+			    && SDL_cursor->area.x < rect->x + rect->w )
+			  || ( SDL_cursor->area.y + 16 > rect->y
+			    && SDL_cursor->area.y < rect->y + rect->h ) )
+				SDL_DrawCursorNoLock(SDL_VideoSurface);
 
 #if NSP_BPP_SW8_HW4
 		/* Single nibbles go to hell! */
