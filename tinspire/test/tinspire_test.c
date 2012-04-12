@@ -8,6 +8,7 @@ int main(void) {
 	SDL_Event event;
 
 	SDL_putenv("SDL_WARN_NOMOUSE=1");
+	SDL_putenv("SDL_NOMOUSE=0");
 	if(SDL_Init(SDL_INIT_VIDEO) == -1) {
 		printf("SDL_Init error: %s\n", SDL_GetError());
 		return 1;

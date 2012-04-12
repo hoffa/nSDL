@@ -36,6 +36,7 @@
 struct SDL_PrivateVideoData {
 	int w, h;
 	void *buffer;
+    SDL_bool show_mouse;
 };
 
 #endif /* _SDL_tinspirevideo_h */

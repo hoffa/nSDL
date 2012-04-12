@@ -191,6 +191,8 @@ if ( ! is_touchpad
 		  "Return", "Continue") == 1 )
 	NSP_CLEAN_EXIT();
 
+this->hidden->show_mouse = ( SDL_strcmp(SDL_getenv("SDL_NOMOUSE"), "1") == 0 ) ? SDL_FALSE : SDL_TRUE;
+
 #if NSP_BPP_SW8_HW8
 	NSP_DPRINT("Switching to hardware 8 bpp\n");
 
@@ -319,7 +321,8 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 		if ( ! rect )
 			continue;
 
-		SDL_DrawCursorNoLock(SDL_VideoSurface);
+		if ( this->hidden->show_mouse )
+			SDL_DrawCursorNoLock(SDL_VideoSurface);
 
 #if NSP_BPP_SW8_HW4
 		/* Single nibbles go to hell! */

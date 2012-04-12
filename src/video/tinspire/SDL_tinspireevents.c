@@ -36,29 +36,32 @@ static char mousebutton_state = SDL_RELEASED;
 
 void NSP_PumpEvents(_THIS)
 {
-	touchpad_report_t tp;
-	Sint8 mouse_dx, mouse_dy;
-	BOOL mousebutton_pressed;
 	int i;
 
-	/* We don't want to draw the cursor right away,
-	   but at the very last moment, when calling SDL_UpdateRects() */
-	SDL_cursorstate &= ~CURSOR_USINGSW;
+	if ( this->hidden->show_mouse ) {
+		touchpad_report_t tp;
+		Sint8 mouse_dx, mouse_dy;
+		BOOL mousebutton_pressed;
 
-	touchpad_scan(&tp);
-	mouse_dx = (Sint8)tp.x_velocity;
-	mouse_dy = -((Sint8)tp.y_velocity);
-	if ( mouse_dx || mouse_dy )
-		SDL_PrivateMouseMotion(0, SDL_TRUE, (Sint16)mouse_dx, (Sint16)mouse_dy);
-	mousebutton_pressed = isKeyPressed(KEY_NSPIRE_CLICK);
-	if ( mousebutton_state == SDL_RELEASED ) {
-		if ( mousebutton_pressed ) {
-			SDL_PrivateMouseButton(SDL_PRESSED, 0, 0, 0);
-			mousebutton_state = SDL_PRESSED;
+		/* We don't want to draw the cursor right away,
+		   but at the very last moment, when calling SDL_UpdateRects() */
+		SDL_cursorstate &= ~CURSOR_USINGSW;
+
+		touchpad_scan(&tp);
+		mouse_dx = (Sint8)tp.x_velocity;
+		mouse_dy = -((Sint8)tp.y_velocity);
+		if ( mouse_dx || mouse_dy )
+			SDL_PrivateMouseMotion(0, SDL_TRUE, (Sint16)mouse_dx, (Sint16)mouse_dy);
+		mousebutton_pressed = isKeyPressed(KEY_NSPIRE_CLICK);
+		if ( mousebutton_state == SDL_RELEASED ) {
+			if ( mousebutton_pressed ) {
+				SDL_PrivateMouseButton(SDL_PRESSED, 0, 0, 0);
+				mousebutton_state = SDL_PRESSED;
+			}
+		} else if ( ! mousebutton_pressed ) {
+			SDL_PrivateMouseButton(SDL_RELEASED, 0, 0, 0);
+			mousebutton_state = SDL_RELEASED;
 		}
-	} else if ( ! mousebutton_pressed ) {
-		SDL_PrivateMouseButton(SDL_RELEASED, 0, 0, 0);
-		mousebutton_state = SDL_RELEASED;
 	}
 
 	for ( i = 0; i < NSP_NUMKEYS; ++i ) {
