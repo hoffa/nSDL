@@ -52,6 +52,9 @@ static int NSP_LockHWSurface(_THIS, SDL_Surface *surface);
 static void NSP_UnlockHWSurface(_THIS, SDL_Surface *surface);
 static void NSP_FreeHWSurface(_THIS, SDL_Surface *surface);
 
+/* WM functions */
+static void NSP_MoveWMCursor(_THIS, int x, int y);
+
 /* etc. */
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects);
 
@@ -144,7 +147,7 @@ static SDL_VideoDevice *NSP_CreateDevice(int devindex)
 	device->FreeWMCursor = NULL;
 	device->ShowWMCursor = NULL;
 	device->WarpWMCursor = NULL;
-	device->MoveWMCursor = NULL;
+	device->MoveWMCursor = NSP_MoveWMCursor;
 	device->CheckMouseMode = NULL;
 
 	device->free = NSP_DeleteDevice;
@@ -182,7 +185,7 @@ int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 
 /* Warn the user if using mouse but running on a Clickpad */
 if ( ! is_touchpad
-&& SDL_strcmp(SDL_getenv("NSP_WARN_NOMOUSE"), "1") == 0
+&& SDL_strcmp(SDL_getenv("SDL_WARN_NOMOUSE"), "1") == 0
 && show_msgbox_2b(NSP_NAME_FULL, "This program requires a mouse, but your calculator does not have a touchpad. "
 				 "Some features might not work. Continue at your own risk.",
 		  "Return", "Continue") == 1 )
@@ -282,6 +285,11 @@ static void NSP_UnlockHWSurface(_THIS, SDL_Surface *surface)
 	return;
 }
 
+static void NSP_MoveWMCursor(_THIS, int x, int y) {
+	SDL_cursor->area.x = x;
+	SDL_cursor->area.y = y;
+}
+
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 {
 	const int src_skip = SDL_VideoSurface->w;
@@ -310,6 +318,8 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 		SDL_Rect *rect = &rects[i];
 		if ( ! rect )
 			continue;
+
+		SDL_DrawCursorNoLock(SDL_VideoSurface);
 
 #if NSP_BPP_SW8_HW4
 		/* Single nibbles go to hell! */

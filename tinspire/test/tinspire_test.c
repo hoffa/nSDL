@@ -7,7 +7,7 @@ int main(void) {
 	int done = 0;
 	SDL_Event event;
 
-	SDL_putenv("NSP_WARN_NOMOUSE=1");
+	SDL_putenv("SDL_WARN_NOMOUSE=1");
 	if(SDL_Init(SDL_INIT_VIDEO) == -1) {
 		printf("SDL_Init error: %s\n", SDL_GetError());
 		return 1;
@@ -37,8 +37,8 @@ int main(void) {
 		}
 		SDL_Flip(screen);
 	}
-	//SDL_nFreeFont(font_vga);
-	//SDL_Quit();
+	SDL_nFreeFont(font_vga);
+	SDL_Quit();
 
 	return 0;
 }

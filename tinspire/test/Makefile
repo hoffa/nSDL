@@ -33,7 +33,7 @@ cx: all
 cx8: all
 cx8s: all
 tc: all
-tc4: all
+tc8: all
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS)

@@ -24,6 +24,7 @@
 #include "SDL.h"
 #include "../../events/SDL_sysevents.h"
 #include "../../events/SDL_events_c.h"
+#include "../SDL_cursor_c.h"
 
 #include "SDL_tinspirevideo.h"
 #include "SDL_tinspireevents_c.h"
@@ -39,6 +40,10 @@ void NSP_PumpEvents(_THIS)
 	Sint8 mouse_dx, mouse_dy;
 	BOOL mousebutton_pressed;
 	int i;
+
+	/* We don't want to draw the cursor right away,
+	   but at the very last moment, when calling SDL_UpdateRects() */
+	SDL_cursorstate &= ~CURSOR_USINGSW;
 
 	touchpad_scan(&tp);
 	mouse_dx = (Sint8)tp.x_velocity;

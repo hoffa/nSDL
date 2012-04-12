@@ -10,6 +10,7 @@ Todo:
 - Add support for diagonal arrow keys in events
 - Add draw string to box function
 - Implement double buffer
+- Add SDL_NOMOUSE stuff
 - Make joystick only use touchpad (CORRECT: MAKE JOYSTICK):
 	center touchpad: (0, 0)
 	etc.
