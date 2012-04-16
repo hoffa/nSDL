@@ -191,7 +191,8 @@ if ( ! is_touchpad
 		  "Return", "Continue") == 1 )
 	NSP_CLEAN_EXIT();
 
-this->hidden->show_mouse = ( SDL_strcmp(SDL_getenv("SDL_NOMOUSE"), "1") == 0 ) ? SDL_FALSE : SDL_TRUE;
+this->hidden->use_mouse = ( SDL_strcmp(SDL_getenv("SDL_NOMOUSE"), "1") == 0 || ! is_touchpad )
+			  ? SDL_FALSE : SDL_TRUE;
 
 #if NSP_BPP_SW8_HW8
 	NSP_DPRINT("Switching to hardware 8 bpp\n");
@@ -229,9 +230,14 @@ SDL_Rect **NSP_ListModes(_THIS, SDL_PixelFormat *format, Uint32 flags)
 SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 				int width, int height, int bpp, Uint32 flags)
 {
-	NSP_DPRINT("Initializing display (%dx%dx%d)\n", width, height, NSP_BPP);
+	if ( width != SCREEN_WIDTH || height != SCREEN_HEIGHT )
+		NSP_DPRINT("Warning: not using 320x240, weird stuff might happen\n");
 
 	/* Sorry bro, we don't actually care about bpp, NSP_BPP is how we roll! */
+	if ( bpp != NSP_BPP )
+		NSP_DPRINT("Warning: got %d bpp, forcing to %d bpp\n", bpp, NSP_BPP);
+
+	NSP_DPRINT("Initializing display (%dx%dx%d)\n", width, height, NSP_BPP);
 
 	if ( this->hidden->buffer ) {
 		SDL_free( this->hidden->buffer );
@@ -321,7 +327,7 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 		if ( ! rect )
 			continue;
 
-		if ( this->hidden->show_mouse )
+		if ( this->hidden->use_mouse )
 			if ( ( SDL_cursor->area.x + 10 > rect->x
 			    && SDL_cursor->area.x < rect->x + rect->w )
 			  || ( SDL_cursor->area.y + 16 > rect->y

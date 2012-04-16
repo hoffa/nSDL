@@ -34,24 +34,27 @@ static SDLKey sdlk_keymap[NSP_NUMKEYS] = {SDLK_UNKNOWN};
 static char key_state[NSP_NUMKEYS] = {SDL_RELEASED};
 static char mousebutton_state = SDL_RELEASED;
 
+static int nsp_tp_get_velocity(nsp_tp_t *tp) {
+	if ( ! touchpad_read(6, 7, tp) )
+		return 0;
+	tp->dy *= -1;
+	return tp->dx || tp->dy;
+}
+
 void NSP_PumpEvents(_THIS)
 {
 	int i;
 
-	if ( this->hidden->show_mouse ) {
-		touchpad_report_t tp;
-		Sint8 mouse_dx, mouse_dy;
+	if ( this->hidden->use_mouse ) {
+		nsp_tp_t tp;
 		BOOL mousebutton_pressed;
 
 		/* We don't want to draw the cursor right away,
 		   but at the very last moment, when calling SDL_UpdateRects() */
 		SDL_cursorstate &= ~CURSOR_USINGSW;
 
-		touchpad_scan(&tp);
-		mouse_dx = (Sint8)tp.x_velocity;
-		mouse_dy = -((Sint8)tp.y_velocity);
-		if ( mouse_dx || mouse_dy )
-			SDL_PrivateMouseMotion(0, SDL_TRUE, (Sint16)mouse_dx, (Sint16)mouse_dy);
+		if ( nsp_tp_get_velocity(&tp) )
+			SDL_PrivateMouseMotion(0, SDL_TRUE, (Sint16)tp.dx, (Sint16)tp.dy);
 		mousebutton_pressed = isKeyPressed(KEY_NSPIRE_CLICK);
 		if ( mousebutton_state == SDL_RELEASED ) {
 			if ( mousebutton_pressed ) {

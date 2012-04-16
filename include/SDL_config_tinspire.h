@@ -65,7 +65,7 @@
 #if 1
 #define NSP_DEBUG	1
 #define DEBUG_BUILD	1
-#define DEBUG_PALETTE	1
+// #define DEBUG_PALETTE	1
 #define DEBUG_VIDEO	1
 #define DEBUG_ASM	1
 #define DEBUG_GRAB	1
@@ -120,7 +120,7 @@
 		fprintf(stderr, "[NSP] %s():%d: " fmt, \
 			__FUNCTION__, __LINE__, ## args)
 #else
-#define NSP_DPRINT(fmt, args...)
+#define NSP_DPRINT(fmt, args...) (void)0
 #endif
 
 #define SDL_HAS_64BIT_TYPE	1
