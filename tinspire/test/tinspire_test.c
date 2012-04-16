@@ -8,6 +8,7 @@ int main(void) {
 	SDL_Event event;
 
 	SDL_putenv("SDL_WARN_NOMOUSE=1");
+	SDL_putenv("SDL_NOMOUSE=1");
 	if(SDL_Init(SDL_INIT_VIDEO) == -1) {
 		printf("SDL_Init error: %s\n", SDL_GetError());
 		return 1;
@@ -19,7 +20,7 @@ int main(void) {
 	}
 	font_vga = SDL_nLoadFont(NSP_FONT_VGA, SDL_MapRGB(screen->format, 255, 255, 255), NSP_FONT_DEFAULT);
 	while(!done) {
-		SDL_FillRect(screen, NULL, 0);
+		SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 24, 46, 103));
 		SDL_nDrawString(screen, font_vga, NSP_COL(1), NSP_ROW(1), NSP_NAME_FULL);
 		SDL_WaitEvent(&event);
 		switch(event.type) {
