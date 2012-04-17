@@ -42,9 +42,9 @@ void NSP_PumpEvents(_THIS)
 	for ( i = dx_sum = dy_sum = 0; i < NSP_NUMKEYS; ++i ) {
 		BOOL key_pressed = isKeyPressed(nspk_keymap[i]);
 		SDL_keysym keysym;
-		nsp_tp_t tp;
+		nsp_tp_t tp = {0, 0};
 
-		if ( is_touchpad
+		if ( ! this->hidden->is_clickpad
 		  && touchpad_read(0x06, 0x07, &tp)
 		  && ( tp.dx || tp.dy ) ) {
 			dx_sum += tp.dx;
