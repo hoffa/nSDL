@@ -34,27 +34,21 @@ static SDLKey sdlk_keymap[NSP_NUMKEYS] = {SDLK_UNKNOWN};
 static char key_state[NSP_NUMKEYS] = {SDL_RELEASED};
 static char mousebutton_state = SDL_RELEASED;
 
-static int nsp_tp_get_velocity(nsp_tp_t *tp) {
-	if ( ! touchpad_read(6, 7, tp) )
-		return 0;
-	tp->dy *= -1;
-	return tp->dx || tp->dy;
-}
-
 void NSP_PumpEvents(_THIS)
 {
 	Sint16 dx_sum, dy_sum;
 	int i;
 
-	dx_sum = dy_sum = 0;
-	for ( i = 0; i < NSP_NUMKEYS; ++i ) {
+	for ( i = dx_sum = dy_sum = 0; i < NSP_NUMKEYS; ++i ) {
 		BOOL key_pressed = isKeyPressed(nspk_keymap[i]);
 		SDL_keysym keysym;
 		nsp_tp_t tp;
 
-		if ( is_touchpad && nsp_tp_get_velocity(&tp) ) {
+		if ( is_touchpad
+		  && touchpad_read(0x06, 0x07, &tp)
+		  && ( tp.dx || tp.dy ) ) {
 			dx_sum += tp.dx;
-			dy_sum += tp.dy;
+			dy_sum += -tp.dy;
 		}
 
 		keysym.scancode = i;
@@ -71,16 +65,7 @@ void NSP_PumpEvents(_THIS)
 	}
 
 	if ( this->hidden->use_mouse ) {
-		BOOL mousebutton_pressed;
-
-		/* We don't want to draw the cursor right away,
-		   but at the very last moment, when calling SDL_UpdateRects() */
-		SDL_cursorstate &= ~CURSOR_USINGSW;
-
-		if ( dx_sum || dy_sum )
-			SDL_PrivateMouseMotion(0, SDL_TRUE, dx_sum, dy_sum);
-
-		mousebutton_pressed = isKeyPressed(KEY_NSPIRE_CLICK);
+		BOOL mousebutton_pressed = isKeyPressed(KEY_NSPIRE_CLICK);
 		if ( mousebutton_state == SDL_RELEASED ) {
 			if ( mousebutton_pressed ) {
 				SDL_PrivateMouseButton(SDL_PRESSED, 0, 0, 0);
@@ -90,6 +75,13 @@ void NSP_PumpEvents(_THIS)
 			SDL_PrivateMouseButton(SDL_RELEASED, 0, 0, 0);
 			mousebutton_state = SDL_RELEASED;
 		}
+
+		/* We don't want to draw the cursor right away,
+		   but at the very last moment, when calling SDL_UpdateRects() */
+		SDL_cursorstate &= ~CURSOR_USINGSW;
+
+		if ( dx_sum || dy_sum )
+			SDL_PrivateMouseMotion(0, SDL_TRUE, dx_sum, dy_sum);
 	}
 
 }
