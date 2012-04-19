@@ -81,6 +81,7 @@ SOURCES = \
 	src/video/tinspire/SDL_tinspireevents.c \
 	src/video/tinspire/SDL_tinspirefonts.c \
 	src/video/tinspire/SDL_tinspiremouse.c \
+	src/video/tinspire/SDL_tinspirenti.c \
 	src/video/tinspire/SDL_tinspirevideo.c
 OBJECTS = $(SOURCES:.c=.o)
 

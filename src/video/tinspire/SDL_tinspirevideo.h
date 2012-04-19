@@ -19,6 +19,7 @@
     Sam Lantinga
     slouken@libsdl.org
 */
+
 #include <os.h>
 
 #include "SDL_config.h"

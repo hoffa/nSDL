@@ -35,31 +35,35 @@ SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags) {
 		int max_width = 0;
 		SDL_Surface *char_surf = SDL_CreateRGBSurface(SDL_SWSURFACE, NSP_FONT_WIDTH,
 			NSP_FONT_HEIGHT, NSP_BPP, NSP_RMASK, NSP_GMASK, NSP_BMASK, 0);
-		if ( char_surf == NULL )
+		if ( char_surf == NULL ) {
+			SDL_OutOfMemory();
 			return(NULL);
+		}
 		font->char_width[i] = NSP_FONT_WIDTH;
 #if NSP_BPP_SW8
 		if ( ! SDL_nCreatePalette(char_surf) ) {
 			SDL_FreeSurface(char_surf);
+			SDL_nFreeFont(font);
 			return(NULL);
 		}
 #endif
 		if ( SDL_SetColorKey(char_surf, SDL_SRCCOLORKEY | SDL_RLEACCEL, 0) == -1 ) {
 			SDL_FreeSurface(char_surf);
+			SDL_nFreeFont(font);
 			return(NULL);
 		}
 		SDL_LockSurface(char_surf);
-		for ( j = 0; j < 8; ++j )
-			for ( k = 0; k < 8; ++k ) {
-				if ( charmap[offset + j] & (1 << (7 - k)) ) { /* "Pixel" set */
+		for ( j = 0; j < NSP_FONT_HEIGHT; ++j )
+			for ( k = 0; k < NSP_FONT_WIDTH; ++k ) {
+				if ( charmap[offset + j] & (1 << (NSP_FONT_WIDTH - k - 1)) ) { /* "Pixel" set */
 					if ( k > max_width ) {
 						font->char_width[i] = k + 1;
 						max_width = k;
 					}
 #if NSP_BPP_SW16
-					*(Uint16 *)(char_surf->pixels + (k << 1) + (j << 4)) = (Uint16)color;
+					*(Uint16 *)(char_surf->pixels + (2 * k) + (2 * NSP_FONT_WIDTH * j)) = (Uint16)color;
 #else
-					*(Uint8 *)(char_surf->pixels + k + (j << 3)) = (Uint8)color;
+					*(Uint8 *)(char_surf->pixels + k + (NSP_FONT_WIDTH * j)) = (Uint8)color;
 #endif
 				}
 			}

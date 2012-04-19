@@ -42,13 +42,13 @@ void SDL_StartTicks(void)
 	*(volatile unsigned *)0x900B0018 &= ~(1 << 11);
 	*(volatile unsigned *)0x900C0080 = 0xA;
 #if NSP_CX
-	*control = 0xA6;
+	*control = 0b10100110;
 	start = *value;
 #else
-	*control = 0x10;
+	*control = 0b00010000;
 	*(volatile unsigned *)0x900C0004 = 32;
 	*value = 0;
-	*control = 0x0F;
+	*control = 0b00001111;
 #endif
 }
 

@@ -44,7 +44,7 @@ void NSP_PumpEvents(_THIS)
 		SDL_keysym keysym;
 		nsp_tp_t tp = {0, 0};
 
-		if ( ! this->hidden->is_clickpad
+		if ( this->hidden->use_mouse
 		  && touchpad_read(0x06, 0x07, &tp)
 		  && ( tp.dx || tp.dy ) ) {
 			dx_sum += tp.dx;

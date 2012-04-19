@@ -4,12 +4,3 @@ SDL for TI-Nspire calculators (version 0.2.0 beta)
 Ported by Christoffer Rehn (christoffer.rehn@telenet.be)
 
 Thanks a lot to atiatini for the great deal of CX-related testing he've done.
-
-Todo:
-- Map more keys to SDLKs
-- Handle the 16-bit timer better
-- Add draw string to box function
-- Implement double buffer (?)
-- Make joystick only use touchpad (CORRECT: MAKE JOYSTICK):
-	center touchpad: (0, 0)
-	etc.
