@@ -71,7 +71,8 @@ static unsigned *nsp_orig_base;
 static volatile unsigned *nsp_lcd_ctrl;
 #endif
 
-int SDL_nCreatePalette(SDL_Surface *surface) {
+int SDL_nCreatePalette(SDL_Surface *surface)
+{
 	SDL_Color colors[256];
 	int i;
 	for ( i = 0; i < 256; ++i )
@@ -191,8 +192,8 @@ if ( ! is_touchpad
 		  "Return", "Continue") == 1 )
 	NSP_CLEAN_EXIT();
 
-this->hidden->use_mouse = ( SDL_strcmp(SDL_getenv("SDL_NOMOUSE"), "1") == 0 || ! is_touchpad )
-			  ? SDL_FALSE : SDL_TRUE;
+this->hidden->use_mouse = ( SDL_strcmp(SDL_getenv("SDL_USEMOUSE"), "1") == 0 && is_touchpad )
+			  ? SDL_TRUE : SDL_FALSE;
 this->hidden->is_clickpad = is_touchpad ? SDL_FALSE : SDL_TRUE;
 
 #if NSP_BPP_SW8_HW8

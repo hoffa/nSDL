@@ -89,7 +89,6 @@
 #elif NSP_BPP_SW8_HW4
 #define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-8/4-tc")
 #endif
-#define NSP_TAB_WIDTH	4
 #define NSP_ALT_FINDCOLOR	0
 
 /* A few convenience macros */

@@ -2,7 +2,6 @@
 #include "../SDL_sysvideo.h"
 #include "SDL_tinspirefonts.h"
 
-#define NSP_TAB_WIDTH_PXL	(NSP_TAB_WIDTH * NSP_FONT_WIDTH)
 #define NSP_BUF_SIZE	512
 
 static unsigned char *nsp_font_charmaps[] = {
@@ -15,7 +14,8 @@ static unsigned char *nsp_font_charmaps[] = {
 
 static SDL_bool charmap_relocated = SDL_FALSE;
 
-SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags) {
+SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags)
+{
 	unsigned char *charmap;
 	int i, j, k;
 	SDL_nFont *font = SDL_malloc(sizeof *font);
@@ -77,107 +77,114 @@ SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags) {
 	return(font);
 }
 
-void SDL_nSetFontSpacing(SDL_nFont *font, int hspacing, int vspacing) {
+void SDL_nSetFontSpacing(SDL_nFont *font, int hspacing, int vspacing)
+{
 	font->hspacing = hspacing;
 	font->vspacing = vspacing;
 }
 
-void SDL_nFreeFont(SDL_nFont *font) {
+void SDL_nFreeFont(SDL_nFont *font)
+{
 	int i;
 	for ( i = 0; i < NSP_FONT_NUMCHARS; ++i )
 		SDL_FreeSurface(font->chars[i]);
 	SDL_free(font);
 }
 
-int SDL_nDrawChar(SDL_Surface *surface, SDL_nFont *font, SDL_Rect *pos, int c) {
+int SDL_nDrawChar(SDL_Surface *surface, SDL_nFont *font, SDL_Rect *pos, int c)
+{
 	SDL_Rect rect = {0, 0, 0, 0};
 	rect.w = font->char_width[c];
 	rect.h = NSP_FONT_HEIGHT;
 	return(SDL_BlitSurface(font->chars[c], &rect, surface, pos));
 }
 
-int SDL_nDrawString(SDL_Surface *surface, SDL_nFont *font, int x, int y, const char *format, ...) {
-	int length;
-	int i;
-	SDL_Rect pos;
+/* Private. All other string drawing functions derive from this one.
+   If rect->w && rect->h, the string is drawn within rect.
+   Returns -1 on error, and the number of characters NOT drawn otherwise. */
+static int nsp_draw_string(SDL_Surface *surface, SDL_nFont *font,
+			   SDL_Rect *rect, const char *format, va_list args)
+{
 	char buffer[NSP_BUF_SIZE];
-	va_list args;
+	SDL_Rect pos;
+	int length;
+	SDL_bool bounded = (rect->w && rect->h) ? SDL_TRUE : SDL_FALSE;
+	int max_x = rect->x + rect->w;
+	int max_y = rect->y + rect->h;
+	int chars_drawn = 0;
+	int i;
 
-	va_start(args, format);
-	vsprintf(buffer, format, args); /* Warning: possibility of overflow */
-	va_end(args);
-	pos.x = x;
-	pos.y = y;
+	vsprintf(buffer, format, args); /* Possibility of overflow if size of string > NSP_BUF_SIZE */
 	length = (int)strlen(buffer);
+	if ( bounded && (rect->w < 8 || rect->h < 8) )
+		return(length);
+	pos.x = rect->x;
+	pos.y = rect->y;
 
 	for ( i = 0; i < length; ++i ) {
-		int char_w = NSP_FONT_WIDTH;
 		int c = buffer[i];
-		if ( font->flags & NSP_FONT_AUTOSIZE )
-			char_w = font->char_width[c];
+		int c_width = (font->flags & NSP_FONT_AUTOSIZE) ? font->char_width[c] : NSP_FONT_WIDTH;
 		switch ( c ) {
 			case '\n':
-				pos.x = x;
+				pos.x = rect->x;
 				pos.y += NSP_FONT_HEIGHT + font->vspacing;
 				break;
-			case '\t':
-				pos.x += NSP_TAB_WIDTH_PXL - (pos.x % NSP_TAB_WIDTH_PXL);
-				break;
-			default:
-				if ( SDL_nDrawChar(surface, font, &pos, c) == -1 )
-					return(-1);
-				if ( i < length - 1 ) {
-					if ( (font->flags & NSP_FONT_TEXTWRAP)
-					&& pos.x + char_w + font->hspacing + font->char_width[(int)buffer[i + 1]] >= surface->w ) {
+			default: {
+				SDL_bool draw_char = SDL_FALSE;
+				if ( bounded ) {
+					if ( pos.x + c_width <= max_x
+					  && pos.y + NSP_FONT_HEIGHT <= max_y )
+						draw_char = SDL_TRUE;
+					else if ( font->flags & NSP_FONT_TEXTWRAP
+					       && pos.y + (2 * NSP_FONT_HEIGHT) + font->vspacing <= max_y ) {
+						draw_char = SDL_TRUE;
+						pos.x = rect->x;
+						pos.y += NSP_FONT_HEIGHT + font->vspacing;
+					}
+				} else {
+					draw_char = SDL_TRUE;
+					if ( font->flags & NSP_FONT_TEXTWRAP
+					  && pos.x + c_width > surface->w ) {
 						pos.x = 0;
-						if ( buffer[i + 1] != '\n' )
-							pos.y += NSP_FONT_HEIGHT;
-						pos.y += font->vspacing;
-					} else
-						pos.x += char_w + font->hspacing;
+						pos.y += NSP_FONT_HEIGHT + font->vspacing;
+					}
+				}
+				if ( draw_char ) {
+					if ( SDL_nDrawChar(surface, font, &pos, c) == -1 )
+						return(-1);
+					else
+						++chars_drawn;
+				}
+				pos.x += c_width + font->hspacing;
 				}
 				break;
 		}
 	}
 
-	return(0);
+	return(length - chars_drawn);
 }
 
-int SDL_nGetLineWidth(SDL_nFont *font, const char *s) {
-	int width = 0;
-	int i;
-	if ( *s == '\n' )
-		return 0;
-	for ( i = 0; s[i] && s[i] != '\n'; ++i ) {
-		int char_w = NSP_FONT_WIDTH;
-		if ( s[i] == '\t' )
-			char_w = NSP_TAB_WIDTH_PXL;
-		else if ( font->flags & NSP_FONT_AUTOSIZE )
-			char_w = font->char_width[(int)s[i]];
-		width += char_w + font->hspacing;
-	}
-	if ( ! (font->flags & NSP_FONT_AUTOSIZE) )
-		width -= NSP_FONT_WIDTH - font->char_width[(int)s[i - 1]];
-	return width - font->hspacing;
+int SDL_nDrawString(SDL_Surface *surface, SDL_nFont *font,
+		    int x, int y, const char *format, ...)
+{
+	va_list args;
+	int ret_val;
+	SDL_Rect rect = {0, 0, 0, 0};
+	rect.x = x;
+	rect.y = y;
+	va_start(args, format);
+	ret_val = nsp_draw_string(surface, font, &rect, format, args);
+	va_end(args);
+	return(ret_val);
 }
 
-int SDL_nGetStringWidth(SDL_nFont *font, const char *s) {
-	int length = (int)strlen(s);
-	int max_width = SDL_nGetLineWidth(font, s);
-	int i;
-	for ( i = 0; i < length; ++i )
-		if ( i > 0 && s[i - 1] == '\n' ) {
-			int width = SDL_nGetLineWidth(font, &s[i]);
-			if ( width > max_width )
-				max_width = width;
-		}
-	return max_width;
-}
-
-int SDL_nGetStringHeight(SDL_nFont *font, const char *s) {
-	int height = NSP_FONT_HEIGHT;
-	while ( *s++ )
-		if ( *s == '\n' )
-			height += NSP_FONT_HEIGHT + font->vspacing;
-	return height;
+int SDL_nDrawStringInRect(SDL_Surface *surface, SDL_nFont *font,
+			  SDL_Rect *rect, const char *format, ...)
+{
+	va_list args;
+	int ret_val;
+	va_start(args, format);
+	ret_val = nsp_draw_string(surface, font, rect, format, args);
+	va_end(args);
+	return(ret_val);
 }
