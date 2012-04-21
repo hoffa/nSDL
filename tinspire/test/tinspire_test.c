@@ -903,19 +903,18 @@ static unsigned short image_foresttiles[] = {
 int main(void) {
 	SDL_Surface *screen, *image;
 	SDL_nFont *font;
-	SDL_Rect rect = {10, 20, 50, 30};
+	SDL_Rect rect = {10, 20, 110, 100};
     int done = 0;
 	SDL_Init(SDL_INIT_VIDEO);
 	screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, NSP_BPP, SDL_SWSURFACE);
-	//image = SDL_nLoadImage(image_foresttiles);
-	font = SDL_nLoadFont(NSP_FONT_TINYTYPE, SDL_MapRGB(screen->format, 255, 255, 255), NSP_FONT_TEXTWRAP | NSP_FONT_AUTOSIZE);
-    SDL_nSetFontSpacing(font, 5, 1);
-	//SDL_BlitSurface(image, NULL, screen, &rect);
+	image = SDL_nLoadImage(image_foresttiles);
+	font = SDL_nLoadFont(NSP_FONT_THIN, SDL_MapRGB(screen->format, 255, 255, 255), NSP_FONT_TEXTWRAP | NSP_FONT_AUTOSIZE);
     while(!done) {
         SDL_Event e;
         SDL_FillRect(screen, NULL, 0);
-        SDL_FillRect(screen, &rect, SDL_MapRGB(screen->format, 255, 0, 255));
-    	printf("der: %d\n", SDL_nDrawStringInRect(screen, font, &rect, "The quic\tk brown foggd jumps over the lazy %d dog.", 420));
+        SDL_BlitSurface(image, NULL, screen, NULL);
+        SDL_FillRect(screen, &rect, SDL_MapRGB(screen->format, 100, 0, 180));
+    	printf("der: %d\n", SDL_nDrawStringInRect(screen, font, &rect, "The   quick\n                \n   brown      fox jumps  over    the lazy dog."));
         SDL_WaitEvent(&e);
         if(e.type == SDL_KEYDOWN)
         switch(e.key.keysym.sym) {

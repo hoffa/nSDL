@@ -83,6 +83,11 @@ void SDL_nSetFontSpacing(SDL_nFont *font, int hspacing, int vspacing)
 	font->vspacing = vspacing;
 }
 
+void SDL_nSetFontFlags(SDL_nFont *font, Uint32 flags)
+{
+	font->flags = flags;
+}
+
 void SDL_nFreeFont(SDL_nFont *font)
 {
 	int i;
@@ -101,7 +106,9 @@ int SDL_nDrawChar(SDL_Surface *surface, SDL_nFont *font, SDL_Rect *pos, int c)
 
 /* Private. All other string drawing functions derive from this one.
    If rect->w && rect->h, the string is drawn within rect.
-   Returns -1 on error, and the number of characters NOT drawn otherwise. */
+   Returns -1 on error, and the number of characters NOT drawn otherwise.
+
+   Notes: NSP_FONT_TEXTWRAP only has an effect when using SDL_nDrawStringInRect(). */
 static int nsp_draw_string(SDL_Surface *surface, SDL_nFont *font,
 			   SDL_Rect *rect, const char *format, va_list args)
 {
@@ -128,9 +135,10 @@ static int nsp_draw_string(SDL_Surface *surface, SDL_nFont *font,
 			case '\n':
 				pos.x = rect->x;
 				pos.y += NSP_FONT_HEIGHT + font->vspacing;
+				++chars_drawn;
 				break;
 			default: {
-				SDL_bool draw_char = SDL_FALSE;
+				SDL_bool draw_char;
 				if ( bounded ) {
 					if ( pos.x + c_width <= max_x
 					  && pos.y + NSP_FONT_HEIGHT <= max_y )
@@ -140,22 +148,18 @@ static int nsp_draw_string(SDL_Surface *surface, SDL_nFont *font,
 						draw_char = SDL_TRUE;
 						pos.x = rect->x;
 						pos.y += NSP_FONT_HEIGHT + font->vspacing;
-					}
-				} else {
+					} else
+						draw_char = SDL_FALSE;
+				} else
 					draw_char = SDL_TRUE;
-					if ( font->flags & NSP_FONT_TEXTWRAP
-					  && pos.x + c_width > surface->w ) {
-						pos.x = 0;
-						pos.y += NSP_FONT_HEIGHT + font->vspacing;
-					}
-				}
 				if ( draw_char ) {
 					if ( SDL_nDrawChar(surface, font, &pos, c) == -1 )
 						return(-1);
-					else
-						++chars_drawn;
+					++chars_drawn;
 				}
-				pos.x += c_width + font->hspacing;
+				if ( font->flags & NSP_FONT_NOFORMAT
+				  || (pos.x != rect->x || c != ' ') )
+					pos.x += c_width + font->hspacing;
 				}
 				break;
 		}

@@ -230,7 +230,8 @@
 enum {
 	NSP_FONT_DEFAULT = 0,
 	NSP_FONT_TEXTWRAP = 1,
-	NSP_FONT_AUTOSIZE = 2
+	NSP_FONT_AUTOSIZE = 2,
+	NSP_FONT_NOFORMAT = 4
 };
 
 /* Fonts; needs to match nsp_font_charmaps in SDL_tinspirevideo.c */
