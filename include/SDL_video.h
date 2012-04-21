@@ -279,6 +279,8 @@ int SDL_nDrawString(SDL_Surface *surface, SDL_nFont *font,
 		    int x, int y, const char *format, ...);
 int SDL_nDrawStringInRect(SDL_Surface *surface, SDL_nFont *font,
 			  SDL_Rect *rect, const char *format, ...);
+int SDL_nGetStringWidth(SDL_nFont *font, const char *s);
+int SDL_nGetStringHeight(SDL_nFont *font, const char *s);
 SDL_Surface *SDL_nLoadImage(Uint16 *data);
 #endif
 

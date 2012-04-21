@@ -908,13 +908,18 @@ int main(void) {
 	SDL_Init(SDL_INIT_VIDEO);
 	screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, NSP_BPP, SDL_SWSURFACE);
 	image = SDL_nLoadImage(image_foresttiles);
-	font = SDL_nLoadFont(NSP_FONT_THIN, SDL_MapRGB(screen->format, 255, 255, 255), NSP_FONT_TEXTWRAP | NSP_FONT_AUTOSIZE);
+	font = SDL_nLoadFont(NSP_FONT_TINYTYPE, SDL_MapRGB(screen->format, 255, 255, 255), NSP_FONTCFG_FORMAT);
+    SDL_nSetFontSpacing(font, 5, 1);
     while(!done) {
         SDL_Event e;
         SDL_FillRect(screen, NULL, 0);
         SDL_BlitSurface(image, NULL, screen, NULL);
         SDL_FillRect(screen, &rect, SDL_MapRGB(screen->format, 100, 0, 180));
-    	printf("der: %d\n", SDL_nDrawStringInRect(screen, font, &rect, "The   quick\n                \n   brown      fox jumps  over    the lazy dog."));
+    	//printf("der: %d\n", SDL_nDrawStringInRect(screen, font, &rect, "The   quick\n                \n   brown      fox jumps  over    the lazy dog."));
+        SDL_nDrawString(screen, font, 10, 20, "Hello, world!");
+        SDL_nDrawString(screen, font, 10, 30, "\n \n  d\n\ns");
+        printf("width: %d\n", SDL_nGetStringWidth(font, "Hello, world!"));
+        printf("width2: %d\n", SDL_nGetStringWidth(font, "\n \n  d\n\ns"));
         SDL_WaitEvent(&e);
         if(e.type == SDL_KEYDOWN)
         switch(e.key.keysym.sym) {

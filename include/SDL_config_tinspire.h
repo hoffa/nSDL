@@ -77,7 +77,7 @@
 #endif
 
 #define NSP_NAME	"nSDL"
-#define NSP_VERSION	"0.2.0beta"
+#define NSP_VERSION	"0.2.0"
 #if NSP_BPP_SW16_HW16
 #define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-16/16-cx")
 #elif NSP_BPP_SW8_HW16
@@ -89,13 +89,10 @@
 #elif NSP_BPP_SW8_HW4
 #define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-8/4-tc")
 #endif
-#define NSP_ALT_FINDCOLOR	0
 
 /* A few convenience macros */
 #define NSP_ARRAY_SIZE(array)	(sizeof(array) / sizeof(array[0]))
 #define NSP_NL_RELOCDATA(ptr, size)	nl_relocdata((unsigned *)(ptr), size)
-#define NSP_COL(col)	(8 * (col))
-#define NSP_ROW		NSP_COL
 
 #if NSP_BPP_SW16
 #define NSP_BPP	16
@@ -227,12 +224,11 @@
 #define SDL_ASSEMBLY_ROUTINES	1
 
 /* Font flags */
-enum {
-	NSP_FONT_DEFAULT = 0,
-	NSP_FONT_TEXTWRAP = 1,
-	NSP_FONT_AUTOSIZE = 2,
-	NSP_FONT_NOFORMAT = 4
-};
+#define NSP_FONTCFG_NOTHING		0
+#define NSP_FONTCFG_TEXTWRAP	(1 << 0)
+#define NSP_FONTCFG_AUTOSIZE	(1 << 1)
+#define NSP_FONTCFG_FORMAT		(1 << 2)
+#define NSP_FONTCFG_DEFAULT		(NSP_FONTCFG_TEXTWRAP | NSP_FONTCFG_AUTOSIZE | NSP_FONTCFG_FORMAT)
 
 /* Fonts; needs to match nsp_font_charmaps in SDL_tinspirevideo.c */
 enum {
