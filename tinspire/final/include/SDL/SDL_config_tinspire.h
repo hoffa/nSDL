@@ -28,20 +28,44 @@
 /* General platform specific identifiers */
 #include "SDL_platform.h"
 
-#if NSP_CX_16BIT && NSP_CX_8BIT
-#error "Only one of NSP_CX_16BIT and NSP_CX_8BIT should be defined."
+/*
+ * #define NSP_CX for CX models.
+ * #define NSP_TC for TC models.
+ * #define NSP_BPP_SW16_HW16 for CX models.	(cx)
+ * #define NSP_BPP_SW8_HW16 for CX models.
+ * #define NSP_BPP_SW8_HW8 for CX/TC models.
+ * #define NSP_BPP_SW8_HW4 for TC models. (tc)
+ * #define NSP_ALT_FINDCOLOR to use the alternative, slightly faster but less
+ *	tested (and less accurate?) SDL_FindColor(). Only for palettized surfaces.
+ */
+
+#if !NSP_BPP_SW16_HW16
+#define NSP_BPP_SW16_HW16	0
+#endif
+#if !NSP_BPP_SW8_HW16
+#define NSP_BPP_SW8_HW16	0
+#endif
+#if !NSP_BPP_SW8_HW8
+#define NSP_BPP_SW8_HW8	0
+#endif
+#if !NSP_BPP_SW8_HW4
+#define NSP_BPP_SW8_HW4	0
 #endif
 
-#if NSP_CX_16BIT || NSP_CX_8BIT
-#define NSP_CX	1
+#if NSP_BPP_SW16_HW16 + NSP_BPP_SW8_HW16 + NSP_BPP_SW8_HW8 + NSP_BPP_SW8_HW4 > 1
+#error "Only one bpp mode should be defined."
+#endif
+
+#if NSP_BPP_SW8_HW16 || NSP_BPP_SW8_HW8 || NSP_BPP_SW8_HW4
+#define NSP_BPP_SW8	1
 #else
-#define NSP_TC	1
+#define NSP_BPP_SW16	1
 #endif
 
 #if 1
 #define NSP_DEBUG	1
 #define DEBUG_BUILD	1
-#define DEBUG_PALETTE	1
+// #define DEBUG_PALETTE	1
 #define DEBUG_VIDEO	1
 #define DEBUG_ASM	1
 #define DEBUG_GRAB	1
@@ -53,25 +77,24 @@
 #endif
 
 #define NSP_NAME	"nSDL"
-#define NSP_VERSION	"0.2.0beta"
-#if NSP_CX_16BIT
-#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-cx16")
-#elif NSP_CX_8BIT
-#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-cx8")
-#else
-#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-tc8")
+#define NSP_VERSION	"0.2.0"
+#if NSP_BPP_SW16_HW16
+#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-16/16-cx")
+#elif NSP_BPP_SW8_HW16
+#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-8/16-cx")
+#elif NSP_BPP_SW8_HW8 && NSP_CX
+#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-8/8-cx")
+#elif NSP_BPP_SW8_HW8 && NSP_TC
+#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-8/8-tc")
+#elif NSP_BPP_SW8_HW4
+#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-8/4-tc")
 #endif
-#define NSP_JOYAXISVALUE	1
-#define NSP_TAB_WIDTH	4
-#define NSP_ALT_FINDCOLOR	0 /* Use alternative SDL_FindColor(); faster but less accurate and less tested */
 
 /* A few convenience macros */
 #define NSP_ARRAY_SIZE(array)	(sizeof(array) / sizeof(array[0]))
 #define NSP_NL_RELOCDATA(ptr, size)	nl_relocdata((unsigned *)(ptr), size)
-#define NSP_COL(col)	(8 * (col))
-#define NSP_ROW		NSP_COL
 
-#if NSP_CX_16BIT
+#if NSP_BPP_SW16
 #define NSP_BPP	16
 #define NSP_RMASK	0xF800
 #define NSP_GMASK	0x07E0
@@ -84,12 +107,16 @@
 #endif
 #define NSP_BYTESPP	(NSP_BPP / 8)
 
+#define NSP_LCDBUF_SIZE	(SCREEN_WIDTH * SCREEN_HEIGHT)
+#define NSP_BASE_ADDR	0xC0000010
+#define NSP_PALETTE_ADDR	0xC0000200
+
 #if NSP_DEBUG
 #define NSP_DPRINT(fmt, args...) \
 		fprintf(stderr, "[NSP] %s():%d: " fmt, \
 			__FUNCTION__, __LINE__, ## args)
 #else
-#define NSP_DPRINT(fmt, args...)
+#define NSP_DPRINT(fmt, args...) (void)0
 #endif
 
 #define SDL_HAS_64BIT_TYPE	1
@@ -196,48 +223,12 @@
 /* Enable assembly routines */
 #define SDL_ASSEMBLY_ROUTINES	1
 
-/* Joystick axes */
-enum {
-	NSP_JA_H = 0,
-	NSP_JA_V,
-	NSP_NUMAXES
-};
-
-/* Joystick buttons */
-enum {
-	NSP_JB_ESC = 0,
-	NSP_JB_SCRATCHPAD,
-	NSP_JB_TAB,
-	NSP_JB_HOME,
-	NSP_JB_DOC,
-	NSP_JB_MENU,
-	NSP_JB_CTRL,
-	NSP_JB_SHIFT,
-	NSP_JB_VAR,
-	NSP_JB_DEL,
-	NSP_JB_0,
-	NSP_JB_1,
-	NSP_JB_2,
-	NSP_JB_3,
-	NSP_JB_4,
-	NSP_JB_5,
-	NSP_JB_6,
-	NSP_JB_7,
-	NSP_JB_8,
-	NSP_JB_9,
-	NSP_JB_PERIOD,
-	NSP_JB_NEGATIVE,
-	NSP_JB_ENTER,
-	NSP_JB_CLICK,
-	NSP_NUMBUTTONS
-};
-
 /* Font flags */
-enum {
-	NSP_FONT_DEFAULT = 0,
-	NSP_FONT_TEXTWRAP = 1,
-	NSP_FONT_AUTOSIZE = 2
-};
+#define NSP_FONTCFG_NOTHING	0
+#define NSP_FONTCFG_TEXTWRAP	(1 << 0)
+#define NSP_FONTCFG_AUTOSIZE	(1 << 1)
+#define NSP_FONTCFG_FORMAT	(1 << 2)
+#define NSP_FONTCFG_DEFAULT	(NSP_FONTCFG_TEXTWRAP | NSP_FONTCFG_AUTOSIZE | NSP_FONTCFG_FORMAT)
 
 /* Fonts; needs to match nsp_font_charmaps in SDL_tinspirevideo.c */
 enum {

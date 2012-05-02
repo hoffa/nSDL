@@ -272,9 +272,16 @@ typedef struct SDL_nFont {
 int SDL_nCreatePalette(SDL_Surface *surface);
 SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags);
 void SDL_nSetFontSpacing(SDL_nFont *font, int hspacing, int vspacing);
+void SDL_nSetFontFlags(SDL_nFont *font, Uint32 flags);
 void SDL_nFreeFont(SDL_nFont *font);
 int SDL_nDrawChar(SDL_Surface *surface, SDL_nFont *font, SDL_Rect *pos, int c);
-int SDL_nDrawString(SDL_Surface *surface, SDL_nFont *font, int x, int y, const char *format, ...);
+int SDL_nDrawString(SDL_Surface *surface, SDL_nFont *font,
+		    int x, int y, const char *format, ...);
+int SDL_nDrawStringInRect(SDL_Surface *surface, SDL_nFont *font,
+			  SDL_Rect *rect, const char *format, ...);
+int SDL_nGetStringWidth(SDL_nFont *font, const char *s);
+int SDL_nGetStringHeight(SDL_nFont *font, const char *s);
+SDL_Surface *SDL_nLoadImage(Uint16 *data);
 #endif
 
 /* Function prototypes */
