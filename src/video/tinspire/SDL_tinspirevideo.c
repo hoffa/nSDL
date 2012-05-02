@@ -196,6 +196,8 @@ this->hidden->use_mouse = ( SDL_strcmp(SDL_getenv("SDL_USEMOUSE"), "1") == 0 && 
 			  ? SDL_TRUE : SDL_FALSE;
 this->hidden->is_clickpad = is_touchpad ? SDL_FALSE : SDL_TRUE;
 
+NSP_DPRINT("use_mouse: %d, is_clickpad: %d\n", this->hidden->use_mouse, this->hidden->is_clickpad);
+
 #if NSP_BPP_SW8_HW8
 	NSP_DPRINT("Switching to hardware 8 bpp\n");
 

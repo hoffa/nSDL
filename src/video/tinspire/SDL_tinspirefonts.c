@@ -48,7 +48,9 @@ SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags)
 			return(NULL);
 		}
 #endif
-		if ( SDL_SetColorKey(char_surf, SDL_SRCCOLORKEY | SDL_RLEACCEL, 0) == -1 ) {
+		if ( color == 0 )
+			SDL_FillRect(char_surf, NULL, 1);
+		if ( SDL_SetColorKey(char_surf, SDL_SRCCOLORKEY | SDL_RLEACCEL, color ? 0 : 1) == -1 ) {
 			SDL_FreeSurface(char_surf);
 			SDL_nFreeFont(font);
 			return(NULL);
@@ -99,9 +101,8 @@ void SDL_nFreeFont(SDL_nFont *font)
 
 int SDL_nDrawChar(SDL_Surface *surface, SDL_nFont *font, SDL_Rect *pos, int c)
 {
-	SDL_Rect rect = {0, 0, 0, 0};
+	SDL_Rect rect = {0, 0, 0, NSP_FONT_HEIGHT};
 	rect.w = font->char_width[c];
-	rect.h = NSP_FONT_HEIGHT;
 	return(SDL_BlitSurface(font->chars[c], &rect, surface, pos));
 }
 
@@ -158,8 +159,7 @@ static int nsp_draw_string(SDL_Surface *surface, SDL_nFont *font,
 						return(-1);
 					++chars_drawn;
 				}
-				if ( ! (font->flags & NSP_FONTCFG_FORMAT)
-				  || (pos.x != rect->x || c != ' ') )
+				if ( ! ( font->flags & NSP_FONTCFG_FORMAT ) || pos.x != rect->x || c != ' ' )
 					pos.x += c_width + font->hspacing;
 				}
 				break;
@@ -197,10 +197,8 @@ int SDL_nDrawStringInRect(SDL_Surface *surface, SDL_nFont *font,
 static int nsp_get_line_width(SDL_nFont *font, const char *s)
 {
 	int width = 0;
-	int i;
 	while ( *s && *s != '\n' ) {
-		if ( ! (font->flags & NSP_FONTCFG_FORMAT)
-		  || (width != 0 || *s != ' ') )
+		if ( ! ( font->flags & NSP_FONTCFG_FORMAT ) || width || *s != ' ' )
 			width += NSP_CHAR_WIDTH(font, *s) + font->hspacing;
 		++s;
 	}

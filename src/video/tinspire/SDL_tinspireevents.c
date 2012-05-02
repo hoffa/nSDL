@@ -83,7 +83,6 @@ void NSP_PumpEvents(_THIS)
 		if ( dx_sum || dy_sum )
 			SDL_PrivateMouseMotion(0, SDL_TRUE, dx_sum, dy_sum);
 	}
-
 }
 
 void NSP_InitOSKeymap(_THIS)
