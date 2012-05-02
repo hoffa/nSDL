@@ -31,10 +31,10 @@
 /*
  * #define NSP_CX for CX models.
  * #define NSP_TC for TC models.
- * #define NSP_BPP_SW16_HW16 for CX models (safe, fast).	(cx)
- * #define NSP_BPP_SW8_HW16 for CX models (safe, slow).		(cx8s)
- * #define NSP_BPP_SW8_HW8 for CX/TC models (unsafe, fast).	(cx8, tc8)
- * #define NSP_BPP_SW8_HW4 for TC models (safe, slow).		(tc)
+ * #define NSP_BPP_SW16_HW16 for CX models.	(cx)
+ * #define NSP_BPP_SW8_HW16 for CX models.
+ * #define NSP_BPP_SW8_HW8 for CX/TC models.
+ * #define NSP_BPP_SW8_HW4 for TC models. (tc)
  * #define NSP_ALT_FINDCOLOR to use the alternative, slightly faster but less
  *	tested (and less accurate?) SDL_FindColor(). Only for palettized surfaces.
  */

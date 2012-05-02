@@ -45,7 +45,7 @@ int SDL_SYS_JoystickInit(void)
 const char *SDL_SYS_JoystickName(int index)
 {
     if ( index == 0 )
-        return "TI-Nspire built-in joystick";
+        return "TI-Nspire built-in joystick (unimplemented)";
 	SDL_SetError("Logic error: No joysticks available");
 	return(NULL);
 }
