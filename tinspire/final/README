@@ -1,0 +1,9 @@
+nSDL 0.2.0
+==========
+
+nSDL is a port of SDL to the TI-Nspire calculators. For more information and
+instructions, have a look at the nSDL website: http://hoffa.github.com/nSDL/
+
+Ported by Christoffer Rehn (christoffer.rehn@telenet.be)
+
+Thanks a lot to atiatini for the great deal of CX-related testing he've done!
