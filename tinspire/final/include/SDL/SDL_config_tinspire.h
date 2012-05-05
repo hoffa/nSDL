@@ -31,12 +31,13 @@
 /*
  * #define NSP_CX for CX models.
  * #define NSP_TC for TC models.
- * #define NSP_BPP_SW16_HW16 for CX models.	(cx)
- * #define NSP_BPP_SW8_HW16 for CX models.
+ * #define NSP_BPP_SW16_HW16 for CX models.  (cx)
+ * #define NSP_BPP_SW8_HW16 for CX models.   (cx8)
  * #define NSP_BPP_SW8_HW8 for CX/TC models.
- * #define NSP_BPP_SW8_HW4 for TC models. (tc)
+ * #define NSP_BPP_SW8_HW4 for TC models.    (tc)
  * #define NSP_ALT_FINDCOLOR to use the alternative, slightly faster but less
- *	tested (and less accurate?) SDL_FindColor(). Only for palettized surfaces.
+ *	tested (and less accurate?) SDL_FindColor(). Only for palettized
+ *	surfaces. (requires recompiling)
  */
 
 #if !NSP_BPP_SW16_HW16
@@ -58,9 +59,18 @@
 
 #if NSP_BPP_SW8_HW16 || NSP_BPP_SW8_HW8 || NSP_BPP_SW8_HW4
 #define NSP_BPP_SW8	1
+#define NSP_BPP		8
+#define NSP_RMASK	0
+#define NSP_GMASK	0
+#define NSP_BMASK	0
 #else
 #define NSP_BPP_SW16	1
+#define NSP_BPP		16
+#define NSP_RMASK	0xF800
+#define NSP_GMASK	0x07E0
+#define NSP_BMASK	0x001F
 #endif
+#define NSP_BYTESPP	(NSP_BPP / 8)
 
 #if 1
 #define NSP_DEBUG	1
@@ -68,7 +78,7 @@
 // #define DEBUG_PALETTE	1
 #define DEBUG_VIDEO	1
 #define DEBUG_ASM	1
-#define DEBUG_GRAB	1
+// #define DEBUG_GRAB	1
 #define DEBUG_TIMERS	1
 #define DEBUG_QSORT	1
 #define DEBUG_THREADS	1
@@ -77,7 +87,7 @@
 #endif
 
 #define NSP_NAME	"nSDL"
-#define NSP_VERSION	"0.2.0"
+#define NSP_VERSION	"0.2.1"
 #if NSP_BPP_SW16_HW16
 #define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-16/16-cx")
 #elif NSP_BPP_SW8_HW16
@@ -93,19 +103,6 @@
 /* A few convenience macros */
 #define NSP_ARRAY_SIZE(array)	(sizeof(array) / sizeof(array[0]))
 #define NSP_NL_RELOCDATA(ptr, size)	nl_relocdata((unsigned *)(ptr), size)
-
-#if NSP_BPP_SW16
-#define NSP_BPP	16
-#define NSP_RMASK	0xF800
-#define NSP_GMASK	0x07E0
-#define NSP_BMASK	0x001F
-#else
-#define NSP_BPP	8
-#define NSP_RMASK	0
-#define NSP_GMASK	0
-#define NSP_BMASK	0
-#endif
-#define NSP_BYTESPP	(NSP_BPP / 8)
 
 #define NSP_LCDBUF_SIZE	(SCREEN_WIDTH * SCREEN_HEIGHT)
 #define NSP_BASE_ADDR	0xC0000010
@@ -130,18 +127,6 @@
 #define HAVE_STDARG_H	1
 #define HAVE_STRING_H	1
 #define HAVE_CTYPE_H	1
-/* #undef HAVE_ALLOCA_H
-#undef HAVE_SYS_TYPES_H
-#undef STDC_HEADERS
-#undef HAVE_MALLOC_H
-#undef HAVE_MEMORY_H
-#undef HAVE_STRINGS_H
-#undef HAVE_INTTYPES_H
-#undef HAVE_STDINT_H
-#undef HAVE_MATH_H
-#undef HAVE_ICONV_H
-#undef HAVE_SIGNAL_H
-#undef HAVE_ALTIVEC_H */
 
 /* C library functions */
 #define HAVE_MALLOC	1
@@ -162,48 +147,6 @@
 #define HAVE_ATOF	1
 #define HAVE_STRCMP	1
 #define HAVE_STRNCMP	1
-/* #undef HAVE_ALLOCA
-#ifndef _WIN32
-#undef HAVE_GETENV
-#undef HAVE_PUTENV
-#undef HAVE_UNSETENV
-#endif
-#undef HAVE_QSORT
-#undef HAVE_ABS
-#undef HAVE_BCOPY 
-#undef HAVE_STRLCPY
-#undef HAVE_STRLCAT
-#undef HAVE_STRDUP
-#undef HAVE__STRREV
-#undef HAVE__STRUPR
-#undef HAVE__STRLWR
-#undef HAVE_INDEX
-#undef HAVE_RINDEX
-#undef HAVE_STRRCHR
-#undef HAVE_ITOA
-#undef HAVE__LTOA
-#undef HAVE__UITOA
-#undef HAVE__ULTOA
-#undef HAVE__I64TOA
-#undef HAVE__UI64TOA
-#undef HAVE_STRTOLL
-#undef HAVE_STRTOULL
-#undef HAVE__STRICMP
-#undef HAVE_STRCASECMP
-#undef HAVE__STRNICMP
-#undef HAVE_STRNCASECMP
-#undef HAVE_SSCANF
-#undef HAVE_SNPRINTF
-#undef HAVE_VSNPRINTF
-#undef HAVE_ICONV
-#undef HAVE_SIGACTION
-#undef HAVE_SA_SIGACTION
-#undef HAVE_SETJMP
-#undef HAVE_NANOSLEEP
-#undef HAVE_CLOCK_GETTIME
-#undef HAVE_GETPAGESIZE
-#undef HAVE_MPROTECT
-#undef HAVE_SEM_TIMEDWAIT */
 
 /* Allow disabling of core subsystems */
 #define SDL_AUDIO_DISABLED	1

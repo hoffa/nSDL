@@ -1,4 +1,4 @@
-nSDL 0.2.0
+nSDL 0.2.1
 ==========
 
 nSDL is a port of SDL to the TI-Nspire calculators.
@@ -7,4 +7,5 @@ Ported by Christoffer Rehn (christoffer.rehn@telenet.be)
 
 Compile with:
 make cx -f Makefile.nsp (CX models)
+make cx8 -f Makefile.nsp (CX models, palettized 8 bpp)
 make tc -f Makefile.nsp (TC models)

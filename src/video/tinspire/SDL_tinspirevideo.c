@@ -365,7 +365,7 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 
 		while ( rows-- ) {
 #if NSP_BPP_SW16_HW16 || NSP_BPP_SW8_HW8
-			memcpy(dst_addr, src_addr, row_bytes);
+			SDL_memcpy(dst_addr, src_addr, row_bytes);
 #elif NSP_BPP_SW8_HW16
 			int j;
 			for ( j = 0; j < row_bytes; ++j )
@@ -390,8 +390,6 @@ int NSP_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
 #elif NSP_BPP_SW8_HW8
 		nsp_hw_palette[i] = (Uint16)NSP_MAP_PALETTE(colors[i].r, colors[i].g, colors[i].b);
 	memcpy((unsigned *)NSP_PALETTE_ADDR, nsp_hw_palette, 512);
-#else
-		return(1);
 #endif
 	return(1);
 }
