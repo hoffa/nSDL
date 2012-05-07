@@ -28,12 +28,10 @@
 /* General platform specific identifiers */
 #include "SDL_platform.h"
 
-#define NSP_RMASK16	0xF800
-#define NSP_GMASK16	0x07E0
-#define NSP_BMASK16	0x001F
-
 #if 1
 #define NSP_DEBUG	1
+#define NSP_MSGBOX_DEBUG	1
+#define NSP_MSGBOX_DPRINT	1
 #define DEBUG_BUILD	1
 // #define DEBUG_PALETTE	1
 #define DEBUG_VIDEO	1
@@ -43,17 +41,27 @@
 #define DEBUG_QSORT	1
 #define DEBUG_THREADS	1
 #define DEBUG_ERROR	1
-#define DEBUG_IMGLIB	1
 #endif
 
 #define NSP_NAME	"nSDL"
 #define NSP_VERSION	"0.3.0"
-#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION)
+#define NSP_NAME_FULL	NSP_NAME " " NSP_VERSION
 
-#if NSP_DEBUG
+#define NSP_RMASK16	0xF800
+#define NSP_GMASK16	0x07E0
+#define NSP_BMASK16	0x001F
+
+#if NSP_DEBUG && NSP_MSGBOX_DPRINT
 #define NSP_DPRINT(fmt, args...) \
-		fprintf(stderr, "[NSP] %s():%d: " fmt, \
-			__FUNCTION__, __LINE__, ## args)
+	{ \
+		char __buf[256]; \
+		sprintf(__buf, "[NSP] %s():%d: " fmt, __FUNCTION__, __LINE__, ## args); \
+		show_msgbox("NSP_DPRINT (" NSP_NAME_FULL ")", __buf); \
+		fprintf(stderr, "%s\n", __buf); \
+	}
+#elif NSP_DEBUG
+#define NSP_DPRINT(fmt, args...) \
+		fprintf(stderr, "[NSP] %s():%d: " fmt, __FUNCTION__, __LINE__, ## args)
 #else
 #define NSP_DPRINT(fmt, args...) (void)0
 #endif

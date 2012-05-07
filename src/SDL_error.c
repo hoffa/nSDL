@@ -106,6 +106,10 @@ void SDL_SetError (const char *fmt, ...)
 	}
 	va_end(ap);
 
+#if __TINSPIRE__ && NSP_MSGBOX_DEBUG
+	show_msgbox("SDL_SetError (" NSP_NAME_FULL ")", SDL_GetError());
+#endif
+
 	/* If we are in debug mode, print out an error message */
 #ifdef DEBUG_ERROR
 	fprintf(stderr, "SDL_SetError: %s\n", SDL_GetError());
