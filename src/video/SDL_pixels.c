@@ -312,9 +312,6 @@ Uint16 SDL_CalculatePitch(SDL_Surface *surface)
  */
 Uint8 SDL_FindColor(SDL_Palette *pal, Uint8 r, Uint8 g, Uint8 b)
 {
-#if __TINSPIRE__ && NSP_ALT_FINDCOLOR
-	return((r + (2 * g) + b) / 4);
-#else
 	/* Do colorspace distance matching */
 	unsigned int smallest;
 	unsigned int distance;
@@ -337,7 +334,6 @@ Uint8 SDL_FindColor(SDL_Palette *pal, Uint8 r, Uint8 g, Uint8 b)
 		}
 	}
 	return(pixel);
-#endif
 }
 
 /* Find the opaque pixel value corresponding to an RGB triple */

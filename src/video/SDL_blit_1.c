@@ -502,8 +502,8 @@ SDL_loblit SDL_CalculateBlit1(SDL_Surface *surface, int blit_index)
 
 #ifdef __TINSPIRE__
 	if ( ! nsp_reallocated ) {
-		NSP_NL_RELOCDATA(one_blit, NSP_ARRAY_SIZE(one_blit));
-		NSP_NL_RELOCDATA(one_blitkey, NSP_ARRAY_SIZE(one_blitkey));
+		nl_relocdata((unsigned *)one_blit, SDL_arraysize(one_blit));
+		nl_relocdata((unsigned *)one_blitkey, SDL_arraysize(one_blitkey));
 		nsp_reallocated = SDL_TRUE;
 	}
 #endif

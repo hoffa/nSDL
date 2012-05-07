@@ -21,7 +21,7 @@ SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags)
 	SDL_nFont *font = SDL_malloc(sizeof *font);
 
 	if ( ! charmap_relocated ) {
-		NSP_NL_RELOCDATA(nsp_font_charmaps, NSP_ARRAY_SIZE(nsp_font_charmaps));
+		nl_relocdata((unsigned *)nsp_font_charmaps, SDL_arraysize(nsp_font_charmaps));
 		charmap_relocated = SDL_TRUE;
 	}
 	charmap = nsp_font_charmaps[font_index];
@@ -34,20 +34,24 @@ SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags)
 	for ( i = 0; i < NSP_FONT_NUMCHARS; ++i ) {
 		int offset = 8 * i;
 		int max_width = 0;
-		SDL_Surface *char_surf = SDL_CreateRGBSurface(SDL_SWSURFACE, NSP_FONT_WIDTH,
-			NSP_FONT_HEIGHT, NSP_BPP, NSP_RMASK, NSP_GMASK, NSP_BMASK, 0);
+		SDL_Surface *char_surf;
+		if ( SDL_VideoSurface->format->BitsPerPixel == 16 )
+			char_surf = SDL_CreateRGBSurface(SDL_SWSURFACE, NSP_FONT_WIDTH,
+				NSP_FONT_HEIGHT, 16, NSP_RMASK16, NSP_GMASK16, NSP_BMASK16, 0);
+		else
+			char_surf = SDL_CreateRGBSurface(SDL_SWSURFACE, NSP_FONT_WIDTH,
+				NSP_FONT_HEIGHT, 8, 0, 0, 0, 0);
 		if ( char_surf == NULL ) {
 			SDL_OutOfMemory();
 			return(NULL);
 		}
 		font->char_width[i] = NSP_FONT_WIDTH;
-#if NSP_BPP_SW8
-		if ( ! SDL_nCreatePalette(char_surf) ) {
-			SDL_FreeSurface(char_surf);
-			SDL_nFreeFont(font);
-			return(NULL);
-		}
-#endif
+		if ( char_surf->format->BitsPerPixel == 8 )
+			if ( ! SDL_nCreatePalette(char_surf) ) {
+				SDL_FreeSurface(char_surf);
+				SDL_nFreeFont(font);
+				return(NULL);
+			}
 		if ( color == 0 )
 			SDL_FillRect(char_surf, NULL, 1);
 		if ( SDL_SetColorKey(char_surf, SDL_SRCCOLORKEY | SDL_RLEACCEL, color ? 0 : 1) == -1 ) {
@@ -63,11 +67,10 @@ SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags)
 						font->char_width[i] = k + 1;
 						max_width = k;
 					}
-#if NSP_BPP_SW16
-					*(Uint16 *)(char_surf->pixels + (2 * k) + (2 * NSP_FONT_WIDTH * j)) = (Uint16)color;
-#else
-					*(Uint8 *)(char_surf->pixels + k + (NSP_FONT_WIDTH * j)) = (Uint8)color;
-#endif
+					if ( char_surf->format->BitsPerPixel == 16 )
+						*(Uint16 *)(char_surf->pixels + (2 * k) + (2 * NSP_FONT_WIDTH * j)) = (Uint16)color;
+					else
+						*(Uint8 *)(char_surf->pixels + k + (NSP_FONT_WIDTH * j)) = (Uint8)color;
 				}
 			}
 		SDL_UnlockSurface(char_surf);

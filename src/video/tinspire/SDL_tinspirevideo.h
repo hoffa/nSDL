@@ -37,8 +37,8 @@
 struct SDL_PrivateVideoData {
 	int w, h;
 	void *buffer;
+    SDL_bool has_touchpad;
     SDL_bool use_mouse;
-    SDL_bool is_clickpad;
 };
 
 #endif /* _SDL_tinspirevideo_h */

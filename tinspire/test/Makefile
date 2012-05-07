@@ -4,26 +4,11 @@ OBJCOPY = arm-none-eabi-objcopy
 CFLAGS = -Wall -Wextra -nostdlib -I../../include -O3
 LDFLAGS =
 
-ifneq ($(findstring cx8,$(MAKECMDGOALS)),)
-	CFLAGS += -D NSP_BPP_SW8_HW16 -D NSP_CX
-else
-	ifneq ($(findstring cx,$(MAKECMDGOALS)),)
-		CFLAGS += -D NSP_BPP_SW16_HW16 -D NSP_CX
-	endif
-endif
-
-ifneq ($(findstring tc,$(MAKECMDGOALS)),)
-	CFLAGS += -D NSP_BPP_SW8_HW4 -D NSP_TC
-endif
-
 SOURCES = tinspire_test.c
 OBJECTS = tinspire_test.o
 LIBS = ../../libSDL.a
 TARGET = sdl_test.tns
 
-cx: all
-cx8: all
-tc: all
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS)

@@ -31,13 +31,7 @@
 #include "SDL_tinspirevideo.h"
 #include "SDL_tinspireevents_c.h"
 
-#if NSP_BPP_SW8_HW16
-#define NSP_MAP_RGB(r, g, b)	(Uint16)(((r / 8) << 11) | ((g / 4) << 5) | (b / 8))
-static Uint16 nsp_palette[256] = {0x0000};
-#elif NSP_BPP_SW8_HW4
-#define NSP_MAP_RGB(r, g, b)	(Uint8)((r + (2 * g) + b) / 64) /* ((r + g + b) / 48) */
-static Uint8 nsp_palette[256] = {0x00};
-#endif
+static Uint16 nsp_palette[256] = {0};
 
 /* Initialization/Query functions */
 static int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat);
@@ -57,19 +51,6 @@ static void NSP_MoveWMCursor(_THIS, int x, int y);
 
 /* etc. */
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects);
-
-#if NSP_BPP_SW8_HW8
-#if NSP_CX
-#define NSP_MAP_PALETTE(r, g, b)	(((r / 8) << 10) | ((g / 8) << 5) | (b / 8))
-#else
-#define NSP_MAP_PALETTE(r, g, b)	((15 - ((r + (2 * g) + b) / 64)) << 1)
-#endif
-static Uint8 *nsp_lcd_buffer;
-static Uint16 nsp_hw_palette[256] = {0x0000};
-static Uint16 nsp_orig_hw_palette[16];
-static unsigned *nsp_orig_base;
-static volatile unsigned *nsp_lcd_ctrl;
-#endif
 
 int SDL_nCreatePalette(SDL_Surface *surface)
 {
@@ -157,106 +138,88 @@ static SDL_VideoDevice *NSP_CreateDevice(int devindex)
 }
 
 VideoBootStrap NSP_bootstrap = {
-	"NSPVID", "SDL TI-Nspire video driver",
+	"tinspire", "SDL TI-Nspire video driver",
 	NSP_Available, NSP_CreateDevice
 };
 
 #define NSP_CLEAN_EXIT()	{ NSP_DPRINT("Aborting\n"); \
 				  SDL_Quit(); \
 				  exit(EXIT_FAILURE); }
-#define NSP_MSG_INCOMP_CALC(color_or_grayscale)	"Pixel format not supported.\nThis program has been " \
-						"compiled for TI-Nspire calculators with a " color_or_grayscale " display."
 
 int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 {
 	NSP_DPRINT("Initializing video format\n");
 
-/* Check pixel format compatibility */
-#if NSP_CX
-	if ( is_classic ) {
-		show_msgbox(NSP_NAME_FULL, NSP_MSG_INCOMP_CALC("color"));
+	this->hidden->has_touchpad = is_touchpad ? SDL_TRUE : SDL_FALSE;
+	this->hidden->use_mouse = ( SDL_strcmp(SDL_getenv("SDL_USEMOUSE"), "1") == 0 && is_touchpad )
+				  ? SDL_TRUE : SDL_FALSE;
+
+	/* Warn the user if using mouse but running on a Clickpad */
+	if ( ! this->hidden->has_touchpad
+	&& SDL_strcmp(SDL_getenv("SDL_WARN_NOMOUSE"), "1") == 0
+	&& show_msgbox_2b(NSP_NAME_FULL, "This program requires a mouse, but your calculator does not have a touchpad. "
+					 "Some features might not work. Continue at your own risk.",
+			  "Return", "Continue") == 1 )
 		NSP_CLEAN_EXIT();
-	}
-#else
+
+	NSP_DPRINT("has_touchpad: %d, use_mouse: %d\n", this->hidden->has_touchpad, this->hidden->use_mouse);
+
 	if ( is_cx ) {
-		show_msgbox(NSP_NAME_FULL, NSP_MSG_INCOMP_CALC("grayscale"));
-		NSP_CLEAN_EXIT();
-	}
-#endif
-
-/* Warn the user if using mouse but running on a Clickpad */
-if ( ! is_touchpad
-&& SDL_strcmp(SDL_getenv("SDL_WARN_NOMOUSE"), "1") == 0
-&& show_msgbox_2b(NSP_NAME_FULL, "This program requires a mouse, but your calculator does not have a touchpad. "
-				 "Some features might not work. Continue at your own risk.",
-		  "Return", "Continue") == 1 )
-	NSP_CLEAN_EXIT();
-
-this->hidden->use_mouse = ( SDL_strcmp(SDL_getenv("SDL_USEMOUSE"), "1") == 0 && is_touchpad )
-			  ? SDL_TRUE : SDL_FALSE;
-this->hidden->is_clickpad = is_touchpad ? SDL_FALSE : SDL_TRUE;
-
-NSP_DPRINT("use_mouse: %d, is_clickpad: %d\n", this->hidden->use_mouse, this->hidden->is_clickpad);
-
-#if NSP_BPP_SW8_HW8
-	NSP_DPRINT("Switching to hardware 8 bpp\n");
-
-	nsp_lcd_ctrl = IO_LCD_CONTROL;
-	nsp_lcd_buffer = SDL_malloc(NSP_LCDBUF_SIZE);
-	if ( nsp_lcd_buffer == NULL ) {
-		SDL_OutOfMemory();
-		NSP_CLEAN_EXIT();
-	}
-	SDL_memset(nsp_lcd_buffer, 0, NSP_LCDBUF_SIZE);
-
-	nsp_orig_base = *(volatile unsigned *)NSP_BASE_ADDR;
-	*nsp_lcd_ctrl &= ~0b000001110;
-	*nsp_lcd_ctrl |=  0b000000110;
-	*(volatile unsigned *)NSP_BASE_ADDR = (unsigned)nsp_lcd_buffer;
-
-	SDL_memcpy(nsp_orig_hw_palette, (unsigned *)NSP_PALETTE_ADDR, 32);
-#endif
-
-	vformat->BitsPerPixel = NSP_BPP;
-	vformat->BytesPerPixel = NSP_BYTESPP;
-	vformat->Rmask = NSP_RMASK;
-	vformat->Gmask = NSP_GMASK;
-	vformat->Bmask = NSP_BMASK;
+		vformat->BitsPerPixel = 16;
+		vformat->Rmask = NSP_RMASK16;
+		vformat->Gmask = NSP_GMASK16;
+		vformat->Bmask = NSP_BMASK16;
+	} else
+		vformat->BitsPerPixel = 8;
 
 	return(0);
 }
 
 SDL_Rect **NSP_ListModes(_THIS, SDL_PixelFormat *format, Uint32 flags)
 {
-   	return (SDL_Rect **) -1;
+	return (SDL_Rect **) -1;
 }
 
 SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 				int width, int height, int bpp, Uint32 flags)
 {
+	Uint32 rmask = 0, gmask = 0, bmask = 0;
+
 	if ( width != SCREEN_WIDTH || height != SCREEN_HEIGHT )
-		NSP_DPRINT("Warning: not using 320x240, weird stuff might happen\n");
+		NSP_DPRINT("Warning: not using 320x240\n");
 
-	/* Sorry bro, we don't actually care about bpp, NSP_BPP is how we roll! */
-	if ( bpp != NSP_BPP )
-		NSP_DPRINT("Warning: got %d bpp, forcing to %d bpp\n", bpp, NSP_BPP);
+	if ( bpp < 16 )
+		bpp = 8;
+	else
+		bpp = 16;
 
-	NSP_DPRINT("Initializing display (%dx%dx%d)\n", width, height, NSP_BPP);
+	NSP_DPRINT("Initializing display (%dx%dx%d)\n", width, height, bpp);
+
+	if ( bpp == 16 ) {
+		if ( is_cx ) {
+			rmask = NSP_RMASK16;
+			gmask = NSP_GMASK16;
+			bmask = NSP_BMASK16;
+		} else {
+			NSP_DPRINT("Got 16 bpp on TC model, forcing to 8 bpp\n");
+			bpp = 8;
+		}
+	}
 
 	if ( this->hidden->buffer ) {
 		SDL_free( this->hidden->buffer );
 	}
 
-	this->hidden->buffer = SDL_malloc(NSP_BYTESPP * width * height);
+	this->hidden->buffer = SDL_malloc((bpp / 8) * width * height);
 	if ( ! this->hidden->buffer ) {
 		SDL_SetError("Couldn't allocate buffer for requested mode");
 		return(NULL);
 	}
 
-	memset(this->hidden->buffer, 0, NSP_BYTESPP * width * height);
+	memset(this->hidden->buffer, 0, (bpp / 8) * width * height);
 
 	/* Allocate the new pixel format for the screen */
-	if ( ! SDL_ReallocFormat(current, NSP_BPP, NSP_RMASK, NSP_GMASK, NSP_BMASK, 0) ) {
+	if ( ! SDL_ReallocFormat(current, bpp, rmask, gmask, bmask, 0) ) {
 		SDL_free(this->hidden->buffer);
 		this->hidden->buffer = NULL;
 		SDL_SetError("Couldn't allocate new pixel format for requested mode");
@@ -267,7 +230,7 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 	current->flags = flags;
 	this->hidden->w = current->w = width;
 	this->hidden->h = current->h = height;
-	current->pitch = NSP_BYTESPP * current->w;
+	current->pitch = (bpp / 8) * current->w;
 	current->pixels = this->hidden->buffer;
 
 	NSP_DPRINT("Done (0x%p)\n", current);
@@ -302,34 +265,36 @@ static void NSP_MoveWMCursor(_THIS, int x, int y) {
 	SDL_cursor->area.y = y;
 }
 
+#define NSP_PIXEL_ADDR(origin, x, y, width) (Uint8 *)(origin + (x) + ((y) * width))
+#define NSP_DRAW_LOOP(code)	{ \
+					while ( rows--) { \
+						int j, k; \
+						code \
+						src_addr += src_skip; \
+						dst_addr += dst_skip; \
+					} \
+				}
+
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 {
-	const int src_skip = SDL_VideoSurface->w;
+	int src_skip = SDL_VideoSurface->pitch;
+	int dst_skip = is_cx
+		     ? (2 * SDL_VideoSurface->w)
+		     : (SDL_VideoSurface->w / 2);
 	int i;
 
-#if NSP_BPP_SW8_HW4
-	const int dst_skip = SDL_VideoSurface->w / 2;
-#else
-	const int dst_skip = SDL_VideoSurface->w;
-#endif
-
-#if NSP_BPP_SW16
-	Uint16 *src_addr;
-#else
-	Uint8 *src_addr;
-#endif
-
-#if NSP_BPP_SW16_HW16 || NSP_BPP_SW8_HW16
-	Uint16 *dst_addr;
-#else
-	Uint8 *dst_addr;
-#endif
-
 	for ( i = 0; i < numrects; ++i ) {
+		Uint8 *src_addr, *dst_addr;
 		int row_bytes, rows;
 		SDL_Rect *rect = &rects[i];
 		if ( ! rect )
 			continue;
+
+		/* Single nibbles go to hell! */
+		if ( rect->x & 1 )
+			--rect->x;
+		if ( rect->w & 1 )
+			++rect->w;
 
 		if ( this->hidden->use_mouse )
 			if ( SDL_cursor->area.x + 10 > rect->x
@@ -338,59 +303,58 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 			  && SDL_cursor->area.y < rect->y + rect->h )
 				SDL_DrawCursorNoLock(SDL_VideoSurface);
 
-#if NSP_BPP_SW8_HW4
-		/* Single nibbles go to hell! */
-		if ( rect->x & 1 )
-			--rect->x;
-		if ( rect->w & 1 )
-			++rect->w;
-#endif
-
-		row_bytes = NSP_BYTESPP * rect->w;
+		row_bytes = SDL_VideoSurface->format->BytesPerPixel * rect->w;
 		rows = rect->h;
 
 		/* NSP_DPRINT("Updating: (%d, %d) %dx%d\n", rect->x, rect->y, rect->w, rect->h); */
 
-#if NSP_BPP_SW16
-		src_addr = (Uint16 *)(SDL_VideoSurface->pixels + rect->x + (rect->y * SDL_VideoSurface->w));
-#else
-		src_addr = (Uint8 *)(SDL_VideoSurface->pixels + rect->x + (rect->y * SDL_VideoSurface->w));
-#endif
+		src_addr = ( SDL_VideoSurface->format->BitsPerPixel == 16 )
+			 ? NSP_PIXEL_ADDR(SDL_VideoSurface->pixels,
+					  2 * rect->x, 2 * rect->y,
+					  SDL_VideoSurface->w)
+			 : NSP_PIXEL_ADDR(SDL_VideoSurface->pixels,
+					  rect->x, rect->y,
+					  SDL_VideoSurface->w);
 
-#if NSP_BPP_SW16_HW16 || NSP_BPP_SW8_HW16
-		dst_addr = (Uint16 *)(SCREEN_BASE_ADDRESS + rect->x + (rect->y * SDL_VideoSurface->w));
-#else
-		dst_addr = (Uint8 *)(SCREEN_BASE_ADDRESS + rect->x + (rect->y * SDL_VideoSurface->w));
-#endif
+		dst_addr = is_cx
+			 ? NSP_PIXEL_ADDR(SCREEN_BASE_ADDRESS,
+			 		  2 * rect->x, 2 * rect->y,
+			 		  SDL_VideoSurface->w)
+			 : NSP_PIXEL_ADDR(SCREEN_BASE_ADDRESS,
+			 		  rect->x / 2, rect->y / 2,
+			 		  SDL_VideoSurface->w);
 
-		while ( rows-- ) {
-#if NSP_BPP_SW16_HW16 || NSP_BPP_SW8_HW8
-			SDL_memcpy(dst_addr, src_addr, row_bytes);
-#elif NSP_BPP_SW8_HW16
-			int j;
-			for ( j = 0; j < row_bytes; ++j )
-				dst_addr[j] = nsp_palette[src_addr[j]];
-#elif NSP_BPP_SW8_HW4
-			int j, k;
-			for ( j = 0, k = 0; j < row_bytes; j += 2, ++k )
-				dst_addr[k] = (nsp_palette[src_addr[j]] << 4) | nsp_palette[src_addr[j + 1]];
-#endif
-			src_addr += src_skip;
-			dst_addr += dst_skip;
+		if ( is_cx ) {
+			if ( SDL_VideoSurface->format->BitsPerPixel == 16 ) {
+				NSP_DRAW_LOOP(
+					SDL_memcpy(dst_addr, src_addr, row_bytes);
+				);
+			} else {
+				NSP_DRAW_LOOP(
+					for ( j = 0, k = 0; j < 2 * row_bytes; j += 2, ++k )
+						*(Uint16 *)(dst_addr + j) = nsp_palette[src_addr[k]];
+				);
+			}
+		} else {
+			NSP_DRAW_LOOP(
+				for ( j = 0, k = 0; j < row_bytes; j += 2, ++k )
+					dst_addr[k] = (nsp_palette[src_addr[j]] << 4)
+						    | nsp_palette[src_addr[j + 1]];
+			);
 		}
 	}
+}
+
+static Uint16 nsp_map_rgb_palette(Uint8 r, Uint8 g, Uint8 b) {
+	return(is_cx ? (((r / 8) << 11) | ((g / 4) << 5) | (b / 8))
+		     : ((r + (2 * g) + b) / 64));
 }
 
 int NSP_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
 {
 	int i;
 	for ( i = firstcolor; i < ncolors; ++i )
-#if NSP_BPP_SW8_HW16 || NSP_BPP_SW8_HW4
-		nsp_palette[i] = NSP_MAP_RGB(colors[i].r, colors[i].g, colors[i].b);
-#elif NSP_BPP_SW8_HW8
-		nsp_hw_palette[i] = (Uint16)NSP_MAP_PALETTE(colors[i].r, colors[i].g, colors[i].b);
-	memcpy((unsigned *)NSP_PALETTE_ADDR, nsp_hw_palette, 512);
-#endif
+		nsp_palette[i] = nsp_map_rgb_palette(colors[i].r, colors[i].g, colors[i].b);
 	return(1);
 }
 
@@ -400,17 +364,4 @@ int NSP_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
 void NSP_VideoQuit(_THIS)
 {
 	NSP_DPRINT("Closing video\n");
-
-#if NSP_BPP_SW8_HW8
-	NSP_DPRINT("Quitting hardware 8 bpp\n");
-#if NSP_CX
-	*nsp_lcd_ctrl |= 0b100000000;
-	lcd_incolor();
-#else
-	lcd_ingray();
-#endif
-	*(volatile unsigned *)NSP_BASE_ADDR = (unsigned)nsp_orig_base;
-	SDL_memcpy((unsigned *)NSP_PALETTE_ADDR, nsp_orig_hw_palette, 32);
-	SDL_free(nsp_lcd_buffer);
-#endif
 }

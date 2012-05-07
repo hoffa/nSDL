@@ -26,41 +26,42 @@
 #include "SDL_timer.h"
 #include "../SDL_timer_c.h"
 
-#if NSP_CX
-static volatile unsigned *value = (unsigned *)0x900C0004;
-static volatile unsigned *control = (unsigned *)0x900C0008;
-#else
-static volatile unsigned *value = (unsigned *)0x900C0000;
-static volatile unsigned *control = (unsigned *)0x900C0008;
+static volatile unsigned *value;
+static volatile unsigned *control;
 Uint32 tick_sum = 0;
-#endif
-
 Uint32 start = 0;
 
 void SDL_StartTicks(void)
 {
+	if ( is_cx ) {
+		value = (unsigned *)0x900C0004;
+		control = (unsigned *)0x900C0008;
+	} else {
+		value = (unsigned *)0x900C0000;
+		control = (unsigned *)0x900C0008;
+	}
 	*(volatile unsigned *)0x900B0018 &= ~(1 << 11);
 	*(volatile unsigned *)0x900C0080 = 0xA;
-#if NSP_CX
-	*control = 0b10100110;
-	start = *value;
-#else
-	*control = 0b00010000;
-	*(volatile unsigned *)0x900C0004 = 32;
-	*value = 0;
-	*control = 0b00001111;
-#endif
+	if ( is_cx ) {
+		*control = 0b10100110;
+		start = *value;
+	} else {
+		*control = 0b00010000;
+		*(volatile unsigned *)0x900C0004 = 32;
+		*value = 0;
+		*control = 0b00001111;
+	}
 }
 
 Uint32 SDL_GetTicks (void)
 {
-#if NSP_CX
-	return((start - *value) >> 1);
-#else
-	tick_sum += *value;
-	*value = 0;
-	return(tick_sum);
-#endif
+	if ( is_cx )
+		return((start - *value) >> 1);
+	else {
+		tick_sum += *value;
+		*value = 0;
+		return(tick_sum);
+	}
 }
 
 void SDL_Delay (Uint32 ms)

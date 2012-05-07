@@ -161,11 +161,11 @@ int SDL_VideoInit (const char *driver_name, Uint32 flags)
 
 #ifdef __TINSPIRE__
 	/* NSP_bootstrap has to be at index 0 */
-	NSP_NL_RELOCDATA(bootstrap, NSP_ARRAY_SIZE(bootstrap));
-	NSP_NL_RELOCDATA(&bootstrap[0]->name, 1);
-	NSP_NL_RELOCDATA(&bootstrap[0]->desc, 1);
-	NSP_NL_RELOCDATA(&bootstrap[0]->available, 1);
-	NSP_NL_RELOCDATA(&bootstrap[0]->create, 1);
+	nl_relocdata((unsigned *)bootstrap, SDL_arraysize(bootstrap));
+	nl_relocdata((unsigned *)&bootstrap[0]->name, 1);
+	nl_relocdata((unsigned *)&bootstrap[0]->desc, 1);
+	nl_relocdata((unsigned *)&bootstrap[0]->available, 1);
+	nl_relocdata((unsigned *)&bootstrap[0]->create, 1);
 	NSP_DPRINT("Initializing %s (%s)\n", bootstrap[0]->name, NSP_NAME_FULL);
 #endif /* __TINSPIRE__ */
 

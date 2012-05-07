@@ -1658,7 +1658,7 @@ static int RLEColorkeySurface(SDL_Surface *surface)
 
 #ifdef __TINSPIRE__
 	if ( ! nsp_reallocated ) {
-		NSP_NL_RELOCDATA(getpixes, NSP_ARRAY_SIZE(getpixes));
+		nl_relocdata((unsigned *)getpixes, SDL_arraysize(getpixes));
 		nsp_reallocated = SDL_TRUE;
 	}
 #endif

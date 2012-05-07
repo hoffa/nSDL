@@ -2386,15 +2386,15 @@ SDL_loblit SDL_CalculateBlitN(SDL_Surface *surface, int blit_index)
 
 #ifdef __TINSPIRE__
     if ( ! nsp_reallocated ) {
-        int i, nb2_size = NSP_ARRAY_SIZE(normal_blit_2);
-        NSP_NL_RELOCDATA(normal_blit_2, nb2_size);
+        int i, nb2_size = SDL_arraysize(normal_blit_2);
+        nl_relocdata((unsigned *)normal_blit_2, nb2_size);
         for ( i = 0; i < nb2_size; ++i )
-            NSP_NL_RELOCDATA(&normal_blit_2[i].blitfunc, 1);
-        NSP_NL_RELOCDATA(normal_blit_3, 1);
-        NSP_NL_RELOCDATA(&normal_blit_3[0].blitfunc, 1);
-        NSP_NL_RELOCDATA(normal_blit_4, 1);
-        NSP_NL_RELOCDATA(&normal_blit_4[0].blitfunc, 1);
-        NSP_NL_RELOCDATA(normal_blit, NSP_ARRAY_SIZE(normal_blit));
+            nl_relocdata((unsigned *)&normal_blit_2[i].blitfunc, 1);
+        nl_relocdata((unsigned *)normal_blit_3, 1);
+        nl_relocdata((unsigned *)&normal_blit_3[0].blitfunc, 1);
+        nl_relocdata((unsigned *)normal_blit_4, 1);
+        nl_relocdata((unsigned *)&normal_blit_4[0].blitfunc, 1);
+        nl_relocdata((unsigned *)normal_blit, SDL_arraysize(normal_blit));
         nsp_reallocated = SDL_TRUE;
     }
 #endif

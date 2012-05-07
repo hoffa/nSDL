@@ -4,18 +4,6 @@ RANLIB = arm-none-eabi-ranlib
 INCLUDE = -I include/
 CFLAGS = -Wall -Wextra -nostdlib -O3
 
-ifneq ($(findstring cx8,$(MAKECMDGOALS)),)
-	CFLAGS += -D NSP_BPP_SW8_HW16 -D NSP_CX
-else
-	ifneq ($(findstring cx,$(MAKECMDGOALS)),)
-		CFLAGS += -D NSP_BPP_SW16_HW16 -D NSP_CX
-	endif
-endif
-
-ifneq ($(findstring tc,$(MAKECMDGOALS)),)
-	CFLAGS += -D NSP_BPP_SW8_HW4 -D NSP_TC
-endif
-
 TARGET = libSDL.a
 CONFIG_H = include/SDL_config.h
 SOURCES = \
@@ -40,7 +28,6 @@ SOURCES = \
 	src/events/SDL_resize.c \
 	src/file/SDL_rwops.c \
 	src/joystick/SDL_joystick.c \
-	src/joystick/tinspire/SDL_sysjoystick.c \
 	src/stdlib/SDL_getenv.c \
 	src/stdlib/SDL_iconv.c \
 	src/stdlib/SDL_malloc.c \
@@ -77,9 +64,6 @@ SOURCES = \
 	src/video/tinspire/SDL_tinspirevideo.c
 OBJECTS = $(SOURCES:.c=.o)
 
-cx: all
-cx8: all
-tc: all
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS)
