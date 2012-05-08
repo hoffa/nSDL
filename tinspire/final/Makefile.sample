@@ -7,25 +7,8 @@ LD = nspire-ld
 OBJCOPY = arm-none-eabi-objcopy
 CFLAGS = -Wall -Wextra -O3
 LDFLAGS =
+LIBS = -lSDL
 
-ifneq ($(findstring cx8,$(MAKECMDGOALS)),)
-	CFLAGS += -D NSP_BPP_SW8_HW16 -D NSP_CX
-	LIBS = -lSDL-CX8
-else
-	ifneq ($(findstring cx,$(MAKECMDGOALS)),)
-		CFLAGS += -D NSP_BPP_SW16_HW16 -D NSP_CX
-		LIBS = -lSDL-CX
-	endif
-endif
-
-ifneq ($(findstring tc,$(MAKECMDGOALS)),)
-	CFLAGS += -D NSP_BPP_SW8_HW4 -D NSP_TC
-	LIBS = -lSDL-TC
-endif
-
-cx: all
-cx8: all
-tc: all
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS)

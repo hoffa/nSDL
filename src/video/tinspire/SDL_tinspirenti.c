@@ -37,7 +37,7 @@ SDL_Surface *SDL_nLoadImage(Uint16 *data)
 		nti_free_info(nti_info);
 		return(NULL);
 	}
-	NSP_DPRINT("Loading NTI v%d (%dx%d)\n",
+	NSP_DPRINT("Loading NTI v%d (%dx%d)",
 		   nti_info->version, nti_info->width, nti_info->height);
 	tmp = SDL_CreateRGBSurface(SDL_SWSURFACE, nti_info->width, nti_info->height,
 				   16, NSP_RMASK16, NSP_GMASK16, NSP_BMASK16, 0);

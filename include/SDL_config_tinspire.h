@@ -30,8 +30,8 @@
 
 #if 1
 #define NSP_DEBUG	1
-#define NSP_MSGBOX_DEBUG	1
-#define NSP_MSGBOX_DPRINT	1
+#define NSP_MSGBOX_ERROR	1
+#define NSP_MSGBOX_DPRINT	0
 #define DEBUG_BUILD	1
 // #define DEBUG_PALETTE	1
 #define DEBUG_VIDEO	1
@@ -52,16 +52,15 @@
 #define NSP_BMASK16	0x001F
 
 #if NSP_DEBUG && NSP_MSGBOX_DPRINT
-#define NSP_DPRINT(fmt, args...) \
-	{ \
-		char __buf[256]; \
-		sprintf(__buf, "[NSP] %s():%d: " fmt, __FUNCTION__, __LINE__, ## args); \
-		show_msgbox("NSP_DPRINT (" NSP_NAME_FULL ")", __buf); \
-		fprintf(stderr, "%s\n", __buf); \
-	}
+#define NSP_DPRINT(fmt, args...) do { \
+	char __buf[256]; \
+	sprintf(__buf, "%s():%d: " fmt, __FUNCTION__, __LINE__, ## args); \
+	show_msgbox("Debug - " NSP_NAME_FULL, __buf); \
+	fprintf(stderr, "[NSP] %s\n", __buf); \
+} while(0)
 #elif NSP_DEBUG
 #define NSP_DPRINT(fmt, args...) \
-		fprintf(stderr, "[NSP] %s():%d: " fmt, __FUNCTION__, __LINE__, ## args)
+	fprintf(stderr, "[NSP] %s():%d: " fmt "\n", __FUNCTION__, __LINE__, ## args)
 #else
 #define NSP_DPRINT(fmt, args...) (void)0
 #endif

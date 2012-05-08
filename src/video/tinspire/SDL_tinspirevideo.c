@@ -82,7 +82,7 @@ static SDL_VideoDevice *NSP_CreateDevice(int devindex)
 {
 	SDL_VideoDevice *device;
 
-	NSP_DPRINT("Creating device (%d)\n", devindex);
+	NSP_DPRINT("Creating device (%d)", devindex);
 
 	/* Initialize all variables that we clean on shutdown */
 	device = (SDL_VideoDevice *)SDL_malloc(sizeof(SDL_VideoDevice));
@@ -142,13 +142,15 @@ VideoBootStrap NSP_bootstrap = {
 	NSP_Available, NSP_CreateDevice
 };
 
-#define NSP_CLEAN_EXIT()	{ NSP_DPRINT("Aborting\n"); \
-				  SDL_Quit(); \
-				  exit(EXIT_FAILURE); }
+#define NSP_CLEAN_EXIT() do { \
+	NSP_DPRINT("Aborting"); \
+	SDL_Quit(); \
+	exit(EXIT_FAILURE); \
+} while(0)
 
 int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 {
-	NSP_DPRINT("Initializing video format\n");
+	NSP_DPRINT("Initializing video format");
 
 	this->hidden->has_touchpad = is_touchpad ? SDL_TRUE : SDL_FALSE;
 	this->hidden->use_mouse = ( SDL_strcmp(SDL_getenv("SDL_USEMOUSE"), "1") == 0 && is_touchpad )
@@ -162,7 +164,7 @@ int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 			  "Return", "Continue") == 1 )
 		NSP_CLEAN_EXIT();
 
-	NSP_DPRINT("has_touchpad: %d, use_mouse: %d\n", this->hidden->has_touchpad, this->hidden->use_mouse);
+	NSP_DPRINT("has_touchpad: %d, use_mouse: %d", this->hidden->has_touchpad, this->hidden->use_mouse);
 
 	if ( is_cx ) {
 		vformat->BitsPerPixel = 16;
@@ -186,14 +188,14 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 	Uint32 rmask = 0, gmask = 0, bmask = 0;
 
 	if ( width != SCREEN_WIDTH || height != SCREEN_HEIGHT )
-		NSP_DPRINT("Warning: not using 320x240\n");
+		NSP_DPRINT("Warning: not using 320x240");
 
 	if ( bpp < 16 )
 		bpp = 8;
 	else
 		bpp = 16;
 
-	NSP_DPRINT("Initializing display (%dx%dx%d)\n", width, height, bpp);
+	NSP_DPRINT("Initializing display (%dx%dx%d)", width, height, bpp);
 
 	if ( bpp == 16 ) {
 		if ( is_cx ) {
@@ -201,7 +203,7 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 			gmask = NSP_GMASK16;
 			bmask = NSP_BMASK16;
 		} else {
-			NSP_DPRINT("Got 16 bpp on TC model, forcing to 8 bpp\n");
+			NSP_DPRINT("Got 16 bpp on TC model, forcing to 8 bpp");
 			bpp = 8;
 		}
 	}
@@ -233,7 +235,7 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 	current->pitch = (bpp / 8) * current->w;
 	current->pixels = this->hidden->buffer;
 
-	NSP_DPRINT("Done (0x%p)\n", current);
+	NSP_DPRINT("Done (0x%p)", current);
 
 	/* We're done */
 	return(current);
@@ -266,14 +268,14 @@ static void NSP_MoveWMCursor(_THIS, int x, int y) {
 }
 
 #define NSP_PIXEL_ADDR(origin, x, y, width) (Uint8 *)(origin + (x) + ((y) * width))
-#define NSP_DRAW_LOOP(code)	{ \
-					while ( rows--) { \
-						int j, k; \
-						code \
-						src_addr += src_skip; \
-						dst_addr += dst_skip; \
-					} \
-				}
+#define NSP_DRAW_LOOP(code) do { \
+	while ( rows--) { \
+		int j, k; \
+		code \
+		src_addr += src_skip; \
+		dst_addr += dst_skip; \
+	} \
+} while(0)
 
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 {
@@ -306,7 +308,7 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 		row_bytes = SDL_VideoSurface->format->BytesPerPixel * rect->w;
 		rows = rect->h;
 
-		/* NSP_DPRINT("Updating: (%d, %d) %dx%d\n", rect->x, rect->y, rect->w, rect->h); */
+		/* NSP_DPRINT("Updating: (%d, %d) %dx%d", rect->x, rect->y, rect->w, rect->h); */
 
 		src_addr = ( SDL_VideoSurface->format->BitsPerPixel == 16 )
 			 ? NSP_PIXEL_ADDR(SDL_VideoSurface->pixels,
@@ -363,5 +365,5 @@ int NSP_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
 */
 void NSP_VideoQuit(_THIS)
 {
-	NSP_DPRINT("Closing video\n");
+	NSP_DPRINT("Closing video");
 }

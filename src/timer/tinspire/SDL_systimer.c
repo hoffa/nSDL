@@ -56,7 +56,7 @@ void SDL_StartTicks(void)
 Uint32 SDL_GetTicks (void)
 {
 	if ( is_cx )
-		return((start - *value) >> 1);
+		return((start - *value) / 2);
 	else {
 		tick_sum += *value;
 		*value = 0;
