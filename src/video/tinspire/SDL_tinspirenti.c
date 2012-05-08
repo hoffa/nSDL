@@ -1,5 +1,6 @@
 #include "SDL_video.h"
 #include "SDL_stdinc.h"
+#include "SDL_tinspirevideo.h"
 #include "SDL_tinspirenti.h"
 
 static nti_info_t *nti_get_info(Uint16 *data)
@@ -26,8 +27,7 @@ SDL_Surface *SDL_nLoadImage(Uint16 *data)
 {
 	SDL_Surface *tmp, *image;
 	nti_info_t *nti_info = nti_get_info(data);
-	int i;
-	int length;
+	int i, j;
 	if ( nti_info == NULL ) {
 		SDL_OutOfMemory();
 		return(NULL);
@@ -47,10 +47,10 @@ SDL_Surface *SDL_nLoadImage(Uint16 *data)
 		return(NULL);
 	}
 	data = (Uint16 *)(data + 4);
-	length = nti_info->width * nti_info->height;
 	SDL_LockSurface(tmp);
-	for ( i = 0; i < length; ++i )
-		*(Uint16 *)(tmp->pixels + (2 * i)) = data[i];
+	for ( i = 0; i < nti_info->height; ++i )
+		for( j = 0; j < nti_info->width; ++j)
+			*(Uint16 *)NSP_SURF_PIXEL(tmp, j, i) = data[j + (nti_info->width * i)];
 	SDL_UnlockSurface(tmp);
 	image = SDL_DisplayFormat(tmp);
 	SDL_FreeSurface(tmp);

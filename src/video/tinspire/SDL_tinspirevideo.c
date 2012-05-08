@@ -54,15 +54,8 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects);
 
 int SDL_nCreatePalette(SDL_Surface *surface)
 {
-	SDL_Color colors[256];
-	int i;
-	for ( i = 0; i < 256; ++i )
-		colors[i].r = colors[i].g = colors[i].b = i;
-	if ( ! SDL_SetColors(surface, colors, 0, 256) ) {
-		SDL_SetError("[NSP] Couldn't create palette");
-		return(0);
-	}
-	return(1);
+	return(SDL_SetColors(surface, SDL_VideoSurface->format->palette->colors,
+	       0, SDL_VideoSurface->format->palette->ncolors));
 }
 
 /* NSP driver bootstrap functions */
@@ -267,7 +260,6 @@ static void NSP_MoveWMCursor(_THIS, int x, int y) {
 	SDL_cursor->area.y = y;
 }
 
-#define NSP_PIXEL_ADDR(origin, x, y, width) (Uint8 *)(origin + (x) + ((y) * width))
 #define NSP_DRAW_LOOP(code) do { \
 	while ( rows--) { \
 		int j, k; \
@@ -288,6 +280,7 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 	for ( i = 0; i < numrects; ++i ) {
 		Uint8 *src_addr, *dst_addr;
 		int row_bytes, rows;
+		int bpp = SDL_VideoSurface->format->BytesPerPixel;
 		SDL_Rect *rect = &rects[i];
 		if ( ! rect )
 			continue;
@@ -305,26 +298,22 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 			  && SDL_cursor->area.y < rect->y + rect->h )
 				SDL_DrawCursorNoLock(SDL_VideoSurface);
 
-		row_bytes = SDL_VideoSurface->format->BytesPerPixel * rect->w;
+		row_bytes = bpp * rect->w;
 		rows = rect->h;
 
 		/* NSP_DPRINT("Updating: (%d, %d) %dx%d", rect->x, rect->y, rect->w, rect->h); */
 
-		src_addr = ( SDL_VideoSurface->format->BitsPerPixel == 16 )
-			 ? NSP_PIXEL_ADDR(SDL_VideoSurface->pixels,
-					  2 * rect->x, 2 * rect->y,
-					  SDL_VideoSurface->w)
-			 : NSP_PIXEL_ADDR(SDL_VideoSurface->pixels,
-					  rect->x, rect->y,
-					  SDL_VideoSurface->w);
+		src_addr = NSP_SURF_PIXEL(SDL_VideoSurface, rect->x, rect->y);
 
 		dst_addr = is_cx
 			 ? NSP_PIXEL_ADDR(SCREEN_BASE_ADDRESS,
-			 		  2 * rect->x, 2 * rect->y,
-			 		  SDL_VideoSurface->w)
+			 		  rect->x, rect->y,
+			 		  SDL_VideoSurface->pitch,
+			 		  bpp)
 			 : NSP_PIXEL_ADDR(SCREEN_BASE_ADDRESS,
 			 		  rect->x / 2, rect->y / 2,
-			 		  SDL_VideoSurface->w);
+			 		  SDL_VideoSurface->pitch,
+			 		  bpp);
 
 		if ( is_cx ) {
 			if ( SDL_VideoSurface->format->BitsPerPixel == 16 ) {

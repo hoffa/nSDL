@@ -32,6 +32,9 @@
 /* Hidden "this" pointer for the video functions */
 #define _THIS   SDL_VideoDevice *this
 
+#define NSP_PIXEL_ADDR(origin, x, y, pitch, bpp) ((Uint8 *)origin + ((x) * (bpp)) + ((y) * (pitch)))
+#define NSP_SURF_PIXEL(surface, x, y) NSP_PIXEL_ADDR(surface->pixels, x, y, surface->pitch, surface->format->BytesPerPixel)
+
 /* Private display data */
 
 struct SDL_PrivateVideoData {
