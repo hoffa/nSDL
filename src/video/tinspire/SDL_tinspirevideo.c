@@ -135,13 +135,13 @@ VideoBootStrap NSP_bootstrap = {
 	NSP_Available, NSP_CreateDevice
 };
 
-#define NSP_CLEAN_EXIT() do { \
+#define NSP_ABORT() do { \
 	NSP_DPRINT("Aborting"); \
 	SDL_Quit(); \
 	exit(EXIT_FAILURE); \
 } while(0)
 
-int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
+static int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 {
 	NSP_DPRINT("Initializing video format");
 
@@ -154,8 +154,8 @@ int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 	&& SDL_strcmp(SDL_getenv("SDL_WARN_NOMOUSE"), "1") == 0
 	&& show_msgbox_2b(NSP_NAME_FULL, "This program requires a mouse, but your calculator does not have a touchpad. "
 					 "Some features might not work. Continue at your own risk.",
-			  "Return", "Continue") == 1 )
-		NSP_CLEAN_EXIT();
+			  "Abort", "Continue") == 1 )
+		NSP_ABORT();
 
 	NSP_DPRINT("has_touchpad: %d, use_mouse: %d", this->hidden->has_touchpad, this->hidden->use_mouse);
 
@@ -170,25 +170,40 @@ int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 	return(0);
 }
 
-SDL_Rect **NSP_ListModes(_THIS, SDL_PixelFormat *format, Uint32 flags)
+static SDL_Rect **NSP_ListModes(_THIS, SDL_PixelFormat *format, Uint32 flags)
 {
+	/* Everything goes; we do the checking in NSP_SetVideoMode() */
 	return (SDL_Rect **) -1;
 }
 
-SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
-				int width, int height, int bpp, Uint32 flags)
+static SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
+				     int width, int height, int bpp, Uint32 flags)
 {
 	Uint32 rmask = 0, gmask = 0, bmask = 0;
 
-	if ( width != SCREEN_WIDTH || height != SCREEN_HEIGHT )
-		NSP_DPRINT("Warning: not using 320x240");
-
-	if ( bpp < 16 )
-		bpp = 8;
-	else
-		bpp = 16;
+	width = ( width > SCREEN_WIDTH ) ? SCREEN_WIDTH : width;
+	height = ( height > SCREEN_HEIGHT ) ? SCREEN_HEIGHT : height;
+	bpp = ( bpp < 16 ) ? 8 : 16;
 
 	NSP_DPRINT("Initializing display (%dx%dx%d)", width, height, bpp);
+
+	if ( width < SCREEN_WIDTH || height < SCREEN_HEIGHT ) {
+		int offset_x = (SCREEN_WIDTH - width) / 2;
+		int offset_y = (SCREEN_HEIGHT - height) / 2;
+		NSP_DPRINT("offset_x: %d, offset_y: %d", offset_x, offset_y);
+		this->hidden->offset = is_cx
+				     ? (int)NSP_PIXEL_ADDR(0, offset_x, offset_y,
+				     			   2 * SCREEN_WIDTH, 2)
+				     : (int)NSP_PIXEL_ADDR(0, offset_x / 2, offset_y,
+				     			   SCREEN_WIDTH / 2, 1);
+		this->hidden->offset_x = offset_x;
+		memset(SCREEN_BASE_ADDRESS, 0, SCREEN_BYTES_SIZE);
+	} else {
+		this->hidden->offset = 0;
+		this->hidden->offset_x = 0;
+	}
+
+	NSP_DPRINT("Offset: %d", this->hidden->offset);
 
 	if ( bpp == 16 ) {
 		if ( is_cx ) {
@@ -196,7 +211,7 @@ SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 			gmask = NSP_GMASK16;
 			bmask = NSP_BMASK16;
 		} else {
-			NSP_DPRINT("Got 16 bpp on TC model, forcing to 8 bpp");
+			NSP_DPRINT("Got 16 bpp on TC, forcing to 8 bpp");
 			bpp = 8;
 		}
 	}
@@ -262,7 +277,7 @@ static void NSP_MoveWMCursor(_THIS, int x, int y) {
 
 #define NSP_DRAW_LOOP(code) do { \
 	while ( rows--) { \
-		int j, k; \
+		int j = 0, k = 0; \
 		code \
 		src_addr += src_skip; \
 		dst_addr += dst_skip; \
@@ -272,24 +287,17 @@ static void NSP_MoveWMCursor(_THIS, int x, int y) {
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 {
 	int src_skip = SDL_VideoSurface->pitch;
-	int dst_skip = is_cx
-		     ? (2 * SDL_VideoSurface->w)
-		     : (SDL_VideoSurface->w / 2);
+	int dst_skip = is_cx ? (2 * SCREEN_WIDTH) : (SCREEN_WIDTH / 2);
 	int i;
 
 	for ( i = 0; i < numrects; ++i ) {
 		Uint8 *src_addr, *dst_addr;
 		int row_bytes, rows;
 		int bpp = SDL_VideoSurface->format->BytesPerPixel;
+		SDL_bool odd_left, odd_right;
 		SDL_Rect *rect = &rects[i];
 		if ( ! rect )
 			continue;
-
-		/* Single nibbles go to hell! */
-		if ( rect->x & 1 )
-			--rect->x;
-		if ( rect->w & 1 )
-			++rect->w;
 
 		if ( this->hidden->use_mouse )
 			if ( SDL_cursor->area.x + 10 > rect->x
@@ -300,6 +308,10 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 
 		row_bytes = bpp * rect->w;
 		rows = rect->h;
+		odd_left = (this->hidden->offset_x + rect->x) & 1;
+		odd_right = (this->hidden->offset_x + rect->x + rect->w) & 1;
+		if ( is_classic && odd_right )
+			--row_bytes;
 
 		/* NSP_DPRINT("Updating: (%d, %d) %dx%d", rect->x, rect->y, rect->w, rect->h); */
 
@@ -308,12 +320,11 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 		dst_addr = is_cx
 			 ? NSP_PIXEL_ADDR(SCREEN_BASE_ADDRESS,
 			 		  rect->x, rect->y,
-			 		  SDL_VideoSurface->pitch,
-			 		  bpp)
+			 		  2 * SCREEN_WIDTH, 2)
 			 : NSP_PIXEL_ADDR(SCREEN_BASE_ADDRESS,
-			 		  rect->x / 2, rect->y / 2,
-			 		  SDL_VideoSurface->pitch,
-			 		  bpp);
+			 		  rect->x / 2, rect->y,
+			 		  SCREEN_WIDTH / 2, 1);
+		dst_addr += this->hidden->offset;
 
 		if ( is_cx ) {
 			if ( SDL_VideoSurface->format->BitsPerPixel == 16 ) {
@@ -328,9 +339,16 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 			}
 		} else {
 			NSP_DRAW_LOOP(
-				for ( j = 0, k = 0; j < row_bytes; j += 2, ++k )
+				if ( odd_left ) {
+					*dst_addr = (*dst_addr & 0xf0) | nsp_palette[*src_addr];
+					++j;
+					++k;
+				}
+				for ( ; j < row_bytes; j += 2, ++k )
 					dst_addr[k] = (nsp_palette[src_addr[j]] << 4)
 						    | nsp_palette[src_addr[j + 1]];
+				if ( odd_right )
+					dst_addr[k] = (nsp_palette[src_addr[j]] << 4) | (dst_addr[k] & 0x0f);
 			);
 		}
 	}
@@ -341,7 +359,7 @@ static Uint16 nsp_map_rgb_palette(Uint8 r, Uint8 g, Uint8 b) {
 		     : ((r + (2 * g) + b) / 64));
 }
 
-int NSP_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
+static int NSP_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
 {
 	int i;
 	for ( i = firstcolor; i < ncolors; ++i )
@@ -352,7 +370,7 @@ int NSP_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
 /* Note:  If we are terminated, this could be called in the middle of
    another SDL video routine -- notably UpdateRects.
 */
-void NSP_VideoQuit(_THIS)
+static void NSP_VideoQuit(_THIS)
 {
 	NSP_DPRINT("Closing video");
 }

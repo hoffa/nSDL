@@ -106,13 +106,17 @@ void SDL_SetError (const char *fmt, ...)
 	}
 	va_end(ap);
 
-#if __TINSPIRE__ && NSP_MSGBOX_ERROR
-	show_msgbox("Error - " NSP_NAME_FULL, SDL_GetError());
-#endif
-
 	/* If we are in debug mode, print out an error message */
 #ifdef DEBUG_ERROR
 	fprintf(stderr, "SDL_SetError: %s\n", SDL_GetError());
+#endif
+
+#if __TINSPIRE__ && NSP_MSGBOX_ERROR
+	if ( show_msgbox_2b("Error - " NSP_NAME_FULL, SDL_GetError(),
+					    "Abort", "Continue") == 1 ) {
+		SDL_Quit();
+		exit(EXIT_FAILURE);
+	}
 #endif
 }
 

@@ -1,5 +1,6 @@
 #include "SDL_config.h"
 #include "../SDL_sysvideo.h"
+#include "SDL_tinspirevideo.h"
 #include "SDL_tinspirefonts.h"
 
 #define NSP_BUF_SIZE	512
@@ -36,26 +37,21 @@ SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags)
 		int max_width = 0;
 		SDL_Surface *char_surf;
 		if ( SDL_VideoSurface->format->BitsPerPixel == 16 )
-			char_surf = SDL_CreateRGBSurface(SDL_SWSURFACE, NSP_FONT_WIDTH,
-				NSP_FONT_HEIGHT, 16, NSP_RMASK16, NSP_GMASK16, NSP_BMASK16, 0);
+			char_surf = SDL_CreateRGBSurface(SDL_SWSURFACE, NSP_FONT_WIDTH, NSP_FONT_HEIGHT,
+							 16, NSP_RMASK16, NSP_GMASK16, NSP_BMASK16, 0);
 		else
-			char_surf = SDL_CreateRGBSurface(SDL_SWSURFACE, NSP_FONT_WIDTH,
-				NSP_FONT_HEIGHT, 8, 0, 0, 0, 0);
+			char_surf = SDL_CreateRGBSurface(SDL_SWSURFACE, NSP_FONT_WIDTH, NSP_FONT_HEIGHT,
+							 8, 0, 0, 0, 0);
 		if ( char_surf == NULL ) {
 			SDL_OutOfMemory();
 			return(NULL);
 		}
 		font->char_width[i] = NSP_FONT_WIDTH;
 		if ( char_surf->format->BitsPerPixel == 8 )
-			SDL_SetColors(char_surf, SDL_VideoSurface->format->palette->colors,
-				      0, SDL_VideoSurface->format->palette->ncolors);
+			SDL_nCreatePalette(char_surf);
 		if ( color == 0 )
 			SDL_FillRect(char_surf, NULL, 1);
-		if ( SDL_SetColorKey(char_surf, SDL_SRCCOLORKEY | SDL_RLEACCEL, color ? 0 : 1) == -1 ) {
-			SDL_FreeSurface(char_surf);
-			SDL_nFreeFont(font);
-			return(NULL);
-		}
+		SDL_SetColorKey(char_surf, SDL_SRCCOLORKEY | SDL_RLEACCEL, color ? 0 : 1);
 		SDL_LockSurface(char_surf);
 		for ( j = 0; j < NSP_FONT_HEIGHT; ++j )
 			for ( k = 0; k < NSP_FONT_WIDTH; ++k ) {
@@ -65,9 +61,9 @@ SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags)
 						max_width = k;
 					}
 					if ( char_surf->format->BitsPerPixel == 16 )
-						*(Uint16 *)(char_surf->pixels + (2 * k) + (2 * NSP_FONT_WIDTH * j)) = (Uint16)color;
+						*(Uint16 *)NSP_SURF_PIXEL(char_surf, k, j) = (Uint16)color;
 					else
-						*(Uint8 *)(char_surf->pixels + k + (NSP_FONT_WIDTH * j)) = (Uint8)color;
+						*NSP_SURF_PIXEL(char_surf, k, j) = (Uint8)color;
 				}
 			}
 		SDL_UnlockSurface(char_surf);
