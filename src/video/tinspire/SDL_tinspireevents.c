@@ -66,11 +66,6 @@ void NSP_PumpEvents(_THIS)
 
 	if ( this->hidden->use_mouse ) {
 		BOOL mousebutton_pressed = isKeyPressed(KEY_NSPIRE_CLICK);
-
-		/* We don't want to draw the cursor right away,
-		   but at the very last moment, when calling SDL_UpdateRects() */
-		SDL_cursorstate &= ~CURSOR_USINGSW;
-
 		if ( mousebutton_state == SDL_RELEASED ) {
 			if ( mousebutton_pressed ) {
 				SDL_PrivateMouseButton(SDL_PRESSED, 0, 0, 0);

@@ -28,52 +28,10 @@
 /* General platform specific identifiers */
 #include "SDL_platform.h"
 
-/*
- * #define NSP_CX for CX models.
- * #define NSP_TC for TC models.
- * #define NSP_BPP_SW16_HW16 for CX models.  (cx)
- * #define NSP_BPP_SW8_HW16 for CX models.   (cx8)
- * #define NSP_BPP_SW8_HW8 for CX/TC models.
- * #define NSP_BPP_SW8_HW4 for TC models.    (tc)
- * #define NSP_ALT_FINDCOLOR to use the alternative, slightly faster but less
- *	tested (and less accurate?) SDL_FindColor(). Only for palettized
- *	surfaces. (requires recompiling)
- */
-
-#if !NSP_BPP_SW16_HW16
-#define NSP_BPP_SW16_HW16	0
-#endif
-#if !NSP_BPP_SW8_HW16
-#define NSP_BPP_SW8_HW16	0
-#endif
-#if !NSP_BPP_SW8_HW8
-#define NSP_BPP_SW8_HW8	0
-#endif
-#if !NSP_BPP_SW8_HW4
-#define NSP_BPP_SW8_HW4	0
-#endif
-
-#if NSP_BPP_SW16_HW16 + NSP_BPP_SW8_HW16 + NSP_BPP_SW8_HW8 + NSP_BPP_SW8_HW4 > 1
-#error "Only one bpp mode should be defined."
-#endif
-
-#if NSP_BPP_SW8_HW16 || NSP_BPP_SW8_HW8 || NSP_BPP_SW8_HW4
-#define NSP_BPP_SW8	1
-#define NSP_BPP		8
-#define NSP_RMASK	0
-#define NSP_GMASK	0
-#define NSP_BMASK	0
-#else
-#define NSP_BPP_SW16	1
-#define NSP_BPP		16
-#define NSP_RMASK	0xF800
-#define NSP_GMASK	0x07E0
-#define NSP_BMASK	0x001F
-#endif
-#define NSP_BYTESPP	(NSP_BPP / 8)
-
 #if 1
 #define NSP_DEBUG	1
+#define NSP_MSGBOX_ERROR	1
+#define NSP_MSGBOX_DPRINT	0
 #define DEBUG_BUILD	1
 // #define DEBUG_PALETTE	1
 #define DEBUG_VIDEO	1
@@ -83,35 +41,26 @@
 #define DEBUG_QSORT	1
 #define DEBUG_THREADS	1
 #define DEBUG_ERROR	1
-#define DEBUG_IMGLIB	1
 #endif
 
 #define NSP_NAME	"nSDL"
-#define NSP_VERSION	"0.2.1"
-#if NSP_BPP_SW16_HW16
-#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-16/16-cx")
-#elif NSP_BPP_SW8_HW16
-#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-8/16-cx")
-#elif NSP_BPP_SW8_HW8 && NSP_CX
-#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-8/8-cx")
-#elif NSP_BPP_SW8_HW8 && NSP_TC
-#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-8/8-tc")
-#elif NSP_BPP_SW8_HW4
-#define NSP_NAME_FULL	(NSP_NAME " " NSP_VERSION "-8/4-tc")
-#endif
+#define NSP_VERSION	"0.3.0"
+#define NSP_NAME_FULL	NSP_NAME " " NSP_VERSION
 
-/* A few convenience macros */
-#define NSP_ARRAY_SIZE(array)	(sizeof(array) / sizeof(array[0]))
-#define NSP_NL_RELOCDATA(ptr, size)	nl_relocdata((unsigned *)(ptr), size)
+#define NSP_RMASK16	0xF800
+#define NSP_GMASK16	0x07E0
+#define NSP_BMASK16	0x001F
 
-#define NSP_LCDBUF_SIZE	(SCREEN_WIDTH * SCREEN_HEIGHT)
-#define NSP_BASE_ADDR	0xC0000010
-#define NSP_PALETTE_ADDR	0xC0000200
-
-#if NSP_DEBUG
+#if NSP_DEBUG && NSP_MSGBOX_DPRINT
+#define NSP_DPRINT(fmt, args...) do { \
+	char __buf[256]; \
+	sprintf(__buf, "%s():%d: " fmt, __FUNCTION__, __LINE__, ## args); \
+	show_msgbox("Debug - " NSP_NAME_FULL, __buf); \
+	fprintf(stderr, "[NSP] %s\n", __buf); \
+} while(0)
+#elif NSP_DEBUG
 #define NSP_DPRINT(fmt, args...) \
-		fprintf(stderr, "[NSP] %s():%d: " fmt, \
-			__FUNCTION__, __LINE__, ## args)
+	fprintf(stderr, "[NSP] %s():%d: " fmt "\n", __FUNCTION__, __LINE__, ## args)
 #else
 #define NSP_DPRINT(fmt, args...) (void)0
 #endif
@@ -151,11 +100,9 @@
 /* Allow disabling of core subsystems */
 #define SDL_AUDIO_DISABLED	1
 #define SDL_CDROM_DISABLED	1
+#define SDL_JOYSTICK_DISABLED	1
 #define SDL_LOADSO_DISABLED	1
 #define SDL_THREADS_DISABLED	1
-
-/* Enable various input drivers */
-#define SDL_JOYSTICK_TINSPIRE	1
 
 /* Enable various timer systems */
 #define SDL_TIMER_TINSPIRE	1
