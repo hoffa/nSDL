@@ -40,7 +40,7 @@ SDL_Surface *SDL_nLoadImage(Uint16 *data)
 	NSP_DPRINT("Loading NTI v%d (%dx%d)",
 		   nti_info->version, nti_info->width, nti_info->height);
 	tmp = SDL_CreateRGBSurface(SDL_SWSURFACE, nti_info->width, nti_info->height,
-				   16, NSP_RMASK16, NSP_GMASK16, NSP_BMASK16, 0);
+				   16, NSDL_RMASK16, NSDL_GMASK16, NSDL_BMASK16, 0);
 	if ( tmp == NULL ) {
 		SDL_OutOfMemory();
 		nti_free_info(nti_info);

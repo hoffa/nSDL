@@ -259,8 +259,8 @@ typedef enum {
 #define NSP_FONT_WIDTH  8
 #define NSP_FONT_HEIGHT 8
 
-#define NSP_HSPACING_DEFAULT	0
-#define NSP_VSPACING_DEFAULT	0
+#define NSDL_HSPACING_DEFAULT	0
+#define NSDL_VSPACING_DEFAULT	0
 
 typedef struct SDL_nFont {
     SDL_Surface *chars[NSP_FONT_NUMCHARS];

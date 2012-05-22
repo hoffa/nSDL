@@ -113,8 +113,8 @@ void SDL_SetError (const char *fmt, ...)
 #endif
 
 #if __TINSPIRE__ && NSP_MSGBOX_ERROR
-	if ( show_msgbox_2b("Error - " NSP_NAME_FULL, SDL_GetError(),
-					    "Abort", "Continue") == 1 ) {
+	if ( show_msgbox_2b("Error - " NSDL_NAME_FULL, SDL_GetError(),
+			    "Abort", "Continue") == 1 ) {
 		SDL_Quit();
 		exit(EXIT_FAILURE);
 	}

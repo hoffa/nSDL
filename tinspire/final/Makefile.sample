@@ -5,7 +5,7 @@ OBJECTS = $(SOURCES:.c=.o)
 CC = nspire-gcc
 LD = nspire-ld
 OBJCOPY = arm-none-eabi-objcopy
-CFLAGS = -Wall -Wextra -O3
+CFLAGS = -Wall -Wextra -Ofast
 LDFLAGS =
 LIBS = -lSDL
 

@@ -42,6 +42,7 @@ struct SDL_PrivateVideoData {
     int offset;
     int offset_x;
 	void *buffer;
+    SDL_bool cx;
     SDL_bool has_touchpad;
     SDL_bool use_mouse;
 };

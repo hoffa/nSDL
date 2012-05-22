@@ -145,14 +145,14 @@ static int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 {
 	NSP_DPRINT("Initializing video format");
 
-	this->hidden->has_touchpad = is_touchpad ? SDL_TRUE : SDL_FALSE;
-	this->hidden->use_mouse = ( SDL_strcmp(SDL_getenv("SDL_USEMOUSE"), "1") == 0 && is_touchpad )
-				  ? SDL_TRUE : SDL_FALSE;
+	this->hidden->cx = is_cx;
+	this->hidden->has_touchpad = is_touchpad;
+	this->hidden->use_mouse = SDL_strcmp(SDL_getenv("SDL_USEMOUSE"), "1") == 0 && is_touchpad;
 
 	/* Warn the user if using mouse but running on a Clickpad */
 	if ( ! this->hidden->has_touchpad
 	&& SDL_strcmp(SDL_getenv("SDL_WARN_NOMOUSE"), "1") == 0
-	&& show_msgbox_2b(NSP_NAME_FULL, "This program requires a mouse, but your calculator does not have a touchpad. "
+	&& show_msgbox_2b(NSDL_NAME_FULL, "This program requires a mouse, but your calculator does not have a touchpad. "
 					 "Some features might not work. Continue at your own risk.",
 			  "Abort", "Continue") == 1 )
 		NSP_ABORT();
@@ -161,9 +161,9 @@ static int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 
 	if ( is_cx ) {
 		vformat->BitsPerPixel = 16;
-		vformat->Rmask = NSP_RMASK16;
-		vformat->Gmask = NSP_GMASK16;
-		vformat->Bmask = NSP_BMASK16;
+		vformat->Rmask = NSDL_RMASK16;
+		vformat->Gmask = NSDL_GMASK16;
+		vformat->Bmask = NSDL_BMASK16;
 	} else
 		vformat->BitsPerPixel = 8;
 
@@ -207,9 +207,9 @@ static SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 
 	if ( bpp == 16 ) {
 		if ( is_cx ) {
-			rmask = NSP_RMASK16;
-			gmask = NSP_GMASK16;
-			bmask = NSP_BMASK16;
+			rmask = NSDL_RMASK16;
+			gmask = NSDL_GMASK16;
+			bmask = NSDL_BMASK16;
 		} else {
 			NSP_DPRINT("Got 16 bpp on TC, forcing to 8 bpp");
 			bpp = 8;
@@ -287,7 +287,7 @@ static void NSP_MoveWMCursor(_THIS, int x, int y) {
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 {
 	int src_skip = SDL_VideoSurface->pitch;
-	int dst_skip = is_cx ? (2 * SCREEN_WIDTH) : (SCREEN_WIDTH / 2);
+	int dst_skip = this->hidden->cx ? (2 * SCREEN_WIDTH) : (SCREEN_WIDTH / 2);
 	int i;
 
 	for ( i = 0; i < numrects; ++i ) {
@@ -317,7 +317,7 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 
 		src_addr = NSP_SURF_PIXEL(SDL_VideoSurface, rect->x, rect->y);
 
-		dst_addr = is_cx
+		dst_addr = this->hidden->cx
 			 ? NSP_PIXEL_ADDR(SCREEN_BASE_ADDRESS,
 			 		  rect->x, rect->y,
 			 		  2 * SCREEN_WIDTH, 2)
@@ -326,7 +326,7 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 			 		  SCREEN_WIDTH / 2, 1);
 		dst_addr += this->hidden->offset;
 
-		if ( is_cx ) {
+		if ( this->hidden->cx ) {
 			if ( SDL_VideoSurface->format->BitsPerPixel == 16 ) {
 				NSP_DRAW_LOOP(
 					SDL_memcpy(dst_addr, src_addr, row_bytes);
@@ -354,16 +354,14 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 	}
 }
 
-static Uint16 nsp_map_rgb_palette(Uint8 r, Uint8 g, Uint8 b) {
-	return(is_cx ? (((r / 8) << 11) | ((g / 4) << 5) | (b / 8))
-		     : ((r + (2 * g) + b) / 64));
-}
+#define NSP_MAP_RGB_PALETTE(r, g, b)	(is_cx ? (((r / 8) << 11) | ((g / 4) << 5) | (b / 8)) \
+		    			       : ((r + (2 * g) + b) / 64))
 
 static int NSP_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
 {
 	int i;
 	for ( i = firstcolor; i < ncolors; ++i )
-		nsp_palette[i] = nsp_map_rgb_palette(colors[i].r, colors[i].g, colors[i].b);
+		nsp_palette[i] = NSP_MAP_RGB_PALETTE(colors[i].r, colors[i].g, colors[i].b);
 	return(1);
 }
 

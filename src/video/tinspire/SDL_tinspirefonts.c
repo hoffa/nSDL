@@ -38,7 +38,7 @@ SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags)
 		SDL_Surface *char_surf;
 		if ( SDL_VideoSurface->format->BitsPerPixel == 16 )
 			char_surf = SDL_CreateRGBSurface(SDL_SWSURFACE, NSP_FONT_WIDTH, NSP_FONT_HEIGHT,
-							 16, NSP_RMASK16, NSP_GMASK16, NSP_BMASK16, 0);
+							 16, NSDL_RMASK16, NSDL_GMASK16, NSDL_BMASK16, 0);
 		else
 			char_surf = SDL_CreateRGBSurface(SDL_SWSURFACE, NSP_FONT_WIDTH, NSP_FONT_HEIGHT,
 							 8, 0, 0, 0, 0);
@@ -68,8 +68,8 @@ SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags)
 			}
 		SDL_UnlockSurface(char_surf);
 		font->chars[i] = char_surf;
-		font->hspacing = NSP_HSPACING_DEFAULT;
-		font->vspacing = NSP_VSPACING_DEFAULT;
+		font->hspacing = NSDL_HSPACING_DEFAULT;
+		font->vspacing = NSDL_VSPACING_DEFAULT;
 		font->flags = flags;
 	}
 
@@ -106,7 +106,7 @@ int SDL_nDrawChar(SDL_Surface *surface, SDL_nFont *font, SDL_Rect *pos, int c)
    If rect->w && rect->h, the string is drawn within rect.
    Returns -1 on error, and the number of characters NOT drawn otherwise.
 
-   Notes: NSP_FONT_TEXTWRAP only has an effect when using SDL_nDrawStringInRect(). */
+   Notes: NSDL_FONT_TEXTWRAP only has an effect when using SDL_nDrawStringInRect(). */
 static int nsp_draw_string(SDL_Surface *surface, SDL_nFont *font,
 			   SDL_Rect *rect, const char *format, va_list args)
 {
@@ -141,7 +141,7 @@ static int nsp_draw_string(SDL_Surface *surface, SDL_nFont *font,
 					if ( pos.x + c_width <= max_x
 					  && pos.y + NSP_FONT_HEIGHT <= max_y )
 						draw_char = SDL_TRUE;
-					else if ( font->flags & NSP_FONTCFG_TEXTWRAP
+					else if ( font->flags & NSDL_FONTCFG_TEXTWRAP
 					       && pos.y + (2 * NSP_FONT_HEIGHT) + font->vspacing <= max_y ) {
 						draw_char = SDL_TRUE;
 						pos.x = rect->x;
@@ -155,7 +155,7 @@ static int nsp_draw_string(SDL_Surface *surface, SDL_nFont *font,
 						return(-1);
 					++chars_drawn;
 				}
-				if ( ! ( font->flags & NSP_FONTCFG_FORMAT ) || pos.x != rect->x || c != ' ' )
+				if ( ! ( font->flags & NSDL_FONTCFG_FORMAT ) || pos.x != rect->x || c != ' ' )
 					pos.x += c_width + font->hspacing;
 				}
 				break;
@@ -194,7 +194,7 @@ static int nsp_get_line_width(SDL_nFont *font, const char *s)
 {
 	int width = 0;
 	while ( *s && *s != '\n' ) {
-		if ( ! ( font->flags & NSP_FONTCFG_FORMAT ) || width || *s != ' ' )
+		if ( ! ( font->flags & NSDL_FONTCFG_FORMAT ) || width || *s != ' ' )
 			width += NSP_CHAR_WIDTH(font, *s) + font->hspacing;
 		++s;
 	}

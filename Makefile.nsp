@@ -1,8 +1,8 @@
 CC = nspire-gcc
 AR = arm-none-eabi-ar
 RANLIB = arm-none-eabi-ranlib
-INCLUDE = -I include/
-CFLAGS = -Wall -Wextra -nostdlib -O3
+INCLUDE = -I include
+CFLAGS = -Wall -Wextra -nostdlib -Ofast
 
 TARGET = libSDL.a
 CONFIG_H = include/SDL_config.h
