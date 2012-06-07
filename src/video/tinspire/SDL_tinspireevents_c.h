@@ -23,11 +23,6 @@
 
 #include "SDL_tinspirevideo.h"
 
-/* We only need velocity, no extra layers required */
-typedef struct nsp_tp_t {
-	Sint8 dx, dy;
-} nsp_tp_t;
-
 /* Keys */
 enum {
 	NSP_KEY_A,
@@ -86,6 +81,10 @@ enum {
 	NSP_KEY_ESC,
 	NSP_KEY_TAB,
 	NSP_KEY_EQU,
+	NSP_KEY_UP,
+	NSP_KEY_RIGHT,
+	NSP_KEY_DOWN,
+	NSP_KEY_LEFT,
 	NSP_KEY_SHIFT,
 	NSP_KEY_CTRL,
 	NSP_KEY_BAR,

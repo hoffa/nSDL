@@ -29,58 +29,16 @@
 #include "SDL_tinspirevideo.h"
 #include "SDL_tinspireevents_c.h"
 
-enum {UP, DOWN, RIGHT, LEFT};
-
 static t_key nspk_keymap[NSP_NUMKEYS];
 static SDLKey sdlk_keymap[NSP_NUMKEYS] = {SDLK_UNKNOWN};
 static char key_state[NSP_NUMKEYS] = {SDL_RELEASED};
-static char mousebutton_state = SDL_RELEASED;
-static BOOL arrowkey_state[4] = {FALSE};
 
 void NSP_PumpEvents(_THIS)
 {
-	Sint16 dx_sum, dy_sum;
 	int i;
-
-	BOOL ak_down[4] = {FALSE};
-	ak_down[UP] = isKeyPressed(KEY_NSPIRE_UP);
-	ak_down[RIGHT] = isKeyPressed(KEY_NSPIRE_RIGHT);
-	ak_down[DOWN] = isKeyPressed(KEY_NSPIRE_DOWN);
-	ak_down[LEFT] = isKeyPressed(KEY_NSPIRE_LEFT);
-	if ( isKeyPressed(KEY_NSPIRE_LEFTUP) ) ak_down[UP] = ak_down[LEFT] = TRUE;
-	if ( isKeyPressed(KEY_NSPIRE_UPRIGHT) ) ak_down[UP] = ak_down[RIGHT] = TRUE;
-	if ( isKeyPressed(KEY_NSPIRE_RIGHTDOWN) ) ak_down[DOWN] = ak_down[RIGHT] = TRUE;
-	if ( isKeyPressed(KEY_NSPIRE_DOWNLEFT) ) ak_down[DOWN] = ak_down[LEFT] = TRUE;
-
-	/* Handle arrow keys */
-	for ( i = 0; i < 4; ++i ) {
-		SDL_keysym keysym;
-		keysym.scancode = NSP_NUMKEYS;
-		keysym.sym = SDLK_UP + i;
-		if ( arrowkey_state[i] == FALSE ) {
-			if ( ak_down[i] ) {
-				SDL_PrivateKeyboard(SDL_PRESSED, &keysym);
-				arrowkey_state[i] = TRUE;
-			}
-		} else if ( ! ak_down[i] ) {
-			SDL_PrivateKeyboard(SDL_RELEASED, &keysym);
-			arrowkey_state[i] = FALSE;
-		}
-	}
-
-	/* Handle the other keys */
-	for ( i = dx_sum = dy_sum = 0; i < NSP_NUMKEYS; ++i ) {
+	for ( i = 0; i < NSP_NUMKEYS; ++i ) {
 		BOOL key_pressed = isKeyPressed(nspk_keymap[i]);
 		SDL_keysym keysym;
-		nsp_tp_t tp = {0, 0};
-
-		if ( this->hidden->use_mouse
-		  && touchpad_read(0x06, 0x07, &tp)
-		  && ( tp.dx || tp.dy ) ) {
-			dx_sum += tp.dx;
-			dy_sum += -tp.dy;
-		}
-
 		keysym.scancode = i;
 		keysym.sym = sdlk_keymap[i];
 		if ( key_state[i] == SDL_RELEASED ) {
@@ -92,21 +50,6 @@ void NSP_PumpEvents(_THIS)
 			SDL_PrivateKeyboard(SDL_RELEASED, &keysym);
 			key_state[i] = SDL_RELEASED;
 		}
-	}
-
-	if ( this->hidden->use_mouse ) {
-		BOOL mousebutton_pressed = isKeyPressed(KEY_NSPIRE_CLICK);
-		if ( mousebutton_state == SDL_RELEASED ) {
-			if ( mousebutton_pressed ) {
-				SDL_PrivateMouseButton(SDL_PRESSED, 0, 0, 0);
-				mousebutton_state = SDL_PRESSED;
-			}
-		} else if ( ! mousebutton_pressed ) {
-			SDL_PrivateMouseButton(SDL_RELEASED, 0, 0, 0);
-			mousebutton_state = SDL_RELEASED;
-		}
-		if ( dx_sum || dy_sum )
-			SDL_PrivateMouseMotion(0, SDL_TRUE, dx_sum, dy_sum);
 	}
 }
 
@@ -191,6 +134,10 @@ void NSP_InitOSKeymap(_THIS)
 	nspk_keymap[NSP_KEY_BAR] =	KEY_NSPIRE_BAR;
 	nspk_keymap[NSP_KEY_TAB] =	KEY_NSPIRE_TAB;
 	nspk_keymap[NSP_KEY_EQU] =	KEY_NSPIRE_EQU;
+	nspk_keymap[NSP_KEY_UP] =	KEY_NSPIRE_UP;
+	nspk_keymap[NSP_KEY_RIGHT] =	KEY_NSPIRE_RIGHT;
+	nspk_keymap[NSP_KEY_DOWN] =	KEY_NSPIRE_DOWN;
+	nspk_keymap[NSP_KEY_LEFT] =	KEY_NSPIRE_LEFT;
 	nspk_keymap[NSP_KEY_SHIFT] =	KEY_NSPIRE_SHIFT;
 	nspk_keymap[NSP_KEY_CTRL] =	KEY_NSPIRE_CTRL;
 	nspk_keymap[NSP_KEY_DOC] =	KEY_NSPIRE_DOC;
@@ -254,6 +201,10 @@ void NSP_InitOSKeymap(_THIS)
 	sdlk_keymap[NSP_KEY_ESC] =	SDLK_ESCAPE;
 	sdlk_keymap[NSP_KEY_TAB] =	SDLK_TAB;
 	sdlk_keymap[NSP_KEY_EQU] =	SDLK_EQUALS;
+	sdlk_keymap[NSP_KEY_UP] =	SDLK_UP;
+	sdlk_keymap[NSP_KEY_RIGHT] =	SDLK_RIGHT;
+	sdlk_keymap[NSP_KEY_DOWN] =	SDLK_DOWN;
+	sdlk_keymap[NSP_KEY_LEFT] =	SDLK_LEFT;
 	sdlk_keymap[NSP_KEY_SHIFT] =	SDLK_LSHIFT;
 	sdlk_keymap[NSP_KEY_CTRL] =	SDLK_LCTRL;
 	sdlk_keymap[NSP_KEY_BAR] =	SDLK_LALT;

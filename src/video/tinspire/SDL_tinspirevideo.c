@@ -26,7 +26,6 @@
 #include "../SDL_sysvideo.h"
 #include "../SDL_pixels_c.h"
 #include "../../events/SDL_events_c.h"
-#include "../SDL_cursor_c.h"
 
 #include "SDL_tinspirevideo.h"
 #include "SDL_tinspireevents_c.h"
@@ -45,9 +44,6 @@ static int NSP_AllocHWSurface(_THIS, SDL_Surface *surface);
 static int NSP_LockHWSurface(_THIS, SDL_Surface *surface);
 static void NSP_UnlockHWSurface(_THIS, SDL_Surface *surface);
 static void NSP_FreeHWSurface(_THIS, SDL_Surface *surface);
-
-/* WM functions */
-static void NSP_MoveWMCursor(_THIS, int x, int y);
 
 /* etc. */
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects);
@@ -100,7 +96,6 @@ static SDL_VideoDevice *NSP_CreateDevice(int devindex)
 	device->FreeHWSurface = NSP_FreeHWSurface;
 	device->InitOSKeymap = NSP_InitOSKeymap;
 	device->PumpEvents = NSP_PumpEvents;
-	device->MoveWMCursor = NSP_MoveWMCursor;
 
 	device->free = NSP_DeleteDevice;
 
@@ -112,31 +107,13 @@ VideoBootStrap NSP_bootstrap = {
 	NSP_Available, NSP_CreateDevice
 };
 
-#define NSP_ABORT() do { \
-	NSP_DPRINT("Aborting"); \
-	SDL_Quit(); \
-	exit(EXIT_FAILURE); \
-} while(0)
-
 static int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 {
 	NSP_DPRINT("Initializing video format");
 
-	this->hidden->cx = is_cx;
-	this->hidden->has_touchpad = is_touchpad;
-	this->hidden->use_mouse = SDL_strcmp(SDL_getenv("NSDL_USEMOUSE"), "1") == 0 && is_touchpad;
+	this->hidden->cx = (int)is_cx;
 
-	/* Warn the user if using mouse but running on a Clickpad */
-	if ( ! this->hidden->has_touchpad
-	&& SDL_strcmp(SDL_getenv("NSDL_WARN_NOMOUSE"), "1") == 0
-	&& show_msgbox_2b("nSDL " NSDL_VERSION, "This program requires a mouse, but your calculator does not have a touchpad. "
-					 "Some features might not work. Continue at your own risk.",
-			  "Abort", "Continue") == 1 )
-		NSP_ABORT();
-
-	NSP_DPRINT("has_touchpad: %d, use_mouse: %d", this->hidden->has_touchpad, this->hidden->use_mouse);
-
-	if ( is_cx ) {
+	if ( this->hidden->cx ) {
 		vformat->BitsPerPixel = 16;
 		vformat->Rmask = NSP_RMASK16;
 		vformat->Gmask = NSP_GMASK16;
@@ -168,7 +145,7 @@ static SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 		int offset_x = (SCREEN_WIDTH - width) / 2;
 		int offset_y = (SCREEN_HEIGHT - height) / 2;
 		NSP_DPRINT("offset_x: %d, offset_y: %d", offset_x, offset_y);
-		this->hidden->offset = is_cx
+		this->hidden->offset = this->hidden->cx
 				     ? (int)NSP_PIXEL_ADDR(0, offset_x, offset_y,
 				     			   2 * SCREEN_WIDTH, 2)
 				     : (int)NSP_PIXEL_ADDR(0, offset_x / 2, offset_y,
@@ -180,10 +157,8 @@ static SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 		this->hidden->offset_x = 0;
 	}
 
-	NSP_DPRINT("Offset: %d", this->hidden->offset);
-
 	if ( bpp == 16 ) {
-		if ( is_cx ) {
+		if ( this->hidden->cx ) {
 			rmask = NSP_RMASK16;
 			gmask = NSP_GMASK16;
 			bmask = NSP_BMASK16;
@@ -247,11 +222,6 @@ static void NSP_UnlockHWSurface(_THIS, SDL_Surface *surface)
 	return;
 }
 
-static void NSP_MoveWMCursor(_THIS, int x, int y) {
-	SDL_cursor->area.x = x;
-	SDL_cursor->area.y = y;
-}
-
 #define NSP_DRAW_LOOP(code) do { \
 	while ( rows--) { \
 		int j = 0, k = 0; \
@@ -275,13 +245,6 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 		SDL_Rect *rect = &rects[i];
 		if ( ! rect )
 			continue;
-
-		if ( this->hidden->use_mouse )
-			if ( SDL_cursor->area.x + 10 > rect->x
-			  && SDL_cursor->area.x < rect->x + rect->w
-			  && SDL_cursor->area.y + 16 > rect->y
-			  && SDL_cursor->area.y < rect->y + rect->h )
-				SDL_DrawCursorNoLock(SDL_VideoSurface);
 
 		row_bytes = bpp * rect->w;
 		rows = rect->h;
@@ -331,7 +294,7 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 	}
 }
 
-#define NSP_MAP_RGB_PALETTE(r, g, b)	(is_cx ? (((r / 8) << 11) | ((g / 4) << 5) | (b / 8)) \
+#define NSP_MAP_RGB_PALETTE(r, g, b)	(this->hidden->cx ? (((r / 8) << 11) | ((g / 4) << 5) | (b / 8)) \
 		    			       : ((r + (2 * g) + b) / 64))
 
 static int NSP_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
