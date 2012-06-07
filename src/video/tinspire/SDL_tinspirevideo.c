@@ -52,12 +52,6 @@ static void NSP_MoveWMCursor(_THIS, int x, int y);
 /* etc. */
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects);
 
-int SDL_nCreatePalette(SDL_Surface *surface)
-{
-	return(SDL_SetColors(surface, SDL_VideoSurface->format->palette->colors,
-	       0, SDL_VideoSurface->format->palette->ncolors));
-}
-
 /* NSP driver bootstrap functions */
 
 static int NSP_Available(void)
@@ -97,33 +91,16 @@ static SDL_VideoDevice *NSP_CreateDevice(int devindex)
 	device->VideoInit = NSP_VideoInit;
 	device->ListModes = NSP_ListModes;
 	device->SetVideoMode = NSP_SetVideoMode;
-	device->CreateYUVOverlay = NULL;
 	device->SetColors = NSP_SetColors;
 	device->UpdateRects = NSP_UpdateRects;
 	device->VideoQuit = NSP_VideoQuit;
 	device->AllocHWSurface = NSP_AllocHWSurface;
-	device->CheckHWBlit = NULL;
-	device->FillHWRect = NULL;
-	device->SetHWColorKey = NULL;
-	device->SetHWAlpha = NULL;
 	device->LockHWSurface = NSP_LockHWSurface;
 	device->UnlockHWSurface = NSP_UnlockHWSurface;
-	device->FlipHWSurface = NULL;
 	device->FreeHWSurface = NSP_FreeHWSurface;
-	device->SetCaption = NULL;
-	device->SetIcon = NULL;
-	device->IconifyWindow = NULL;
-	device->GrabInput = NULL;
 	device->InitOSKeymap = NSP_InitOSKeymap;
 	device->PumpEvents = NSP_PumpEvents;
-	device->GetWMInfo = NULL;
-	device->CreateWMCursor = NULL;
-	device->UpdateMouse = NULL;
-	device->FreeWMCursor = NULL;
-	device->ShowWMCursor = NULL;
-	device->WarpWMCursor = NULL;
 	device->MoveWMCursor = NSP_MoveWMCursor;
-	device->CheckMouseMode = NULL;
 
 	device->free = NSP_DeleteDevice;
 
@@ -147,12 +124,12 @@ static int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 
 	this->hidden->cx = is_cx;
 	this->hidden->has_touchpad = is_touchpad;
-	this->hidden->use_mouse = SDL_strcmp(SDL_getenv("SDL_USEMOUSE"), "1") == 0 && is_touchpad;
+	this->hidden->use_mouse = SDL_strcmp(SDL_getenv("NSDL_USEMOUSE"), "1") == 0 && is_touchpad;
 
 	/* Warn the user if using mouse but running on a Clickpad */
 	if ( ! this->hidden->has_touchpad
-	&& SDL_strcmp(SDL_getenv("SDL_WARN_NOMOUSE"), "1") == 0
-	&& show_msgbox_2b(NSDL_NAME_FULL, "This program requires a mouse, but your calculator does not have a touchpad. "
+	&& SDL_strcmp(SDL_getenv("NSDL_WARN_NOMOUSE"), "1") == 0
+	&& show_msgbox_2b("nSDL " NSDL_VERSION, "This program requires a mouse, but your calculator does not have a touchpad. "
 					 "Some features might not work. Continue at your own risk.",
 			  "Abort", "Continue") == 1 )
 		NSP_ABORT();
@@ -161,9 +138,9 @@ static int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 
 	if ( is_cx ) {
 		vformat->BitsPerPixel = 16;
-		vformat->Rmask = NSDL_RMASK16;
-		vformat->Gmask = NSDL_GMASK16;
-		vformat->Bmask = NSDL_BMASK16;
+		vformat->Rmask = NSP_RMASK16;
+		vformat->Gmask = NSP_GMASK16;
+		vformat->Bmask = NSP_BMASK16;
 	} else
 		vformat->BitsPerPixel = 8;
 
@@ -207,9 +184,9 @@ static SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 
 	if ( bpp == 16 ) {
 		if ( is_cx ) {
-			rmask = NSDL_RMASK16;
-			gmask = NSDL_GMASK16;
-			bmask = NSDL_BMASK16;
+			rmask = NSP_RMASK16;
+			gmask = NSP_GMASK16;
+			bmask = NSP_BMASK16;
 		} else {
 			NSP_DPRINT("Got 16 bpp on TC, forcing to 8 bpp");
 			bpp = 8;

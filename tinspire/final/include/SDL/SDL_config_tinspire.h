@@ -33,34 +33,28 @@
 #define NSP_MSGBOX_ERROR	1
 #define NSP_MSGBOX_DPRINT	0
 #define DEBUG_BUILD	1
-// #define DEBUG_PALETTE	1
+#undef DEBUG_PALETTE
 #define DEBUG_VIDEO	1
 #define DEBUG_ASM	1
-// #define DEBUG_GRAB	1
+#undef DEBUG_GRAB
 #define DEBUG_TIMERS	1
 #define DEBUG_QSORT	1
 #define DEBUG_THREADS	1
 #define DEBUG_ERROR	1
 #endif
 
-#define NSP_NAME	"nSDL"
-#define NSP_VERSION	"0.3.0"
-#define NSP_NAME_FULL	NSP_NAME " " NSP_VERSION
-
-#define NSP_RMASK16	0xF800
-#define NSP_GMASK16	0x07E0
-#define NSP_BMASK16	0x001F
+#define NSDL_VERSION	"0.3.1"
 
 #if NSP_DEBUG && NSP_MSGBOX_DPRINT
 #define NSP_DPRINT(fmt, args...) do { \
 	char __buf[256]; \
 	sprintf(__buf, "%s():%d: " fmt, __FUNCTION__, __LINE__, ## args); \
 	show_msgbox("Debug - " NSP_NAME_FULL, __buf); \
-	fprintf(stderr, "[NSP] %s\n", __buf); \
+	fprintf(stderr, "[nSDL] %s\n", __buf); \
 } while(0)
 #elif NSP_DEBUG
 #define NSP_DPRINT(fmt, args...) \
-	fprintf(stderr, "[NSP] %s():%d: " fmt "\n", __FUNCTION__, __LINE__, ## args)
+	fprintf(stderr, "[nSDL] %s():%d: " fmt "\n", __FUNCTION__, __LINE__, ## args)
 #else
 #define NSP_DPRINT(fmt, args...) (void)0
 #endif
@@ -114,19 +108,19 @@
 #define SDL_ASSEMBLY_ROUTINES	1
 
 /* Font flags */
-#define NSP_FONTCFG_NOTHING	0
-#define NSP_FONTCFG_TEXTWRAP	(1 << 0)
-#define NSP_FONTCFG_AUTOSIZE	(1 << 1)
-#define NSP_FONTCFG_FORMAT	(1 << 2)
-#define NSP_FONTCFG_DEFAULT	(NSP_FONTCFG_TEXTWRAP | NSP_FONTCFG_AUTOSIZE | NSP_FONTCFG_FORMAT)
+#define NSDL_FONTCFG_NONE	0
+#define NSDL_FONTCFG_TEXTWRAP	(1 << 0)
+#define NSDL_FONTCFG_AUTOSIZE	(1 << 1)
+#define NSDL_FONTCFG_FORMAT	(1 << 2)
+#define NSDL_FONTCFG_DEFAULT	(NSDL_FONTCFG_TEXTWRAP | NSDL_FONTCFG_AUTOSIZE | NSDL_FONTCFG_FORMAT)
 
 /* Fonts; needs to match nsp_font_charmaps in SDL_tinspirevideo.c */
 enum {
-	NSP_FONT_THIN = 0,
-	NSP_FONT_SPACE,
-	NSP_FONT_VGA,
-	NSP_FONT_FANTASY,
-	NSP_FONT_TINYTYPE
+	NSDL_FONT_THIN = 0,
+	NSDL_FONT_SPACE,
+	NSDL_FONT_VGA,
+	NSDL_FONT_FANTASY,
+	NSDL_FONT_TINYTYPE
 };
 
 #endif /* _SDL_config_tinspire_h */

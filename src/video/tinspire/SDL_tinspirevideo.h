@@ -32,19 +32,25 @@
 /* Hidden "this" pointer for the video functions */
 #define _THIS   SDL_VideoDevice *this
 
+#define NSP_RMASK16 0xF800
+#define NSP_GMASK16 0x07E0
+#define NSP_BMASK16 0x001F
+
 #define NSP_PIXEL_ADDR(origin, x, y, pitch, bpp) ((Uint8 *)origin + ((x) * (bpp)) + ((y) * (pitch)))
 #define NSP_SURF_PIXEL(surface, x, y) NSP_PIXEL_ADDR(surface->pixels, x, y, surface->pitch, surface->format->BytesPerPixel)
+#define NSP_CREATE_PALETTE(surface) SDL_SetColors(surface, SDL_VideoSurface->format->palette->colors, \
+						  0, SDL_VideoSurface->format->palette->ncolors)
 
 /* Private display data */
 
 struct SDL_PrivateVideoData {
 	int w, h;
-    int offset;
-    int offset_x;
+	int offset;
+	int offset_x;
 	void *buffer;
-    SDL_bool cx;
-    SDL_bool has_touchpad;
-    SDL_bool use_mouse;
+	SDL_bool cx;
+	SDL_bool has_touchpad;
+	SDL_bool use_mouse;
 };
 
 #endif /* _SDL_tinspirevideo_h */

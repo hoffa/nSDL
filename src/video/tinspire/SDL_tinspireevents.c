@@ -29,16 +29,46 @@
 #include "SDL_tinspirevideo.h"
 #include "SDL_tinspireevents_c.h"
 
+enum {UP, DOWN, RIGHT, LEFT};
+
 static t_key nspk_keymap[NSP_NUMKEYS];
 static SDLKey sdlk_keymap[NSP_NUMKEYS] = {SDLK_UNKNOWN};
 static char key_state[NSP_NUMKEYS] = {SDL_RELEASED};
 static char mousebutton_state = SDL_RELEASED;
+static BOOL arrowkey_state[4] = {FALSE};
 
 void NSP_PumpEvents(_THIS)
 {
 	Sint16 dx_sum, dy_sum;
 	int i;
 
+	BOOL ak_down[4] = {FALSE};
+	ak_down[UP] = isKeyPressed(KEY_NSPIRE_UP);
+	ak_down[RIGHT] = isKeyPressed(KEY_NSPIRE_RIGHT);
+	ak_down[DOWN] = isKeyPressed(KEY_NSPIRE_DOWN);
+	ak_down[LEFT] = isKeyPressed(KEY_NSPIRE_LEFT);
+	if ( isKeyPressed(KEY_NSPIRE_LEFTUP) ) ak_down[UP] = ak_down[LEFT] = TRUE;
+	if ( isKeyPressed(KEY_NSPIRE_UPRIGHT) ) ak_down[UP] = ak_down[RIGHT] = TRUE;
+	if ( isKeyPressed(KEY_NSPIRE_RIGHTDOWN) ) ak_down[DOWN] = ak_down[RIGHT] = TRUE;
+	if ( isKeyPressed(KEY_NSPIRE_DOWNLEFT) ) ak_down[DOWN] = ak_down[LEFT] = TRUE;
+
+	/* Handle arrow keys */
+	for ( i = 0; i < 4; ++i ) {
+		SDL_keysym keysym;
+		keysym.scancode = NSP_NUMKEYS;
+		keysym.sym = SDLK_UP + i;
+		if ( arrowkey_state[i] == FALSE ) {
+			if ( ak_down[i] ) {
+				SDL_PrivateKeyboard(SDL_PRESSED, &keysym);
+				arrowkey_state[i] = TRUE;
+			}
+		} else if ( ! ak_down[i] ) {
+			SDL_PrivateKeyboard(SDL_RELEASED, &keysym);
+			arrowkey_state[i] = FALSE;
+		}
+	}
+
+	/* Handle the other keys */
 	for ( i = dx_sum = dy_sum = 0; i < NSP_NUMKEYS; ++i ) {
 		BOOL key_pressed = isKeyPressed(nspk_keymap[i]);
 		SDL_keysym keysym;
@@ -161,14 +191,6 @@ void NSP_InitOSKeymap(_THIS)
 	nspk_keymap[NSP_KEY_BAR] =	KEY_NSPIRE_BAR;
 	nspk_keymap[NSP_KEY_TAB] =	KEY_NSPIRE_TAB;
 	nspk_keymap[NSP_KEY_EQU] =	KEY_NSPIRE_EQU;
-	nspk_keymap[NSP_KEY_UP] =	KEY_NSPIRE_UP;
-	nspk_keymap[NSP_KEY_UPRIGHT] =	KEY_NSPIRE_UPRIGHT;
-	nspk_keymap[NSP_KEY_RIGHT] =	KEY_NSPIRE_RIGHT;
-	nspk_keymap[NSP_KEY_RIGHTDOWN] = KEY_NSPIRE_RIGHTDOWN;
-	nspk_keymap[NSP_KEY_DOWN] =	KEY_NSPIRE_DOWN;
-	nspk_keymap[NSP_KEY_DOWNLEFT] =	KEY_NSPIRE_DOWNLEFT;
-	nspk_keymap[NSP_KEY_LEFT] =	KEY_NSPIRE_LEFT;
-	nspk_keymap[NSP_KEY_LEFTUP] =	KEY_NSPIRE_LEFTUP;
 	nspk_keymap[NSP_KEY_SHIFT] =	KEY_NSPIRE_SHIFT;
 	nspk_keymap[NSP_KEY_CTRL] =	KEY_NSPIRE_CTRL;
 	nspk_keymap[NSP_KEY_DOC] =	KEY_NSPIRE_DOC;
@@ -232,40 +254,32 @@ void NSP_InitOSKeymap(_THIS)
 	sdlk_keymap[NSP_KEY_ESC] =	SDLK_ESCAPE;
 	sdlk_keymap[NSP_KEY_TAB] =	SDLK_TAB;
 	sdlk_keymap[NSP_KEY_EQU] =	SDLK_EQUALS;
-	sdlk_keymap[NSP_KEY_UP] =	SDLK_UP;
-	sdlk_keymap[NSP_KEY_RIGHT] =	SDLK_RIGHT;
-	sdlk_keymap[NSP_KEY_DOWN] =	SDLK_DOWN;
-	sdlk_keymap[NSP_KEY_LEFT] =	SDLK_LEFT;
 	sdlk_keymap[NSP_KEY_SHIFT] =	SDLK_LSHIFT;
 	sdlk_keymap[NSP_KEY_CTRL] =	SDLK_LCTRL;
-	sdlk_keymap[NSP_KEY_UPRIGHT] =	SDLK_UNKNOWN;
-	sdlk_keymap[NSP_KEY_RIGHTDOWN] = SDLK_UNKNOWN;
-	sdlk_keymap[NSP_KEY_DOWNLEFT] =	SDLK_UNKNOWN;
-	sdlk_keymap[NSP_KEY_LEFTUP] =	SDLK_UNKNOWN;
-	sdlk_keymap[NSP_KEY_BAR] =	SDLK_UNKNOWN;
+	sdlk_keymap[NSP_KEY_BAR] =	SDLK_LALT;
 	sdlk_keymap[NSP_KEY_VAR] =	SDLK_LALT;
 	sdlk_keymap[NSP_KEY_DOC] =	SDLK_LMETA;
-	sdlk_keymap[NSP_KEY_TRIG] =	SDLK_UNKNOWN;
-	sdlk_keymap[NSP_KEY_THETA] =	SDLK_UNKNOWN;
+	sdlk_keymap[NSP_KEY_TRIG] =	SDLK_QUOTE;
+	sdlk_keymap[NSP_KEY_THETA] =	SDLK_LMETA;
 	sdlk_keymap[NSP_KEY_LTHAN] =	SDLK_LESS;
-	sdlk_keymap[NSP_KEY_FLAG] =	SDLK_UNKNOWN;
+	sdlk_keymap[NSP_KEY_FLAG] =	SDLK_DELETE;
 	sdlk_keymap[NSP_KEY_HOME] = 	SDLK_HOME;
 	sdlk_keymap[NSP_KEY_MENU] =	SDLK_RALT;
-	sdlk_keymap[NSP_KEY_TAN] =	SDLK_UNKNOWN;
-	sdlk_keymap[NSP_KEY_COS] =	SDLK_UNKNOWN;
-	sdlk_keymap[NSP_KEY_SIN] =	SDLK_UNKNOWN;
+	sdlk_keymap[NSP_KEY_TAN] =	SDLK_LSUPER;
+	sdlk_keymap[NSP_KEY_COS] =	SDLK_AT;
+	sdlk_keymap[NSP_KEY_SIN] =	SDLK_BACKSLASH;
 	sdlk_keymap[NSP_KEY_EXP] =	SDLK_CARET;
 	sdlk_keymap[NSP_KEY_GTHAN] =	SDLK_GREATER;
-	sdlk_keymap[NSP_KEY_SQU] =	SDLK_UNKNOWN;
-	sdlk_keymap[NSP_KEY_TENX]=	SDLK_UNKNOWN;
-	sdlk_keymap[NSP_KEY_EE] =	SDLK_UNKNOWN;
-	sdlk_keymap[NSP_KEY_II] =	SDLK_UNKNOWN;
-	sdlk_keymap[NSP_KEY_eEXP] =	SDLK_UNKNOWN;
-	sdlk_keymap[NSP_KEY_PI] =	SDLK_UNKNOWN;
+	sdlk_keymap[NSP_KEY_SQU] =	SDLK_HASH;
+	sdlk_keymap[NSP_KEY_TENX]=	SDLK_EXCLAIM;
+	sdlk_keymap[NSP_KEY_EE] =	SDLK_AMPERSAND;
+	sdlk_keymap[NSP_KEY_II] =	SDLK_UNDERSCORE;
+	sdlk_keymap[NSP_KEY_eEXP] =	SDLK_QUESTION;
+	sdlk_keymap[NSP_KEY_PI] =	SDLK_DOLLAR;
 	sdlk_keymap[NSP_KEY_QUES] =	SDLK_QUESTION;
-	sdlk_keymap[NSP_KEY_QUESEXCL] =	SDLK_EXCLAIM;
-	sdlk_keymap[NSP_KEY_CAT] =	SDLK_UNKNOWN;
-	sdlk_keymap[NSP_KEY_FRAC] =	SDLK_UNKNOWN;
+	sdlk_keymap[NSP_KEY_QUESEXCL] =	SDLK_QUOTEDBL;
+	sdlk_keymap[NSP_KEY_CAT] =	SDLK_SEMICOLON;
+	sdlk_keymap[NSP_KEY_FRAC] =	SDLK_COLON;
 	sdlk_keymap[NSP_KEY_SCRATCHPAD] = SDLK_LSUPER;
 }
 

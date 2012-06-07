@@ -15,11 +15,11 @@ static unsigned char *nsp_font_charmaps[] = {
 
 static SDL_bool charmap_relocated = SDL_FALSE;
 
-SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags)
+nSDL_Font *nSDL_LoadFont(int font_index, Uint32 color, Uint32 flags)
 {
 	unsigned char *charmap;
 	int i, j, k;
-	SDL_nFont *font = SDL_malloc(sizeof *font);
+	nSDL_Font *font = SDL_malloc(sizeof *font);
 
 	if ( ! charmap_relocated ) {
 		nl_relocdata((unsigned *)nsp_font_charmaps, SDL_arraysize(nsp_font_charmaps));
@@ -38,7 +38,7 @@ SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags)
 		SDL_Surface *char_surf;
 		if ( SDL_VideoSurface->format->BitsPerPixel == 16 )
 			char_surf = SDL_CreateRGBSurface(SDL_SWSURFACE, NSP_FONT_WIDTH, NSP_FONT_HEIGHT,
-							 16, NSDL_RMASK16, NSDL_GMASK16, NSDL_BMASK16, 0);
+							 16, NSP_RMASK16, NSP_GMASK16, NSP_BMASK16, 0);
 		else
 			char_surf = SDL_CreateRGBSurface(SDL_SWSURFACE, NSP_FONT_WIDTH, NSP_FONT_HEIGHT,
 							 8, 0, 0, 0, 0);
@@ -48,7 +48,7 @@ SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags)
 		}
 		font->char_width[i] = NSP_FONT_WIDTH;
 		if ( char_surf->format->BitsPerPixel == 8 )
-			SDL_nCreatePalette(char_surf);
+			NSP_CREATE_PALETTE(char_surf);
 		if ( color == 0 )
 			SDL_FillRect(char_surf, NULL, 1);
 		SDL_SetColorKey(char_surf, SDL_SRCCOLORKEY | SDL_RLEACCEL, color ? 0 : 1);
@@ -68,26 +68,25 @@ SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags)
 			}
 		SDL_UnlockSurface(char_surf);
 		font->chars[i] = char_surf;
-		font->hspacing = NSDL_HSPACING_DEFAULT;
-		font->vspacing = NSDL_VSPACING_DEFAULT;
+		font->hspacing = font->vspacing = 0;
 		font->flags = flags;
 	}
 
 	return(font);
 }
 
-void SDL_nSetFontSpacing(SDL_nFont *font, int hspacing, int vspacing)
+void nSDL_SetFontSpacing(nSDL_Font *font, int hspacing, int vspacing)
 {
 	font->hspacing = hspacing;
 	font->vspacing = vspacing;
 }
 
-void SDL_nSetFontFlags(SDL_nFont *font, Uint32 flags)
+void nSDL_SetFontFlags(nSDL_Font *font, Uint32 flags)
 {
 	font->flags = flags;
 }
 
-void SDL_nFreeFont(SDL_nFont *font)
+void nSDL_FreeFont(nSDL_Font *font)
 {
 	int i;
 	for ( i = 0; i < NSP_FONT_NUMCHARS; ++i )
@@ -95,7 +94,7 @@ void SDL_nFreeFont(SDL_nFont *font)
 	SDL_free(font);
 }
 
-int SDL_nDrawChar(SDL_Surface *surface, SDL_nFont *font, SDL_Rect *pos, int c)
+static int nsp_draw_char(SDL_Surface *surface, nSDL_Font *font, SDL_Rect *pos, int c)
 {
 	SDL_Rect rect = {0, 0, 0, NSP_FONT_HEIGHT};
 	rect.w = font->char_width[c];
@@ -107,7 +106,7 @@ int SDL_nDrawChar(SDL_Surface *surface, SDL_nFont *font, SDL_Rect *pos, int c)
    Returns -1 on error, and the number of characters NOT drawn otherwise.
 
    Notes: NSDL_FONT_TEXTWRAP only has an effect when using SDL_nDrawStringInRect(). */
-static int nsp_draw_string(SDL_Surface *surface, SDL_nFont *font,
+static int nsp_draw_string(SDL_Surface *surface, nSDL_Font *font,
 			   SDL_Rect *rect, const char *format, va_list args)
 {
 	char buffer[NSP_BUF_SIZE];
@@ -151,7 +150,7 @@ static int nsp_draw_string(SDL_Surface *surface, SDL_nFont *font,
 				} else
 					draw_char = SDL_TRUE;
 				if ( draw_char ) {
-					if ( SDL_nDrawChar(surface, font, &pos, c) == -1 )
+					if ( nsp_draw_char(surface, font, &pos, c) == -1 )
 						return(-1);
 					++chars_drawn;
 				}
@@ -165,7 +164,7 @@ static int nsp_draw_string(SDL_Surface *surface, SDL_nFont *font,
 	return(length - chars_drawn);
 }
 
-int SDL_nDrawString(SDL_Surface *surface, SDL_nFont *font,
+int nSDL_DrawString(SDL_Surface *surface, nSDL_Font *font,
 		    int x, int y, const char *format, ...)
 {
 	va_list args;
@@ -179,7 +178,7 @@ int SDL_nDrawString(SDL_Surface *surface, SDL_nFont *font,
 	return(ret_val);
 }
 
-int SDL_nDrawStringInRect(SDL_Surface *surface, SDL_nFont *font,
+int nSDL_DrawStringInRect(SDL_Surface *surface, nSDL_Font *font,
 			  SDL_Rect *rect, const char *format, ...)
 {
 	va_list args;
@@ -190,7 +189,7 @@ int SDL_nDrawStringInRect(SDL_Surface *surface, SDL_nFont *font,
 	return(ret_val);
 }
 
-static int nsp_get_line_width(SDL_nFont *font, const char *s)
+static int nsp_get_line_width(nSDL_Font *font, const char *s)
 {
 	int width = 0;
 	while ( *s && *s != '\n' ) {
@@ -202,7 +201,7 @@ static int nsp_get_line_width(SDL_nFont *font, const char *s)
 	return((width > 0) ? width : 0);
 }
 
-int SDL_nGetStringWidth(SDL_nFont *font, const char *s)
+int nSDL_GetStringWidth(nSDL_Font *font, const char *s)
 {
 	int max_width = nsp_get_line_width(font, s);
 	int length = (int)strlen(s);
@@ -216,7 +215,7 @@ int SDL_nGetStringWidth(SDL_nFont *font, const char *s)
 	return(max_width);
 }
 
-int SDL_nGetStringHeight(SDL_nFont *font, const char *s)
+int nSDL_GetStringHeight(nSDL_Font *font, const char *s)
 {
 	int height = NSP_FONT_HEIGHT;
 	while ( *s++ )

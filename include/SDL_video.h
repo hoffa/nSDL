@@ -259,29 +259,24 @@ typedef enum {
 #define NSP_FONT_WIDTH  8
 #define NSP_FONT_HEIGHT 8
 
-#define NSDL_HSPACING_DEFAULT	0
-#define NSDL_VSPACING_DEFAULT	0
-
-typedef struct SDL_nFont {
+typedef struct nSDL_Font {
     SDL_Surface *chars[NSP_FONT_NUMCHARS];
     Uint8 char_width[NSP_FONT_NUMCHARS];
     int hspacing, vspacing;
     Uint32 flags;
-} SDL_nFont;
+} nSDL_Font;
 
-int SDL_nCreatePalette(SDL_Surface *surface);
-SDL_nFont *SDL_nLoadFont(int font_index, Uint32 color, Uint32 flags);
-void SDL_nSetFontSpacing(SDL_nFont *font, int hspacing, int vspacing);
-void SDL_nSetFontFlags(SDL_nFont *font, Uint32 flags);
-void SDL_nFreeFont(SDL_nFont *font);
-int SDL_nDrawChar(SDL_Surface *surface, SDL_nFont *font, SDL_Rect *pos, int c);
-int SDL_nDrawString(SDL_Surface *surface, SDL_nFont *font,
+nSDL_Font *nSDL_LoadFont(int font_index, Uint32 color, Uint32 flags);
+void nSDL_SetFontSpacing(nSDL_Font *font, int hspacing, int vspacing);
+void nSDL_SetFontFlags(nSDL_Font *font, Uint32 flags);
+void nSDL_FreeFont(nSDL_Font *font);
+int nSDL_DrawString(SDL_Surface *surface, nSDL_Font *font,
 		    int x, int y, const char *format, ...);
-int SDL_nDrawStringInRect(SDL_Surface *surface, SDL_nFont *font,
+int nSDL_DrawStringInRect(SDL_Surface *surface, nSDL_Font *font,
 			  SDL_Rect *rect, const char *format, ...);
-int SDL_nGetStringWidth(SDL_nFont *font, const char *s);
-int SDL_nGetStringHeight(SDL_nFont *font, const char *s);
-SDL_Surface *SDL_nLoadImage(Uint16 *data);
+int nSDL_GetStringWidth(nSDL_Font *font, const char *s);
+int nSDL_GetStringHeight(nSDL_Font *font, const char *s);
+SDL_Surface *nSDL_LoadImage(Uint16 *data);
 #endif
 
 /* Function prototypes */

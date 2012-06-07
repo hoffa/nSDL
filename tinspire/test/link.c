@@ -1,10 +1,10 @@
 #include <os.h>
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include "link.h"
 #include "map1.h"
 
 SDL_Surface *screen;
-SDL_nFont *font;
+nSDL_Font *font;
 SDL_bool done = SDL_FALSE;
 int num_moves = 0;
 player_t player;
@@ -15,7 +15,7 @@ void init(void) {
         printf("Couldn't initialize SDL: %s\n", SDL_GetError());
         exit(EXIT_FAILURE);
     }
-    screen = SDL_SetVideoMode(100, 100, 8, SDL_SWSURFACE);
+    screen = SDL_SetVideoMode(300, 200, 8, SDL_SWSURFACE);
     if(screen == NULL) {
         printf("Couldn't initialize display: %s\n", SDL_GetError());
         SDL_Quit();
@@ -89,11 +89,11 @@ void draw_tile_map(void) {
 void draw_info(void) {
     SDL_Rect rect = {0, 224, 320, 16};
     SDL_FillRect(screen, &rect, SDL_MapRGB(screen->format, 202, 237, 244));
-    SDL_nDrawString(screen, font, 4, 228, "Moves: %d", num_moves);
-    SDL_nDrawString(screen,
+    nSDL_DrawString(screen, font, 4, 228, "Moves: %d", num_moves);
+    nSDL_DrawString(screen,
                     font,
-                    SCREEN_WIDTH - SDL_nGetStringWidth(font, NSP_NAME_FULL) - 4, 228,
-                    NSP_NAME_FULL);
+                    SCREEN_WIDTH - nSDL_GetStringWidth(font, "nSDL " NSDL_VERSION) - 4, 228,
+                    "nSDL " NSDL_VERSION);
 }
 
 SDL_bool is_walkable(int x, int y) {
@@ -157,11 +157,11 @@ void handle_keydown(SDLKey key) {
 
 int main(void) {
     init();
-    init_player(10, 7, DOWN, SDL_nLoadImage(image_link)); //load_bmp("Link/images/link.bmp.tns"));
+    init_player(10, 7, DOWN, nSDL_LoadImage(image_link));
     init_map(map1_data,
              MAP1_WIDTH, MAP1_HEIGHT,
              MAP1_NUM_TILES,
-             SDL_nLoadImage(image_tileset), //load_bmp("Link/images/tileset.bmp.tns"),
+             nSDL_LoadImage(image_tileset),
              map1_tile_attrib);
     if(player.sprite == NULL)
         return EXIT_FAILURE;
@@ -169,9 +169,9 @@ int main(void) {
         SDL_FreeSurface(player.sprite);
         return EXIT_FAILURE;
     }
-    font = SDL_nLoadFont(NSP_FONT_TINYTYPE,
+    font = nSDL_LoadFont(NSDL_FONT_TINYTYPE,
                          SDL_MapRGB(screen->format, 0, 0, 0),
-                         NSP_FONTCFG_DEFAULT);
+                         NSDL_FONTCFG_DEFAULT);
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
     while(!done) {
         SDL_Event event;
@@ -188,7 +188,7 @@ int main(void) {
                 break;
         }
     }
-    SDL_nFreeFont(font);
+    nSDL_FreeFont(font);
     quit();
     return EXIT_SUCCESS;
 }
