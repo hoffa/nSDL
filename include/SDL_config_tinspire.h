@@ -28,20 +28,12 @@
 /* General platform specific identifiers */
 #include "SDL_platform.h"
 
-#if 1
 #define NSP_DEBUG	1
 #define NSP_MSGBOX_ERROR	1
-#define NSP_MSGBOX_DPRINT	0
+#undef NSP_MSGBOX_DPRINT
 #define DEBUG_BUILD	1
-#undef DEBUG_PALETTE
 #define DEBUG_VIDEO	1
-#define DEBUG_ASM	1
-#undef DEBUG_GRAB
-#define DEBUG_TIMERS	1
-#define DEBUG_QSORT	1
-#define DEBUG_THREADS	1
 #define DEBUG_ERROR	1
-#endif
 
 #define NSDL_VERSION	"0.3.2"
 

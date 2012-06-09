@@ -39,12 +39,6 @@ static SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current, int width, int
 static int NSP_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors);
 static void NSP_VideoQuit(_THIS);
 
-/* Hardware surface functions */
-static int NSP_AllocHWSurface(_THIS, SDL_Surface *surface);
-static int NSP_LockHWSurface(_THIS, SDL_Surface *surface);
-static void NSP_UnlockHWSurface(_THIS, SDL_Surface *surface);
-static void NSP_FreeHWSurface(_THIS, SDL_Surface *surface);
-
 /* etc. */
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects);
 
@@ -90,10 +84,6 @@ static SDL_VideoDevice *NSP_CreateDevice(int devindex)
 	device->SetColors = NSP_SetColors;
 	device->UpdateRects = NSP_UpdateRects;
 	device->VideoQuit = NSP_VideoQuit;
-	device->AllocHWSurface = NSP_AllocHWSurface;
-	device->LockHWSurface = NSP_LockHWSurface;
-	device->UnlockHWSurface = NSP_UnlockHWSurface;
-	device->FreeHWSurface = NSP_FreeHWSurface;
 	device->InitOSKeymap = NSP_InitOSKeymap;
 	device->PumpEvents = NSP_PumpEvents;
 
@@ -121,6 +111,9 @@ static int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 	} else
 		vformat->BitsPerPixel = 8;
 
+	this->info.current_w = SCREEN_WIDTH;
+	this->info.current_h = SCREEN_HEIGHT;
+
 	return(0);
 }
 
@@ -141,10 +134,12 @@ static SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 
 	NSP_DPRINT("Initializing display (%dx%dx%d)", width, height, bpp);
 
+	this->info.current_w = width;
+	this->info.current_h = height;
+
 	if ( width < SCREEN_WIDTH || height < SCREEN_HEIGHT ) {
 		int offset_x = (SCREEN_WIDTH - width) / 2;
 		int offset_y = (SCREEN_HEIGHT - height) / 2;
-		NSP_DPRINT("offset_x: %d, offset_y: %d", offset_x, offset_y);
 		this->hidden->offset = this->hidden->cx
 				     ? (int)NSP_PIXEL_ADDR(0, offset_x, offset_y,
 				     			   2 * SCREEN_WIDTH, 2)
@@ -152,10 +147,8 @@ static SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 				     			   SCREEN_WIDTH / 2, 1);
 		this->hidden->offset_x = offset_x;
 		memset(SCREEN_BASE_ADDRESS, 0, SCREEN_BYTES_SIZE);
-	} else {
-		this->hidden->offset = 0;
-		this->hidden->offset_x = 0;
-	}
+	} else
+		this->hidden->offset = this->hidden->offset_x = 0;
 
 	if ( bpp == 16 ) {
 		if ( this->hidden->cx ) {
@@ -201,27 +194,6 @@ static SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 	return(current);
 }
 
-/* We don't actually allow hardware surfaces other than the main one */
-static int NSP_AllocHWSurface(_THIS, SDL_Surface *surface)
-{
-	return(-1);
-}
-static void NSP_FreeHWSurface(_THIS, SDL_Surface *surface)
-{
-	return;
-}
-
-/* We need to wait for vertical retrace on page flipped displays */
-static int NSP_LockHWSurface(_THIS, SDL_Surface *surface)
-{
-	return(0);
-}
-
-static void NSP_UnlockHWSurface(_THIS, SDL_Surface *surface)
-{
-	return;
-}
-
 #define NSP_DRAW_LOOP(code) do { \
 	while ( rows--) { \
 		int j = 0, k = 0; \
@@ -250,10 +222,9 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 		rows = rect->h;
 		odd_left = (this->hidden->offset_x + rect->x) & 1;
 		odd_right = (this->hidden->offset_x + rect->x + rect->w) & 1;
-		if ( is_classic && odd_right )
-			--row_bytes;
 
-		/* NSP_DPRINT("Updating: (%d, %d) %dx%d", rect->x, rect->y, rect->w, rect->h); */
+		if ( ! this->hidden->cx && odd_right )
+			--row_bytes;
 
 		src_addr = NSP_SURF_PIXEL(SDL_VideoSurface, rect->x, rect->y);
 
