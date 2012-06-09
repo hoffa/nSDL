@@ -28,31 +28,15 @@
 /* General platform specific identifiers */
 #include "SDL_platform.h"
 
-#if 1
 #define NSP_DEBUG	1
 #define NSP_MSGBOX_ERROR	1
-#define NSP_MSGBOX_DPRINT	0
 #define DEBUG_BUILD	1
-#undef DEBUG_PALETTE
 #define DEBUG_VIDEO	1
-#define DEBUG_ASM	1
-#undef DEBUG_GRAB
-#define DEBUG_TIMERS	1
-#define DEBUG_QSORT	1
-#define DEBUG_THREADS	1
 #define DEBUG_ERROR	1
-#endif
 
-#define NSDL_VERSION	"0.3.1"
+#define NSDL_VERSION	"0.3.2"
 
-#if NSP_DEBUG && NSP_MSGBOX_DPRINT
-#define NSP_DPRINT(fmt, args...) do { \
-	char __buf[256]; \
-	sprintf(__buf, "%s():%d: " fmt, __FUNCTION__, __LINE__, ## args); \
-	show_msgbox("Debug - " NSP_NAME_FULL, __buf); \
-	fprintf(stderr, "[nSDL] %s\n", __buf); \
-} while(0)
-#elif NSP_DEBUG
+#if NSP_DEBUG
 #define NSP_DPRINT(fmt, args...) \
 	fprintf(stderr, "[nSDL] %s():%d: " fmt "\n", __FUNCTION__, __LINE__, ## args)
 #else
