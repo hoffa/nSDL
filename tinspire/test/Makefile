@@ -4,10 +4,10 @@ OBJCOPY = arm-none-eabi-objcopy
 CFLAGS = -Wall -Wextra -nostdlib -I../../include -O3
 LDFLAGS =
 
-SOURCES = tinspire_test.c
-OBJECTS = tinspire_test.o
+SOURCES = link.c
+OBJECTS = link.o
 LIBS = ../../libSDL.a
-TARGET = sdl_test.tns
+TARGET = Link.tns
 
 all: $(TARGET)
 

@@ -5,7 +5,7 @@
 
 static nti_info_t *nti_get_info(Uint16 *data)
 {
-	nti_info_t *nti_info = SDL_malloc(sizeof *nti_info);
+	nti_info_t *nti_info = SDL_malloc(sizeof(*nti_info));
 	if ( nti_info == NULL ) {
 		SDL_OutOfMemory();
 		return(NULL);
@@ -37,8 +37,7 @@ SDL_Surface *nSDL_LoadImage(Uint16 *data)
 		nti_free_info(nti_info);
 		return(NULL);
 	}
-	NSP_DPRINT("Loading NTI v%d (%dx%d)",
-		   nti_info->version, nti_info->width, nti_info->height);
+	NSP_DPRINT("Loading NTI v%d (%dx%d)", nti_info->version, nti_info->width, nti_info->height);
 	tmp = SDL_CreateRGBSurface(SDL_SWSURFACE, nti_info->width, nti_info->height,
 				   16, NSP_RMASK16, NSP_GMASK16, NSP_BMASK16, 0);
 	if ( tmp == NULL ) {

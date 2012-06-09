@@ -19,7 +19,7 @@ nSDL_Font *nSDL_LoadFont(int font_index, Uint32 color, Uint32 flags)
 {
 	unsigned char *charmap;
 	int i, j, k;
-	nSDL_Font *font = SDL_malloc(sizeof *font);
+	nSDL_Font *font = SDL_malloc(sizeof(*font));
 
 	if ( ! charmap_relocated ) {
 		nl_relocdata((unsigned *)nsp_font_charmaps, SDL_arraysize(nsp_font_charmaps));

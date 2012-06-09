@@ -119,7 +119,6 @@ static int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 
 static SDL_Rect **NSP_ListModes(_THIS, SDL_PixelFormat *format, Uint32 flags)
 {
-	/* Everything goes; we do the checking in NSP_SetVideoMode() */
 	return (SDL_Rect **) -1;
 }
 
@@ -141,10 +140,8 @@ static SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 		int offset_x = (SCREEN_WIDTH - width) / 2;
 		int offset_y = (SCREEN_HEIGHT - height) / 2;
 		this->hidden->offset = this->hidden->cx
-				     ? (int)NSP_PIXEL_ADDR(0, offset_x, offset_y,
-				     			   2 * SCREEN_WIDTH, 2)
-				     : (int)NSP_PIXEL_ADDR(0, offset_x / 2, offset_y,
-				     			   SCREEN_WIDTH / 2, 1);
+				     ? (int)NSP_PIXEL_ADDR(0, offset_x, offset_y, 2 * SCREEN_WIDTH, 2)
+				     : (int)NSP_PIXEL_ADDR(0, offset_x / 2, offset_y, SCREEN_WIDTH / 2, 1);
 		this->hidden->offset_x = offset_x;
 		memset(SCREEN_BASE_ADDRESS, 0, SCREEN_BYTES_SIZE);
 	} else
@@ -266,7 +263,7 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 }
 
 #define NSP_MAP_RGB_PALETTE(r, g, b)	(this->hidden->cx ? (((r / 8) << 11) | ((g / 4) << 5) | (b / 8)) \
-		    			       : ((r + (2 * g) + b) / 64))
+		    					  : ((r + (2 * g) + b) / 64))
 
 static int NSP_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
 {

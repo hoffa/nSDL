@@ -8,6 +8,6 @@
 #include "fonts/TINYTYPE.h"
 
 #define NSP_CHAR_WIDTH(font, c) ((font->flags & NSDL_FONTCFG_AUTOSIZE) \
-								? font->char_width[(int)c] : NSP_FONT_WIDTH)
+				? font->char_width[(int)c] : NSP_FONT_WIDTH)
 
 #endif /* _SDL_tinspirefonts_h */

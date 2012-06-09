@@ -30,21 +30,13 @@
 
 #define NSP_DEBUG	1
 #define NSP_MSGBOX_ERROR	1
-#undef NSP_MSGBOX_DPRINT
 #define DEBUG_BUILD	1
 #define DEBUG_VIDEO	1
 #define DEBUG_ERROR	1
 
 #define NSDL_VERSION	"0.3.2"
 
-#if NSP_DEBUG && NSP_MSGBOX_DPRINT
-#define NSP_DPRINT(fmt, args...) do { \
-	char __buf[256]; \
-	sprintf(__buf, "%s():%d: " fmt, __FUNCTION__, __LINE__, ## args); \
-	show_msgbox("Debug - " NSP_NAME_FULL, __buf); \
-	fprintf(stderr, "[nSDL] %s\n", __buf); \
-} while(0)
-#elif NSP_DEBUG
+#if NSP_DEBUG
 #define NSP_DPRINT(fmt, args...) \
 	fprintf(stderr, "[nSDL] %s():%d: " fmt "\n", __FUNCTION__, __LINE__, ## args)
 #else

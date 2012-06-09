@@ -30,7 +30,7 @@
 #include "../SDL_sysvideo.h"
 
 /* Hidden "this" pointer for the video functions */
-#define _THIS   SDL_VideoDevice *this
+#define _THIS	SDL_VideoDevice *this
 
 #define NSP_RMASK16 0xF800
 #define NSP_GMASK16 0x07E0
