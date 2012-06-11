@@ -59,6 +59,8 @@ static SDL_VideoDevice *NSP_CreateDevice(int devindex)
 {
 	SDL_VideoDevice *device;
 
+	NSP_DPRINT("Creating device (%d)", devindex);
+
 	/* Initialize all variables that we clean on shutdown */
 	device = (SDL_VideoDevice *)SDL_malloc(sizeof(SDL_VideoDevice));
 	if ( device ) {
@@ -97,6 +99,8 @@ VideoBootStrap NSP_bootstrap = {
 
 static int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 {
+	NSP_DPRINT("Initializing video format");
+
 	this->hidden->cx = (int)is_cx;
 
 	if ( this->hidden->cx ) {
@@ -148,8 +152,10 @@ static SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 			rmask = NSP_RMASK16;
 			gmask = NSP_GMASK16;
 			bmask = NSP_BMASK16;
-		} else
+		} else {
+			NSP_DPRINT("Got 16 bpp on TC, forcing to 8 bpp");
 			bpp = 8;
+		}
 	}
 
 	if ( this->hidden->buffer ) {

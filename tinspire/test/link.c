@@ -15,7 +15,7 @@ void init(void) {
         printf("Couldn't initialize SDL: %s\n", SDL_GetError());
         exit(EXIT_FAILURE);
     }
-    screen = SDL_SetVideoMode(300, 200, 16, SDL_SWSURFACE);
+    screen = SDL_SetVideoMode(300, 200, 8, SDL_SWSURFACE);
     if(screen == NULL) {
         printf("Couldn't initialize display: %s\n", SDL_GetError());
         SDL_Quit();

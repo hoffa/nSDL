@@ -49,7 +49,7 @@
 #
 # Default IEEE libm
 #
-CFLAGS = -D_IEEE_LIBM -Ofast
+CFLAGS = -D_IEEE_LIBM -O3
 
 CC = nspire-gcc
 
