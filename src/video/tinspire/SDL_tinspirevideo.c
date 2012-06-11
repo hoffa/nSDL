@@ -224,28 +224,27 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 			--row_bytes;
 
 		src_addr = NSP_SURF_PIXEL(SDL_VideoSurface, rect->x, rect->y);
-
 		dst_addr = this->hidden->cx
-			 ? NSP_PIXEL_ADDR(SCREEN_BASE_ADDRESS,
-			 		  rect->x, rect->y,
-			 		  2 * SCREEN_WIDTH, 2)
-			 : NSP_PIXEL_ADDR(SCREEN_BASE_ADDRESS,
-			 		  rect->x / 2, rect->y,
-			 		  SCREEN_WIDTH / 2, 1);
+			 ? NSP_PIXEL_ADDR(SCREEN_BASE_ADDRESS, rect->x, rect->y, 2 * SCREEN_WIDTH, 2)
+			 : NSP_PIXEL_ADDR(SCREEN_BASE_ADDRESS, rect->x / 2, rect->y, SCREEN_WIDTH / 2, 1);
 		dst_addr += this->hidden->offset;
 
 		if ( this->hidden->cx ) {
 			if ( SDL_VideoSurface->format->BitsPerPixel == 16 ) {
+				/* 16 bpp SW, 16 bpp HW */
 				NSP_DRAW_LOOP(
 					SDL_memcpy(dst_addr, src_addr, row_bytes);
 				);
 			} else {
+				/* 8 bpp SW, 16 bpp HW */
+				row_bytes *= 2;
 				NSP_DRAW_LOOP(
-					for ( j = 0, k = 0; j < 2 * row_bytes; j += 2, ++k )
+					for ( j = 0, k = 0; j < row_bytes; j += 2, ++k )
 						*(Uint16 *)(dst_addr + j) = nsp_palette[src_addr[k]];
 				);
 			}
 		} else {
+			/* 8 bpp SW, 4 bpp HW */
 			NSP_DRAW_LOOP(
 				if ( odd_left ) {
 					*dst_addr = (*dst_addr & 0xf0) | nsp_palette[*src_addr];
@@ -253,8 +252,7 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 					++k;
 				}
 				for ( ; j < row_bytes; j += 2, ++k )
-					dst_addr[k] = (nsp_palette[src_addr[j]] << 4)
-						    | nsp_palette[src_addr[j + 1]];
+					dst_addr[k] = (nsp_palette[src_addr[j]] << 4) | nsp_palette[src_addr[j + 1]];
 				if ( odd_right )
 					dst_addr[k] = (nsp_palette[src_addr[j]] << 4) | (dst_addr[k] & 0x0f);
 			);
