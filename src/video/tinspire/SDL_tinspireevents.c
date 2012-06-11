@@ -37,6 +37,8 @@ void NSP_PumpEvents(_THIS)
 {
 	int i;
 	for ( i = 0; i < NSP_NUMKEYS; ++i ) {
+		if ( sdlk_keymap[i] == SDLK_UNKNOWN )
+			continue;
 		BOOL key_pressed = isKeyPressed(nspk_keymap[i]);
 		SDL_keysym keysym;
 		keysym.scancode = i;
@@ -207,31 +209,31 @@ void NSP_InitOSKeymap(_THIS)
 	sdlk_keymap[NSP_KEY_LEFT] =	SDLK_LEFT;
 	sdlk_keymap[NSP_KEY_SHIFT] =	SDLK_LSHIFT;
 	sdlk_keymap[NSP_KEY_CTRL] =	SDLK_LCTRL;
-	sdlk_keymap[NSP_KEY_BAR] =	SDLK_LALT;
-	sdlk_keymap[NSP_KEY_VAR] =	SDLK_LALT;
-	sdlk_keymap[NSP_KEY_DOC] =	SDLK_LMETA;
-	sdlk_keymap[NSP_KEY_TRIG] =	SDLK_QUOTE;
-	sdlk_keymap[NSP_KEY_THETA] =	SDLK_LMETA;
+	sdlk_keymap[NSP_KEY_BAR] =	SDLK_UNKNOWN;
+	sdlk_keymap[NSP_KEY_VAR] =	SDLK_UNKNOWN;
+	sdlk_keymap[NSP_KEY_DOC] =	SDLK_UNKNOWN;
+	sdlk_keymap[NSP_KEY_TRIG] =	SDLK_UNKNOWN;
+	sdlk_keymap[NSP_KEY_THETA] =	SDLK_UNKNOWN;
 	sdlk_keymap[NSP_KEY_LTHAN] =	SDLK_LESS;
-	sdlk_keymap[NSP_KEY_FLAG] =	SDLK_DELETE;
+	sdlk_keymap[NSP_KEY_FLAG] =	SDLK_UNKNOWN;
 	sdlk_keymap[NSP_KEY_HOME] = 	SDLK_HOME;
-	sdlk_keymap[NSP_KEY_MENU] =	SDLK_RALT;
-	sdlk_keymap[NSP_KEY_TAN] =	SDLK_LSUPER;
-	sdlk_keymap[NSP_KEY_COS] =	SDLK_AT;
-	sdlk_keymap[NSP_KEY_SIN] =	SDLK_BACKSLASH;
+	sdlk_keymap[NSP_KEY_MENU] =	SDLK_UNKNOWN;
+	sdlk_keymap[NSP_KEY_TAN] =	SDLK_UNKNOWN;
+	sdlk_keymap[NSP_KEY_COS] =	SDLK_UNKNOWN;
+	sdlk_keymap[NSP_KEY_SIN] =	SDLK_UNKNOWN;
 	sdlk_keymap[NSP_KEY_EXP] =	SDLK_CARET;
 	sdlk_keymap[NSP_KEY_GTHAN] =	SDLK_GREATER;
-	sdlk_keymap[NSP_KEY_SQU] =	SDLK_HASH;
-	sdlk_keymap[NSP_KEY_TENX]=	SDLK_EXCLAIM;
-	sdlk_keymap[NSP_KEY_EE] =	SDLK_AMPERSAND;
-	sdlk_keymap[NSP_KEY_II] =	SDLK_UNDERSCORE;
-	sdlk_keymap[NSP_KEY_eEXP] =	SDLK_QUESTION;
-	sdlk_keymap[NSP_KEY_PI] =	SDLK_DOLLAR;
+	sdlk_keymap[NSP_KEY_SQU] =	SDLK_UNKNOWN;
+	sdlk_keymap[NSP_KEY_TENX]=	SDLK_UNKNOWN;
+	sdlk_keymap[NSP_KEY_EE] =	SDLK_UNKNOWN;
+	sdlk_keymap[NSP_KEY_II] =	SDLK_UNKNOWN;
+	sdlk_keymap[NSP_KEY_eEXP] =	SDLK_UNKNOWN;
+	sdlk_keymap[NSP_KEY_PI] =	SDLK_UNKNOWN;
 	sdlk_keymap[NSP_KEY_QUES] =	SDLK_QUESTION;
-	sdlk_keymap[NSP_KEY_QUESEXCL] =	SDLK_QUOTEDBL;
-	sdlk_keymap[NSP_KEY_CAT] =	SDLK_SEMICOLON;
-	sdlk_keymap[NSP_KEY_FRAC] =	SDLK_COLON;
-	sdlk_keymap[NSP_KEY_SCRATCHPAD] = SDLK_LSUPER;
+	sdlk_keymap[NSP_KEY_QUESEXCL] =	SDLK_UNKNOWN;
+	sdlk_keymap[NSP_KEY_CAT] =	SDLK_UNKNOWN;
+	sdlk_keymap[NSP_KEY_FRAC] =	SDLK_UNKNOWN;
+	sdlk_keymap[NSP_KEY_SCRATCHPAD] = SDLK_UNKNOWN;
 }
 
 /* end of SDL_tinspireevents.c ... */
