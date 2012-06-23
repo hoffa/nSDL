@@ -173,7 +173,7 @@ static SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 	}
 
 	/* Set up the new mode framebuffer */
-	current->flags = flags;
+	current->flags = flags & SDL_SWSURFACE;
 	this->hidden->w = current->w = width;
 	this->hidden->h = current->h = height;
 	current->pitch = (bpp / 8) * current->w;
@@ -186,8 +186,7 @@ static SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 }
 
 #define NSP_DRAW_LOOP(code) do { \
-	while ( rows--) { \
-		int j = 0, k = 0; \
+	while ( rows-- ) { \
 		code \
 		src_addr += src_skip; \
 		dst_addr += dst_skip; \
@@ -206,6 +205,7 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 		int bpp = SDL_VideoSurface->format->BytesPerPixel;
 		SDL_bool odd_left, odd_right;
 		SDL_Rect *rect = &rects[i];
+		int j = 0, k = 0;
 		if ( ! rect )
 			continue;
 

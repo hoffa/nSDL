@@ -128,36 +128,32 @@ static int nsp_draw_string(SDL_Surface *surface, nSDL_Font *font,
 	for ( i = 0; i < length; ++i ) {
 		int c = buffer[i];
 		int c_width = NSP_CHAR_WIDTH(font, c);
-		switch ( c ) {
-			case '\n':
-				pos.x = rect->x;
-				pos.y += NSP_FONT_HEIGHT + font->vspacing;
-				++chars_drawn;
-				break;
-			default: {
-				SDL_bool draw_char;
-				if ( bounded ) {
-					if ( pos.x + c_width <= max_x
-					  && pos.y + NSP_FONT_HEIGHT <= max_y )
-						draw_char = SDL_TRUE;
-					else if ( font->flags & NSDL_FONTCFG_TEXTWRAP
-					       && pos.y + (2 * NSP_FONT_HEIGHT) + font->vspacing <= max_y ) {
-						draw_char = SDL_TRUE;
-						pos.x = rect->x;
-						pos.y += NSP_FONT_HEIGHT + font->vspacing;
-					} else
-						draw_char = SDL_FALSE;
-				} else
+		if ( c == '\n' ) {
+			pos.x = rect->x;
+			pos.y += NSP_FONT_HEIGHT + font->vspacing;
+			++chars_drawn;
+		} else {
+			SDL_bool draw_char;
+			if ( bounded ) {
+				if ( pos.x + c_width <= max_x
+				  && pos.y + NSP_FONT_HEIGHT <= max_y )
 					draw_char = SDL_TRUE;
-				if ( draw_char ) {
-					if ( nsp_draw_char(surface, font, &pos, c) == -1 )
-						return(-1);
-					++chars_drawn;
-				}
-				if ( ! ( font->flags & NSDL_FONTCFG_FORMAT ) || pos.x != rect->x || c != ' ' )
-					pos.x += c_width + font->hspacing;
-				}
-				break;
+				else if ( font->flags & NSDL_FONTCFG_TEXTWRAP
+				       && pos.y + (2 * NSP_FONT_HEIGHT) + font->vspacing <= max_y ) {
+					draw_char = SDL_TRUE;
+					pos.x = rect->x;
+					pos.y += NSP_FONT_HEIGHT + font->vspacing;
+				} else
+					draw_char = SDL_FALSE;
+			} else
+				draw_char = SDL_TRUE;
+			if ( draw_char ) {
+				if ( nsp_draw_char(surface, font, &pos, c) == -1 )
+					return(-1);
+				++chars_drawn;
+			}
+			if ( ! ( font->flags & NSDL_FONTCFG_FORMAT ) || pos.x != rect->x || c != ' ' )
+				pos.x += c_width + font->hspacing;
 		}
 	}
 
