@@ -132,6 +132,9 @@ static SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 	this->info.current_w = width;
 	this->info.current_h = height;
 
+	if ( flags != SDL_SWSURFACE )
+		NSP_DPRINT("Warning: initializing with non-typical flags");
+
 	if ( width < SCREEN_WIDTH || height < SCREEN_HEIGHT ) {
 		int offset_x = (SCREEN_WIDTH - width) / 2;
 		int offset_y = (SCREEN_HEIGHT - height) / 2;
@@ -173,7 +176,7 @@ static SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 	}
 
 	/* Set up the new mode framebuffer */
-	current->flags = flags & SDL_SWSURFACE;
+	current->flags = flags;
 	this->hidden->w = current->w = width;
 	this->hidden->h = current->h = height;
 	current->pitch = (bpp / 8) * current->w;
