@@ -19,7 +19,9 @@ nSDL_Font *nSDL_LoadFont(int font_index, Uint32 color, Uint32 flags)
 {
 	unsigned char *charmap;
 	int i, j, k;
-	nSDL_Font *font = SDL_malloc(sizeof(*font));
+	nSDL_Font *font;
+
+	NSP_ASSERT_RET(font_index > 0 && font_index < NSDL_NUMFONTS, NULL);
 
 	if ( ! charmap_relocated ) {
 		nl_relocdata((unsigned *)nsp_font_charmaps, SDL_arraysize(nsp_font_charmaps));
@@ -27,6 +29,7 @@ nSDL_Font *nSDL_LoadFont(int font_index, Uint32 color, Uint32 flags)
 	}
 	charmap = nsp_font_charmaps[font_index];
 
+	font = SDL_malloc(sizeof(*font));
 	if ( font == NULL ) {
 		SDL_OutOfMemory();
 		return(NULL);
@@ -77,18 +80,21 @@ nSDL_Font *nSDL_LoadFont(int font_index, Uint32 color, Uint32 flags)
 
 void nSDL_SetFontSpacing(nSDL_Font *font, int hspacing, int vspacing)
 {
+	NSP_ASSERT(font);
 	font->hspacing = hspacing;
 	font->vspacing = vspacing;
 }
 
 void nSDL_SetFontFlags(nSDL_Font *font, Uint32 flags)
 {
+	NSP_ASSERT(font);
 	font->flags = flags;
 }
 
 void nSDL_FreeFont(nSDL_Font *font)
 {
 	int i;
+	NSP_ASSERT(font);
 	for ( i = 0; i < NSP_FONT_NUMCHARS; ++i )
 		SDL_FreeSurface(font->chars[i]);
 	SDL_free(font);
@@ -105,7 +111,7 @@ static int nsp_draw_char(SDL_Surface *surface, nSDL_Font *font, SDL_Rect *pos, i
    If rect->w && rect->h, the string is drawn within rect.
    Returns -1 on error, and the number of characters NOT drawn otherwise.
 
-   Notes: NSDL_FONT_TEXTWRAP only has an effect when using SDL_nDrawStringInRect(). */
+   Notes: NSDL_FONTCFG_TEXTWRAP only has an effect when using nSDL_DrawStringInRect(). */
 static int nsp_draw_string(SDL_Surface *surface, nSDL_Font *font,
 			   SDL_Rect *rect, const char *format, va_list args)
 {
@@ -117,6 +123,8 @@ static int nsp_draw_string(SDL_Surface *surface, nSDL_Font *font,
 	int max_y = rect->y + rect->h;
 	int chars_drawn = 0;
 	int i;
+
+	NSP_ASSERT_RET(surface && font && rect, -1);
 
 	vsprintf(buffer, format, args); /* Possibility of overflow if size of string > NSP_BUF_SIZE */
 	length = (int)strlen(buffer);
@@ -188,6 +196,7 @@ int nSDL_DrawStringInRect(SDL_Surface *surface, nSDL_Font *font,
 static int nsp_get_line_width(nSDL_Font *font, const char *s)
 {
 	int width = 0;
+	NSP_ASSERT_RET(font, -1);
 	while ( *s && *s != '\n' ) {
 		if ( ! ( font->flags & NSDL_FONTCFG_FORMAT ) || width || *s != ' ' )
 			width += NSP_CHAR_WIDTH(font, *s) + font->hspacing;
@@ -214,6 +223,7 @@ int nSDL_GetStringWidth(nSDL_Font *font, const char *s)
 int nSDL_GetStringHeight(nSDL_Font *font, const char *s)
 {
 	int height = NSP_FONT_HEIGHT;
+	NSP_ASSERT_RET(font, -1);
 	while ( *s++ )
 		if ( *s == '\n' )
 			height += NSP_FONT_HEIGHT + font->vspacing;
