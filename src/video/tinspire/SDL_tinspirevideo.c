@@ -98,6 +98,8 @@ VideoBootStrap NSP_bootstrap = {
 static int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 {
 	this->hidden->cx = (int)is_cx;
+	this->info.current_w = SCREEN_WIDTH;
+	this->info.current_h = SCREEN_HEIGHT;
 
 	if ( this->hidden->cx ) {
 		vformat->BitsPerPixel = 16;
@@ -106,9 +108,6 @@ static int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 		vformat->Bmask = NSP_BMASK16;
 	} else
 		vformat->BitsPerPixel = 8;
-
-	this->info.current_w = SCREEN_WIDTH;
-	this->info.current_h = SCREEN_HEIGHT;
 
 	return(0);
 }
@@ -121,39 +120,35 @@ static SDL_Rect **NSP_ListModes(_THIS, SDL_PixelFormat *format, Uint32 flags)
 static SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 				     int width, int height, int bpp, Uint32 flags)
 {
-	Uint32 rmask = 0, gmask = 0, bmask = 0;
-
-	width = ( width > SCREEN_WIDTH ) ? SCREEN_WIDTH : width;
-	height = ( height > SCREEN_HEIGHT ) ? SCREEN_HEIGHT : height;
-	bpp = ( bpp < 16 ) ? 8 : 16;
+	Uint32 rmask, gmask, bmask;
 
 	NSP_DPRINT("Initializing display (%dx%dx%d)", width, height, bpp);
-
-	this->info.current_w = width;
-	this->info.current_h = height;
 
 	if ( flags != SDL_SWSURFACE )
 		NSP_DPRINT("Warning: initializing with non-typical flags");
 
 	if ( width < SCREEN_WIDTH || height < SCREEN_HEIGHT ) {
-		int offset_x = (SCREEN_WIDTH - width) / 2;
-		int offset_y = (SCREEN_HEIGHT - height) / 2;
+		int win_x = (SCREEN_WIDTH - width) / 2;
+		int win_y = (SCREEN_HEIGHT - height) / 2;
 		this->hidden->offset = this->hidden->cx
-				     ? (int)NSP_PIXEL_ADDR(0, offset_x, offset_y, 2 * SCREEN_WIDTH, 2)
-				     : (int)NSP_PIXEL_ADDR(0, offset_x / 2, offset_y, SCREEN_WIDTH / 2, 1);
-		this->hidden->offset_x = offset_x;
+				     ? (int)NSP_PIXEL_ADDR(0, win_x, win_y, 2 * SCREEN_WIDTH, 2)
+				     : (int)NSP_PIXEL_ADDR(0, win_x / 2, win_y, SCREEN_WIDTH / 2, 1);
+		this->hidden->win_x = win_x;
 		memset(SCREEN_BASE_ADDRESS, 0, SCREEN_BYTES_SIZE);
 	} else
-		this->hidden->offset = this->hidden->offset_x = 0;
+		this->hidden->offset = this->hidden->win_x = 0;
+
+	if ( (! this->hidden->cx && bpp == 16) || (bpp != 16 && bpp != 8) ) {
+		NSP_DPRINT("Warning: invalid display bit depth, forcing to 8 bpp");
+		bpp = 8;
+	}
 
 	if ( bpp == 16 ) {
-		if ( this->hidden->cx ) {
-			rmask = NSP_RMASK16;
-			gmask = NSP_GMASK16;
-			bmask = NSP_BMASK16;
-		} else
-			bpp = 8;
-	}
+		rmask = NSP_RMASK16;
+		gmask = NSP_GMASK16;
+		bmask = NSP_BMASK16;
+	} else
+		rmask = gmask = bmask = 0;
 
 	if ( this->hidden->buffer ) {
 		SDL_free( this->hidden->buffer );
@@ -177,8 +172,8 @@ static SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 
 	/* Set up the new mode framebuffer */
 	current->flags = flags;
-	this->hidden->w = current->w = width;
-	this->hidden->h = current->h = height;
+	this->hidden->w = this->info.current_w = current->w = width;
+	this->hidden->h = this->info.current_h = current->h = height;
 	current->pitch = (bpp / 8) * current->w;
 	current->pixels = this->hidden->buffer;
 
@@ -190,11 +185,12 @@ static SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 
 #define NSP_DRAW_LOOP(code) do { \
 	while ( rows-- ) { \
+		int j = 0, k = 0; \
 		code \
 		src_addr += src_skip; \
 		dst_addr += dst_skip; \
 	} \
-} while(0)
+} while (0)
 
 static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 {
@@ -203,28 +199,27 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 	int i;
 
 	for ( i = 0; i < numrects; ++i ) {
-		Uint8 *src_addr, *dst_addr;
-		int row_bytes, rows;
-		int bpp = SDL_VideoSurface->format->BytesPerPixel;
-		SDL_bool odd_left, odd_right;
 		SDL_Rect *rect = &rects[i];
-		int j = 0, k = 0;
+		Uint8 *src_addr, *dst_addr;
+		SDL_bool odd_left, odd_right;
+		int row_bytes, rows;
+
 		if ( ! rect )
 			continue;
-
-		row_bytes = bpp * rect->w;
-		rows = rect->h;
-		odd_left = (this->hidden->offset_x + rect->x) & 1;
-		odd_right = (this->hidden->offset_x + rect->x + rect->w) & 1;
-
-		if ( ! this->hidden->cx && odd_right )
-			--row_bytes;
 
 		src_addr = NSP_SURF_PIXEL(SDL_VideoSurface, rect->x, rect->y);
 		dst_addr = this->hidden->cx
 			 ? NSP_PIXEL_ADDR(SCREEN_BASE_ADDRESS, rect->x, rect->y, 2 * SCREEN_WIDTH, 2)
 			 : NSP_PIXEL_ADDR(SCREEN_BASE_ADDRESS, rect->x / 2, rect->y, SCREEN_WIDTH / 2, 1);
 		dst_addr += this->hidden->offset;
+
+		odd_left = (this->hidden->win_x + rect->x) & 1;
+		odd_right = (this->hidden->win_x + rect->x + rect->w) & 1;
+		row_bytes = SDL_VideoSurface->format->BytesPerPixel * ((rect->x + rect->w > SCREEN_WIDTH) ? SCREEN_WIDTH : rect->w);
+		rows = (rect->y + rect->h > SCREEN_HEIGHT) ? SCREEN_HEIGHT : rect->h;
+
+		if ( ! this->hidden->cx && odd_right )
+			--row_bytes;
 
 		if ( this->hidden->cx ) {
 			if ( SDL_VideoSurface->format->BitsPerPixel == 16 ) {
@@ -234,9 +229,8 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 				);
 			} else {
 				/* 8 bpp SW, 16 bpp HW */
-				row_bytes *= 2;
 				NSP_DRAW_LOOP(
-					for ( j = 0, k = 0; j < row_bytes; j += 2, ++k )
+					for ( j = 0, k = 0; k < row_bytes; j += 2, ++k )
 						*(Uint16 *)(dst_addr + j) = nsp_palette[src_addr[k]];
 				);
 			}
@@ -245,8 +239,7 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 			NSP_DRAW_LOOP(
 				if ( odd_left ) {
 					*dst_addr = (*dst_addr & 0xf0) | nsp_palette[*src_addr];
-					++j;
-					++k;
+					j = k = 1;
 				}
 				for ( ; j < row_bytes; j += 2, ++k )
 					dst_addr[k] = (nsp_palette[src_addr[j]] << 4) | nsp_palette[src_addr[j + 1]];
@@ -263,7 +256,7 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 static int NSP_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
 {
 	int i;
-	for ( i = firstcolor; i < ncolors; ++i )
+	for ( i = firstcolor; i < firstcolor + ncolors; ++i )
 		nsp_palette[i] = NSP_MAP_RGB_PALETTE(colors[i].r, colors[i].g, colors[i].b);
 	return(1);
 }

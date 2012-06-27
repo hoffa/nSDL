@@ -98,7 +98,7 @@
 #define NSDL_FONTCFG_FORMAT	(1 << 2)
 #define NSDL_FONTCFG_DEFAULT	(NSDL_FONTCFG_TEXTWRAP | NSDL_FONTCFG_AUTOSIZE | NSDL_FONTCFG_FORMAT)
 
-/* Fonts; needs to match nsp_font_charmaps in SDL_tinspirevideo.c */
+/* Fonts; needs to match nsp_font_charmaps in SDL_tinspirefonts.c */
 enum {
 	NSDL_FONT_THIN = 0,
 	NSDL_FONT_SPACE,

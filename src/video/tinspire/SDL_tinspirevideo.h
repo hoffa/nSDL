@@ -46,7 +46,7 @@
 struct SDL_PrivateVideoData {
 	int w, h;
 	int offset;
-	int offset_x;
+    int win_x;
 	void *buffer;
 	int cx;
 };
