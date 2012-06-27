@@ -34,7 +34,7 @@
 #define DEBUG_VIDEO	1
 #define DEBUG_ERROR	1
 
-#define NSDL_VERSION	"0.3.2"
+#define NSDL_VERSION	"0.3.3"
 
 #if NSP_DEBUG
 #define NSP_DPRINT(fmt, args...) \
