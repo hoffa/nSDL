@@ -11,7 +11,7 @@ static nti_info_t *nti_get_info(Uint16 *data)
 		return(NULL);
 	}
 	nti_info->magic = data[0] >> 8;
-	nti_info->version = data[0] & 0xf;
+	nti_info->version = data[0] & 0x00ff;
 	nti_info->width = data[1];
 	nti_info->height = data[2];
 	nti_info->reserved = data[3];
