@@ -122,10 +122,10 @@ static SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 {
 	Uint32 rmask, gmask, bmask;
 
-	NSP_DPRINT("Initializing display (%dx%dx%d)", width, height, bpp);
+	NSP_DEBUG("Initializing display (%dx%dx%d)", width, height, bpp);
 
 	if ( flags != SDL_SWSURFACE )
-		NSP_DPRINT("Warning: initializing with non-typical flags");
+		NSP_WARNING("Initializing with non-typical flags");
 
 	if ( width < SCREEN_WIDTH || height < SCREEN_HEIGHT ) {
 		int win_x = (SCREEN_WIDTH - width) / 2;
@@ -139,7 +139,7 @@ static SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 		this->hidden->offset = this->hidden->win_x = 0;
 
 	if ( (! this->hidden->cx && bpp == 16) || (bpp != 16 && bpp != 8) ) {
-		NSP_DPRINT("Warning: invalid display bit depth, forcing to 8 bpp");
+		NSP_WARNING("Invalid display bit depth, forcing to 8 bpp");
 		bpp = 8;
 	}
 
@@ -177,7 +177,7 @@ static SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 	current->pitch = (bpp / 8) * current->w;
 	current->pixels = this->hidden->buffer;
 
-	NSP_DPRINT("Done (0x%p)", current);
+	NSP_DEBUG("Done (0x%p)", current);
 
 	/* We're done */
 	return(current);
@@ -266,5 +266,5 @@ static int NSP_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
 */
 static void NSP_VideoQuit(_THIS)
 {
-	NSP_DPRINT("Closing video");
+	NSP_DEBUG("Closing video");
 }

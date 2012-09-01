@@ -112,7 +112,7 @@ void SDL_SetError (const char *fmt, ...)
 	fprintf(stderr, "SDL_SetError: %s\n", SDL_GetError());
 #endif
 
-#if __TINSPIRE__ && NSP_MSGBOX_ERROR
+#if __TINSPIRE__ && NSP_HALT_ON_ERROR
 	if ( show_msgbox_2b("Error - nSDL " NSDL_VERSION, SDL_GetError(),
 			    "Abort", "Continue") == 1 ) {
 		SDL_Quit();

@@ -28,19 +28,21 @@
 /* General platform specific identifiers */
 #include "SDL_platform.h"
 
-#define NSP_DEBUG	1
-#define NSP_MSGBOX_ERROR	1
-#define DEBUG_BUILD	1
-#define DEBUG_VIDEO	1
-#define DEBUG_ERROR	1
+#define NSDL_VERSION	"1.0"
 
-#define NSDL_VERSION	"0.3.3"
+#define NSP_HALT_ON_ERROR	1
+#define NSP_DEBUG_BUILD	0
+#define DEBUG_BUILD	0
+#define DEBUG_VIDEO	0
+#define DEBUG_ERROR	0
 
-#if NSP_DEBUG
-#define NSP_DPRINT(fmt, args...) \
+#define NSP_WARNING(s) fprintf(stderr, "[nSDL] Warning: %s\n", s)
+
+#if NSP_DEBUG_BUILD
+#define NSP_DEBUG(fmt, args...) \
 	fprintf(stderr, "[nSDL] %s():%d: " fmt "\n", __FUNCTION__, __LINE__, ## args)
 #else
-#define NSP_DPRINT(fmt, args...) (void)0
+#define NSP_DEBUG(fmt, args...) (void)0
 #endif
 
 #define SDL_HAS_64BIT_TYPE	1
