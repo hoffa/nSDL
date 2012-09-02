@@ -28,13 +28,15 @@
 /* General platform specific identifiers */
 #include "SDL_platform.h"
 
-#define NSDL_VERSION	"1.0"
-
+#define NSDL_VERSION	"1.0.1"
 #define NSP_HALT_ON_ERROR	1
-#define NSP_DEBUG_BUILD	0
-#define DEBUG_BUILD	0
-#define DEBUG_VIDEO	0
-#define DEBUG_ERROR	0
+
+#if 0
+#define NSP_DEBUG_BUILD	1
+#define DEBUG_BUILD	1
+#define DEBUG_VIDEO	1
+#define DEBUG_ERROR	1
+#endif
 
 #define NSP_WARNING(s) fprintf(stderr, "[nSDL] Warning: %s\n", s)
 

@@ -166,7 +166,7 @@ int SDL_VideoInit (const char *driver_name, Uint32 flags)
 	nl_relocdata((unsigned *)&bootstrap[0]->desc, 1);
 	nl_relocdata((unsigned *)&bootstrap[0]->available, 1);
 	nl_relocdata((unsigned *)&bootstrap[0]->create, 1);
-	NSP_DPRINT("Initializing \"%s\" (%s)", bootstrap[0]->name, NSDL_VERSION);
+	NSP_DEBUG("Initializing \"%s\" (%s)", bootstrap[0]->name, NSDL_VERSION);
 #endif /* __TINSPIRE__ */
 
 	/* Toggle the event thread flags, based on OS requirements */
