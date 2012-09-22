@@ -1,13 +1,13 @@
+SOURCES = link.c
+TARGET = Link.tns
+OBJECTS = $(SOURCES:.c=.o)
+
 CC = nspire-gcc
 LD = nspire-ld
 OBJCOPY = arm-none-eabi-objcopy
-CFLAGS = -Wall -Wextra -nostdlib -I../../include -O3
+CFLAGS = -Wall -Wextra -Ofast
 LDFLAGS =
-
-SOURCES = link.c
-OBJECTS = link.o
-LIBS = ../../libSDL.a
-TARGET = Link.tns
+LIBS = -lSDL
 
 all: $(TARGET)
 
