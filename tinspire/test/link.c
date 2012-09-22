@@ -116,7 +116,6 @@ void move_player(dir_t direction) {
                 break;
             case RIGHT:
                 ++player.x;
-
                 break;
         }
         if(!is_walkable(player.x, player.y)) {
