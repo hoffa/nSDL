@@ -177,7 +177,7 @@ int main(void) {
         draw_tile_map();
         draw_player();
         draw_info();
-        SDL_UpdateRect(screen, 0, 0, 0, 0);
+        SDL_Flip(screen);
         SDL_WaitEvent(&event);
         switch(event.type) {
             case SDL_KEYDOWN:
