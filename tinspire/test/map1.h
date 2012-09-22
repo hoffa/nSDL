@@ -4,7 +4,7 @@
 #include <SDL/SDL.h>
 #include "link.h"
 
-#define MAP1_WIDTH	20
+#define MAP1_WIDTH  20
 #define MAP1_HEIGHT 14
 
 #define MAP1_NUM_TILES 24
