@@ -3,32 +3,32 @@
 
 #include <SDL/SDL.h>
 
-#define TILE_WIDTH	16
-#define TILE_HEIGHT	16
+#define TILE_WIDTH  16
+#define TILE_HEIGHT 16
 
 typedef enum dir_t {
-	UP,
-	RIGHT,
-	DOWN,
-	LEFT
+    UP,
+    RIGHT,
+    DOWN,
+    LEFT
 } dir_t;
 
 typedef struct player_t {
-	int x, y;
-	dir_t direction;
-	SDL_Surface *sprite;
+    int x, y;
+    dir_t direction;
+    SDL_Surface *sprite;
 } player_t;
 
 typedef struct tile_attrib_t {
-	SDL_bool is_walkable;
+    SDL_bool is_walkable;
 } tile_attrib_t;
 
 typedef struct map_t {
-	char **data;
-	int width, height;
-	int num_tiles;
-	tile_attrib_t *tile_attrib;
-	SDL_Surface *tileset;
+    char **data;
+    int width, height;
+    int num_tiles;
+    tile_attrib_t *tile_attrib;
+    SDL_Surface *tileset;
 } map_t;
 
 static unsigned short image_link[] = {
