@@ -127,6 +127,7 @@ void NSP_InitOSKeymap(_THIS)
 	nspk_keymap[NSP_KEY_DEL] =	KEY_NSPIRE_DEL;
 	nspk_keymap[NSP_KEY_LTHAN] =	KEY_NSPIRE_LTHAN;
 	nspk_keymap[NSP_KEY_FLAG] =	KEY_NSPIRE_FLAG;
+	nspk_keymap[NSP_KEY_CLICK] =	KEY_NSPIRE_CLICK;
 	nspk_keymap[NSP_KEY_C] =	KEY_NSPIRE_C;
 	nspk_keymap[NSP_KEY_HOME] =	KEY_NSPIRE_HOME;
 	nspk_keymap[NSP_KEY_B] =	KEY_NSPIRE_B;
@@ -146,7 +147,8 @@ void NSP_InitOSKeymap(_THIS)
 	nspk_keymap[NSP_KEY_TRIG] =	KEY_NSPIRE_TRIG;
 	nspk_keymap[NSP_KEY_SCRATCHPAD] = KEY_NSPIRE_SCRATCHPAD;
 
-	/* Enum value -> SDLK_* */
+	/* Enum value -> SDLK_*
+	   This is the actual key mapping part. */
 	sdlk_keymap[NSP_KEY_A] =	SDLK_a;
 	sdlk_keymap[NSP_KEY_B] =	SDLK_b;
 	sdlk_keymap[NSP_KEY_C] =	SDLK_c;
@@ -216,8 +218,9 @@ void NSP_InitOSKeymap(_THIS)
 	sdlk_keymap[NSP_KEY_THETA] =	SDLK_UNKNOWN;
 	sdlk_keymap[NSP_KEY_LTHAN] =	SDLK_LESS;
 	sdlk_keymap[NSP_KEY_FLAG] =	SDLK_UNKNOWN;
+	sdlk_keymap[NSP_KEY_CLICK] =	SDLK_KP_ENTER;
 	sdlk_keymap[NSP_KEY_HOME] = 	SDLK_HOME;
-	sdlk_keymap[NSP_KEY_MENU] =	SDLK_UNKNOWN;
+	sdlk_keymap[NSP_KEY_MENU] =	SDLK_MENU;
 	sdlk_keymap[NSP_KEY_TAN] =	SDLK_UNKNOWN;
 	sdlk_keymap[NSP_KEY_COS] =	SDLK_UNKNOWN;
 	sdlk_keymap[NSP_KEY_SIN] =	SDLK_UNKNOWN;

@@ -29,9 +29,9 @@
 #define DEFAULT_CHOTY	0
 
 /* Added a real MacOS cursor, at the request of Luc-Olivier de Charrière */
-#define USE_MACOS_CURSOR 1
+// #define USE_MACOS_CURSOR 1
 
-// #define USE_TINSPIRE_CURSOR 1
+#define USE_TINSPIRE_CURSOR 1
 
 #if USE_MACOS_CURSOR
 
