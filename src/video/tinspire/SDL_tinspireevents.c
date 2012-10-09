@@ -30,29 +30,51 @@
 #include "SDL_tinspireevents_c.h"
 
 static t_key nspk_keymap[NSP_NUMKEYS];
-static SDLKey sdlk_keymap[NSP_NUMKEYS] = {SDLK_UNKNOWN};
-static char key_state[NSP_NUMKEYS] = {SDL_RELEASED};
+static SDLKey sdlk_keymap[NSP_NUMKEYS];
+static Uint8 key_state[NSP_NUMKEYS];
 
-void NSP_PumpEvents(_THIS)
+static SDLKey sdlak_keymap[4] = {SDLK_UP, SDLK_RIGHT, SDLK_DOWN, SDLK_LEFT};
+static Uint8 arrow_key_state[4];
+
+static void nsp_update_keyboard(void)
 {
 	int i;
 	for ( i = 0; i < NSP_NUMKEYS; ++i ) {
+		BOOL key_pressed;
 		if ( sdlk_keymap[i] == SDLK_UNKNOWN )
 			continue;
-		BOOL key_pressed = isKeyPressed(nspk_keymap[i]);
-		SDL_keysym keysym;
-		keysym.scancode = i;
-		keysym.sym = sdlk_keymap[i];
-		if ( key_state[i] == SDL_RELEASED ) {
-			if ( key_pressed ) {
-				SDL_PrivateKeyboard(SDL_PRESSED, &keysym);
-				key_state[i] = SDL_PRESSED;
-			}
-		} else if ( ! key_pressed ) {
-			SDL_PrivateKeyboard(SDL_RELEASED, &keysym);
-			key_state[i] = SDL_RELEASED;
-		}
+		key_pressed = isKeyPressed(nspk_keymap[i]);
+		NSP_UPDATE_KEY_EVENT(sdlk_keymap[i], i, key_state[i], key_pressed);
 	}
+}
+
+static void nsp_update_arrow_keys(void)
+{
+	BOOL ul = isKeyPressed(KEY_NSPIRE_LEFTUP),
+	     ur = isKeyPressed(KEY_NSPIRE_UPRIGHT),
+	     dr = isKeyPressed(KEY_NSPIRE_RIGHTDOWN),
+	     dl = isKeyPressed(KEY_NSPIRE_DOWNLEFT);
+	BOOL arrow_key_pressed[4] = {
+		ul || isKeyPressed(KEY_NSPIRE_UP) || ur,
+		ur || isKeyPressed(KEY_NSPIRE_RIGHT) || dr,
+		dr || isKeyPressed(KEY_NSPIRE_DOWN) || dl,
+		dl || isKeyPressed(KEY_NSPIRE_LEFT) || ul
+	};
+	int i;
+	for ( i = 0; i < 4; ++i )
+		NSP_UPDATE_KEY_EVENT(sdlak_keymap[i], i, arrow_key_state[i], arrow_key_pressed[i]);
+}
+
+static void nsp_update_mouse(void)
+{
+	/* stub */
+}
+
+void NSP_PumpEvents(_THIS)
+{
+	nsp_update_keyboard();
+	nsp_update_arrow_keys();
+	nsp_update_mouse();
 }
 
 void NSP_InitOSKeymap(_THIS)
@@ -137,10 +159,6 @@ void NSP_InitOSKeymap(_THIS)
 	nspk_keymap[NSP_KEY_BAR] =	KEY_NSPIRE_BAR;
 	nspk_keymap[NSP_KEY_TAB] =	KEY_NSPIRE_TAB;
 	nspk_keymap[NSP_KEY_EQU] =	KEY_NSPIRE_EQU;
-	nspk_keymap[NSP_KEY_UP] =	KEY_NSPIRE_UP;
-	nspk_keymap[NSP_KEY_RIGHT] =	KEY_NSPIRE_RIGHT;
-	nspk_keymap[NSP_KEY_DOWN] =	KEY_NSPIRE_DOWN;
-	nspk_keymap[NSP_KEY_LEFT] =	KEY_NSPIRE_LEFT;
 	nspk_keymap[NSP_KEY_SHIFT] =	KEY_NSPIRE_SHIFT;
 	nspk_keymap[NSP_KEY_CTRL] =	KEY_NSPIRE_CTRL;
 	nspk_keymap[NSP_KEY_DOC] =	KEY_NSPIRE_DOC;
@@ -205,10 +223,6 @@ void NSP_InitOSKeymap(_THIS)
 	sdlk_keymap[NSP_KEY_ESC] =	SDLK_ESCAPE;
 	sdlk_keymap[NSP_KEY_TAB] =	SDLK_TAB;
 	sdlk_keymap[NSP_KEY_EQU] =	SDLK_EQUALS;
-	sdlk_keymap[NSP_KEY_UP] =	SDLK_UP;
-	sdlk_keymap[NSP_KEY_RIGHT] =	SDLK_RIGHT;
-	sdlk_keymap[NSP_KEY_DOWN] =	SDLK_DOWN;
-	sdlk_keymap[NSP_KEY_LEFT] =	SDLK_LEFT;
 	sdlk_keymap[NSP_KEY_SHIFT] =	SDLK_LSHIFT;
 	sdlk_keymap[NSP_KEY_CTRL] =	SDLK_LCTRL;
 	sdlk_keymap[NSP_KEY_BAR] =	SDLK_UNKNOWN;

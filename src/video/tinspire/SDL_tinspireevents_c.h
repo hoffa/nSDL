@@ -23,6 +23,21 @@
 
 #include "SDL_tinspirevideo.h"
 
+#define NSP_UPDATE_KEY_EVENT(s, sc, ks, kp) do { \
+	SDL_keysym keysym; \
+	keysym.scancode = sc; \
+	keysym.sym = s; \
+	if ( ks == SDL_RELEASED ) { \
+		if ( kp ) { \
+			SDL_PrivateKeyboard(SDL_PRESSED, &keysym); \
+			ks = SDL_PRESSED; \
+		} \
+	} else if ( ! kp ) { \
+		SDL_PrivateKeyboard(SDL_RELEASED, &keysym); \
+		ks = SDL_RELEASED; \
+	} \
+} while (0)
+
 /* Keys */
 enum {
 	NSP_KEY_A,
@@ -81,10 +96,6 @@ enum {
 	NSP_KEY_ESC,
 	NSP_KEY_TAB,
 	NSP_KEY_EQU,
-	NSP_KEY_UP,
-	NSP_KEY_RIGHT,
-	NSP_KEY_DOWN,
-	NSP_KEY_LEFT,
 	NSP_KEY_SHIFT,
 	NSP_KEY_CTRL,
 	NSP_KEY_BAR,
