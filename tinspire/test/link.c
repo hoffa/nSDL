@@ -1,5 +1,5 @@
 #include <os.h>
-#include <SDL.h>
+#include <SDL/SDL.h>
 #include "link.h"
 #include "map1.h"
 
