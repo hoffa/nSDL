@@ -65,22 +65,10 @@ static void nsp_update_arrow_keys(void)
 		NSP_UPDATE_KEY_EVENT(sdlak_keymap[i], i, arrow_key_state[i], arrow_key_pressed[i]);
 }
 
-static void nsp_update_mouse(void)
-{
-	touchpad_report_t tp;
-	Sint8 dx, dy;
-	touchpad_scan(&tp);
-	dx = (Sint8)tp.x_velocity;
-	dy = -((Sint8)tp.y_velocity);
-	if ( dx || dy )
-		SDL_PrivateMouseMotion(0, 1, dx, dy);
-}
-
 void NSP_PumpEvents(_THIS)
 {
 	nsp_update_keyboard();
 	nsp_update_arrow_keys();
-	// nsp_update_mouse();
 }
 
 void NSP_InitOSKeymap(_THIS)
