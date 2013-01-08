@@ -1,5 +1,4 @@
 #include "SDL_video.h"
-#include "SDL_stdinc.h"
 #include "SDL_tinspirevideo.h"
 #include "SDL_tinspirenti.h"
 
@@ -10,7 +9,6 @@ static void nti_get_info(nti_info_t *nti_info, Uint16 *data)
 	nti_info->width = data[1];
 	nti_info->height = data[2];
 	nti_info->reserved = data[3];
-	return(nti_info);
 }
 
 SDL_Surface *nSDL_LoadImage(Uint16 *data)

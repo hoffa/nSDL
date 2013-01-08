@@ -28,7 +28,7 @@
 /* General platform specific identifiers */
 #include "SDL_platform.h"
 
-#define NSDL_VERSION	"1.0.2"
+#define NSDL_VERSION	"1.1.0"
 #define NSP_HALT_ON_ERROR	1
 
 #if 0

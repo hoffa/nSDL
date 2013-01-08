@@ -277,6 +277,8 @@ int nSDL_DrawStringInRect(SDL_Surface *surface, nSDL_Font *font,
 int nSDL_GetStringWidth(nSDL_Font *font, const char *s);
 int nSDL_GetStringHeight(nSDL_Font *font, const char *s);
 SDL_Surface *nSDL_LoadImage(Uint16 *data);
+__inline__ Uint32 nSDL_GetPixel(SDL_Surface *surface, int x, int y);
+__inline__ void nSDL_SetPixel(SDL_Surface *surface, int x, int y, Uint32 color);
 #endif
 
 /* Function prototypes */
