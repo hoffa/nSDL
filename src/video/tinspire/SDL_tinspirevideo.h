@@ -32,6 +32,8 @@
 /* Hidden "this" pointer for the video functions */
 #define _THIS	SDL_VideoDevice *this
 
+#define NSP_BUF_SIZE	512
+
 #define NSP_RMASK16 0xF800
 #define NSP_GMASK16 0x07E0
 #define NSP_BMASK16 0x001F

@@ -3,8 +3,6 @@
 #include "SDL_tinspirevideo.h"
 #include "SDL_tinspirefonts.h"
 
-#define NSP_BUF_SIZE	512
-
 static unsigned char *nsp_font_charmaps[] = {
 	nsp_font_thin,
 	nsp_font_space,
