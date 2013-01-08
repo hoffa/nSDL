@@ -2,7 +2,7 @@ CC = nspire-gcc
 AR = arm-none-eabi-ar
 RANLIB = arm-none-eabi-ranlib
 INCLUDE = -I C:\Users\Hoffa\Desktop\ndless-v3.1-beta-r695-sdk\ndless\include\SDL
-CFLAGS = -Wall -Wextra -DLOAD_GIF -DLOAD_LBM -DLOAD_PCX -DLOAD_PNM -DLOAD_TGA -DLOAD_XCF -DDEBUG_IMGLIB
+CFLAGS = -Wall -Wextra -Os -DLOAD_GIF -DLOAD_LBM -DLOAD_PCX -DLOAD_PNM -DLOAD_TGA -DLOAD_XCF
 
 TARGET = libSDL_image.a
 SOURCES = \
