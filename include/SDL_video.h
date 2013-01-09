@@ -263,17 +263,15 @@ typedef struct nSDL_Font {
     SDL_Surface *chars[NSP_FONT_NUMCHARS];
     Uint8 char_width[NSP_FONT_NUMCHARS];
     int hspacing, vspacing;
-    Uint32 flags;
+    SDL_bool monospaced;
 } nSDL_Font;
 
-nSDL_Font *nSDL_LoadFont(int font_index, Uint32 color, Uint32 flags);
+nSDL_Font *nSDL_LoadFont(int font_index, Uint32 color);
 void nSDL_SetFontSpacing(nSDL_Font *font, int hspacing, int vspacing);
-void nSDL_SetFontFlags(nSDL_Font *font, Uint32 flags);
+void nSDL_EnableFontMonospaced(nSDL_Font *font, SDL_bool toggle);
 void nSDL_FreeFont(nSDL_Font *font);
 int nSDL_DrawString(SDL_Surface *surface, nSDL_Font *font,
 		    int x, int y, const char *format, ...);
-int nSDL_DrawStringInRect(SDL_Surface *surface, nSDL_Font *font,
-			  SDL_Rect *rect, const char *format, ...);
 int nSDL_GetStringWidth(nSDL_Font *font, const char *s);
 int nSDL_GetStringHeight(nSDL_Font *font, const char *s);
 SDL_Surface *nSDL_LoadImage(Uint16 *data);

@@ -19,6 +19,8 @@
     Sam Lantinga
     slouken@libsdl.org
 */
+
+#include <os.h>
 #include "SDL_config.h"
 
 #ifdef SDL_TIMER_TINSPIRE
@@ -31,22 +33,21 @@ static volatile unsigned *control;
 Uint32 tick_sum = 0;
 Uint32 start = 0;
 
+/* Uses the first timer (0x900C0000) */
+
 void SDL_StartTicks(void)
 {
+	*(volatile unsigned *)0x900B0018 &= ~(1 << 11); /* Disable bus access */
+	*(volatile unsigned *)0x900C0080 = 0xA; /* Black magic; I really have no idea what it does */
 	if ( is_cx ) {
-		value = (unsigned *)0x900C0004;
-		control = (unsigned *)0x900C0008;
-	} else {
-		value = (unsigned *)0x900C0000;
-		control = (unsigned *)0x900C0008;
-	}
-	*(volatile unsigned *)0x900B0018 &= ~(1 << 11);
-	*(volatile unsigned *)0x900C0080 = 0xA;
-	if ( is_cx ) {
+        value = (unsigned *)0x900C0004;
+        control = (unsigned *)0x900C0008;
 		*control = 0b10100110;
 		start = *value;
 	} else {
-		*control = 0b00010000;
+        value = (unsigned *)0x900C0000;
+        control = (unsigned *)0x900C0008;
+		*control = 0b00010000; /* */
 		*(volatile unsigned *)0x900C0004 = 32;
 		*value = 0;
 		*control = 0b00001111;
