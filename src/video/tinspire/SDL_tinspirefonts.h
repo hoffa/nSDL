@@ -7,6 +7,6 @@
 #include "fonts/FANTASY.h"
 #include "fonts/TINYTYPE.h"
 
-#define NSP_CHAR_WIDTH(font, c) (font->monospace ? NSP_FONT_WIDTH : font->char_width[(int)c])
+#define NSP_CHAR_WIDTH(font, c) (font->monospaced ? NSP_FONT_WIDTH : font->char_width[(int)c])
 
 #endif /* _SDL_tinspirefonts_h */

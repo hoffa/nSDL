@@ -38,8 +38,6 @@
 #define NSP_GMASK16 0x07E0
 #define NSP_BMASK16 0x001F
 
-#define NSP_PIXEL_ADDR(origin, x, y, pitch, bpp) ((Uint8 *)origin + ((x) * (bpp)) + ((y) * (pitch)))
-#define NSP_SURF_PIXEL(surface, x, y) NSP_PIXEL_ADDR(surface->pixels, x, y, surface->pitch, surface->format->BytesPerPixel)
 #define NSP_CREATE_PALETTE(surface) SDL_SetColors(surface, SDL_VideoSurface->format->palette->colors, \
 						  0, SDL_VideoSurface->format->palette->ncolors)
 

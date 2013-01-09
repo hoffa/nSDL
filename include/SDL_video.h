@@ -255,6 +255,10 @@ typedef enum {
 
 /* Public TI-Nspire-specific stuff */
 #ifdef __TINSPIRE__
+
+#define NSP_PIXEL_ADDR(origin, x, y, pitch, bpp) ((Uint8 *)origin + ((x) * (bpp)) + ((y) * (pitch)))
+#define NSP_SURF_PIXEL(surface, x, y) NSP_PIXEL_ADDR(surface->pixels, x, y, surface->pitch, surface->format->BytesPerPixel)
+
 #define NSP_FONT_NUMCHARS   256
 #define NSP_FONT_WIDTH  8
 #define NSP_FONT_HEIGHT 8
@@ -275,9 +279,45 @@ int nSDL_DrawString(SDL_Surface *surface, nSDL_Font *font,
 int nSDL_GetStringWidth(nSDL_Font *font, const char *s);
 int nSDL_GetStringHeight(nSDL_Font *font, const char *s);
 SDL_Surface *nSDL_LoadImage(Uint16 *data);
-__inline__ Uint32 nSDL_GetPixel(SDL_Surface *surface, int x, int y);
-__inline__ void nSDL_SetPixel(SDL_Surface *surface, int x, int y, Uint32 color);
 int nSDL_EnableRelativePaths(char **argv);
+
+static __inline__ __attribute__((always_inline))
+Uint32 nSDL_GetPixel(SDL_Surface *surface, int x, int y)
+{
+    Uint8 *pixel = NSP_SURF_PIXEL(surface, x, y);
+    switch ( surface->format->BytesPerPixel ) {
+        case 2: return(*(Uint16 *)pixel);
+        case 1: return(*pixel);
+        case 4: return(*(Uint32 *)pixel);
+        case 3: return(pixel[0] | (pixel[1] << 8) | (pixel[2] << 16));
+        default: return(0);
+    }
+}
+
+static __inline__ __attribute__((always_inline))
+void nSDL_SetPixel(SDL_Surface *surface, int x, int y, Uint32 color)
+{
+    Uint8 *pixel = NSP_SURF_PIXEL(surface, x, y);
+    switch ( surface->format->BytesPerPixel ) {
+        case 2:
+            *(Uint16 *)pixel = color;
+            return;
+        case 1:
+            *pixel = color;
+            return;
+        case 4:
+            *(Uint32 *)pixel = color;
+            return;
+        case 3:
+            pixel[0] = color & 0xff;
+            pixel[1] = (color >> 8) & 0xff;
+            pixel[2] = (color >> 16) & 0xff;
+            return;
+        default:
+            return;
+    }
+}
+
 #endif
 
 /* Function prototypes */
