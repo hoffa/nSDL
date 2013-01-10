@@ -1,8 +1,10 @@
 CC = nspire-gcc
 AR = arm-none-eabi-ar
 RANLIB = arm-none-eabi-ranlib
+STRIP = arm-none-eabi-strip
+
 INCLUDE = -I include
-CFLAGS = -Wall -Wextra -nostdlib -Ofast
+CFLAGS = -Wall -Wextra -Ofast
 
 TARGET = libSDL.a
 CONFIG_H = include/SDL_config.h
@@ -64,6 +66,7 @@ $(TARGET): $(OBJECTS)
 	cp $(CONFIG_H).default $(CONFIG_H)
 	$(AR) cr $@ $^
 	$(RANLIB) $@
+	$(STRIP) --strip-unneeded $@
 
 .c.o:
 	$(CC) $(INCLUDE) $(CFLAGS) -c $< -o $@
