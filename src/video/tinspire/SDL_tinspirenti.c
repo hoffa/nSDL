@@ -13,7 +13,7 @@ static void nti_get_info(nti_info_t *nti_info, Uint16 *data)
 
 SDL_Surface *nSDL_LoadImage(Uint16 *data)
 {
-	SDL_Surface *tmp, *image;
+	SDL_Surface *image;
 	nti_info_t nti_info;
 	int i, j;
 	nti_get_info(&nti_info, data);
@@ -22,19 +22,17 @@ SDL_Surface *nSDL_LoadImage(Uint16 *data)
 		return(NULL);
 	}
 	NSP_DEBUG("Loading NTI v%d (%dx%d)", nti_info.version, nti_info.width, nti_info.height);
-	tmp = SDL_CreateRGBSurface(SDL_SWSURFACE, nti_info.width, nti_info.height,
-				   16, NSP_RMASK16, NSP_GMASK16, NSP_BMASK16, 0);
-	if ( tmp == NULL ) {
+	image = SDL_CreateRGBSurface(SDL_SWSURFACE, nti_info.width, nti_info.height,
+				     16, NSP_RMASK16, NSP_GMASK16, NSP_BMASK16, 0);
+	if ( image == NULL ) {
 		SDL_OutOfMemory();
 		return(NULL);
 	}
 	data = (Uint16 *)(data + 4);
-	SDL_LockSurface(tmp);
+	SDL_LockSurface(image);
 	for ( i = 0; i < nti_info.height; ++i )
 		for( j = 0; j < nti_info.width; ++j)
-			nSDL_SetPixel(tmp, j, i, data[j + (nti_info.width * i)]);
-	SDL_UnlockSurface(tmp);
-	image = SDL_DisplayFormat(tmp);
-	SDL_FreeSurface(tmp);
+			nSDL_SetPixel(image, j, i, data[j + (nti_info.width * i)]);
+	SDL_UnlockSurface(image);
 	return(image);
 }

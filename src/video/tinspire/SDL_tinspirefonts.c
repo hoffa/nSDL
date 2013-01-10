@@ -13,14 +13,11 @@ static unsigned char *nsp_font_charmaps[] = {
 
 static SDL_bool charmap_relocated = SDL_FALSE;
 
-nSDL_Font *nSDL_LoadFont(int font_index, Uint32 color)
+nSDL_Font *nSDL_LoadFont(int font_index, Uint8 r, Uint8 g, Uint8 b)
 {
 	unsigned char *charmap;
 	nSDL_Font *font;
 	int i, j, k;
-
-	if ( font_index < 0 || font_index >= NSDL_NUMFONTS )
-		return(NULL);
 
 	if ( ! charmap_relocated ) {
 		nl_relocdata((unsigned *)nsp_font_charmaps, SDL_arraysize(nsp_font_charmaps));
@@ -37,25 +34,19 @@ nSDL_Font *nSDL_LoadFont(int font_index, Uint32 color)
 	for ( i = 0; i < NSP_FONT_NUMCHARS; ++i ) {
 		int offset = 8 * i;
 		int max_width = 0;
+		Uint32 color;
 		SDL_Surface *char_surf;
-		if ( SDL_VideoSurface->format->BitsPerPixel == 16 )
-			char_surf = SDL_CreateRGBSurface(SDL_SWSURFACE, NSP_FONT_WIDTH, NSP_FONT_HEIGHT,
-							 16, NSP_RMASK16, NSP_GMASK16, NSP_BMASK16, 0);
-		else
-			char_surf = SDL_CreateRGBSurface(SDL_SWSURFACE, NSP_FONT_WIDTH, NSP_FONT_HEIGHT,
-							 8, 0, 0, 0, 0);
-		if ( char_surf == NULL ) {
+		SDL_Surface *tmp = SDL_CreateRGBSurface(SDL_SWSURFACE, NSP_FONT_WIDTH, NSP_FONT_HEIGHT,
+							16, NSP_RMASK16, NSP_GMASK16, NSP_BMASK16, 0);
+		if ( tmp == NULL ) {
 			SDL_OutOfMemory();
 			return(NULL);
 		}
+		color = SDL_MapRGB(tmp->format, r, g, b);
+		SDL_FillRect(tmp, NULL, ! color);
+		SDL_SetColorKey(tmp, SDL_SRCCOLORKEY | SDL_RLEACCEL, ! color);
 		font->char_width[i] = NSP_FONT_WIDTH;
-		if ( char_surf->format->BitsPerPixel == 8 )
-			SDL_SetColors(char_surf, SDL_VideoSurface->format->palette->colors,
-				      0, SDL_VideoSurface->format->palette->ncolors);
-		if ( color == 0 )
-			SDL_FillRect(char_surf, NULL, 1);
-		SDL_SetColorKey(char_surf, SDL_SRCCOLORKEY | SDL_RLEACCEL, color ? 0 : 1);
-		SDL_LockSurface(char_surf);
+		SDL_LockSurface(tmp);
 		for ( j = 0; j < NSP_FONT_HEIGHT; ++j )
 			for ( k = 0; k < NSP_FONT_WIDTH; ++k ) {
 				if ( charmap[offset + j] & (1 << (NSP_FONT_WIDTH - k - 1)) ) { /* "Pixel" set */
@@ -63,10 +54,12 @@ nSDL_Font *nSDL_LoadFont(int font_index, Uint32 color)
 						font->char_width[i] = k + 1;
 						max_width = k;
 					}
-					nSDL_SetPixel(char_surf, k, j, color);
+					nSDL_SetPixel(tmp, k, j, color);
 				}
 			}
-		SDL_UnlockSurface(char_surf);
+		SDL_UnlockSurface(tmp);
+		char_surf = SDL_DisplayFormat(tmp);
+		SDL_FreeSurface(tmp);
 		font->chars[i] = char_surf;
 		font->hspacing = font->vspacing = 0;
 		font->monospaced = SDL_FALSE;

@@ -267,12 +267,12 @@ typedef struct nSDL_Font {
 	SDL_bool monospaced;
 } nSDL_Font;
 
-nSDL_Font *nSDL_LoadFont(int font_index, Uint32 color);
+nSDL_Font *nSDL_LoadFont(int font_index, Uint8 r, Uint8 g, Uint8 b);
 void nSDL_SetFontSpacing(nSDL_Font *font, int hspacing, int vspacing);
 void nSDL_EnableFontMonospaced(nSDL_Font *font, SDL_bool toggle);
 void nSDL_FreeFont(nSDL_Font *font);
 int nSDL_DrawString(SDL_Surface *surface, nSDL_Font *font,
-			int x, int y, const char *format, ...);
+		    int x, int y, const char *format, ...);
 int nSDL_GetStringWidth(nSDL_Font *font, const char *s);
 int nSDL_GetStringHeight(nSDL_Font *font, const char *s);
 SDL_Surface *nSDL_LoadImage(Uint16 *data);
@@ -298,9 +298,9 @@ static __inline__ __attribute__((always_inline))
 void nSDL_SetPixel(SDL_Surface *surface, int x, int y, Uint32 color)
 {
 	switch ( surface->format->BytesPerPixel ) {
-		case 2: *(Uint16 *)__P(2) = color; return;
-		case 1: *__P(1) = color; return;
-		case 4: *(Uint32 *)__P(4) = color; return;
+		case 2: *(Uint16 *)__P(2) = (Uint16)color; return;
+		case 1: *__P(1) = (Uint8)color; return;
+		case 4: *(Uint32 *)__P(4) = (Uint32)color; return;
 		case 3: SDL_Unsupported();
 		default: return;
 	}
