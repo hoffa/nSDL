@@ -50,7 +50,8 @@ nSDL_Font *nSDL_LoadFont(int font_index, Uint32 color)
 		}
 		font->char_width[i] = NSP_FONT_WIDTH;
 		if ( char_surf->format->BitsPerPixel == 8 )
-			NSP_CREATE_PALETTE(char_surf);
+			SDL_SetColors(char_surf, SDL_VideoSurface->format->palette->colors,
+				      0, SDL_VideoSurface->format->palette->ncolors);
 		if ( color == 0 )
 			SDL_FillRect(char_surf, NULL, 1);
 		SDL_SetColorKey(char_surf, SDL_SRCCOLORKEY | SDL_RLEACCEL, color ? 0 : 1);

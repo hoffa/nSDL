@@ -207,7 +207,8 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 		if ( ! rect )
 			continue;
 
-		src_addr = NSP_SURF_PIXEL(SDL_VideoSurface, rect->x, rect->y);
+		src_addr = NSP_PIXEL_ADDR(SDL_VideoSurface->pixels, rect->x, rect->y,
+					  SDL_VideoSurface->pitch, SDL_VideoSurface->format->BytesPerPixel);
 		dst_addr = this->hidden->cx
 			 ? NSP_PIXEL_ADDR(SCREEN_BASE_ADDRESS, rect->x, rect->y, 2 * SCREEN_WIDTH, 2)
 			 : NSP_PIXEL_ADDR(SCREEN_BASE_ADDRESS, rect->x / 2, rect->y, SCREEN_WIDTH / 2, 1);

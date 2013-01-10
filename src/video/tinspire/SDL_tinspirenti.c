@@ -32,7 +32,7 @@ SDL_Surface *nSDL_LoadImage(Uint16 *data)
 	SDL_LockSurface(tmp);
 	for ( i = 0; i < nti_info.height; ++i )
 		for( j = 0; j < nti_info.width; ++j)
-			*(Uint16 *)NSP_SURF_PIXEL(tmp, j, i) = data[j + (nti_info.width * i)];
+			nSDL_SetPixel(tmp, j, i, data[j + (nti_info.width * i)]);
 	SDL_UnlockSurface(tmp);
 	image = SDL_DisplayFormat(tmp);
 	SDL_FreeSurface(tmp);

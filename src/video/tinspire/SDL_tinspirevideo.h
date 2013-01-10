@@ -38,9 +38,6 @@
 #define NSP_GMASK16 0x07E0
 #define NSP_BMASK16 0x001F
 
-#define NSP_CREATE_PALETTE(surface) SDL_SetColors(surface, SDL_VideoSurface->format->palette->colors, \
-						  0, SDL_VideoSurface->format->palette->ncolors)
-
 /* Private display data */
 
 struct SDL_PrivateVideoData {
