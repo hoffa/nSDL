@@ -35,7 +35,6 @@ nSDL_Font *nSDL_LoadFont(int font_index, Uint8 r, Uint8 g, Uint8 b)
 		int offset = 8 * i;
 		int max_width = 0;
 		Uint32 color;
-		SDL_Surface *char_surf;
 		SDL_Surface *tmp = SDL_CreateRGBSurface(SDL_SWSURFACE, NSP_FONT_WIDTH, NSP_FONT_HEIGHT,
 							16, NSP_RMASK16, NSP_GMASK16, NSP_BMASK16, 0);
 		if ( tmp == NULL ) {
@@ -58,9 +57,8 @@ nSDL_Font *nSDL_LoadFont(int font_index, Uint8 r, Uint8 g, Uint8 b)
 				}
 			}
 		SDL_UnlockSurface(tmp);
-		char_surf = SDL_DisplayFormat(tmp);
+		font->chars[i] = SDL_DisplayFormat(tmp);
 		SDL_FreeSurface(tmp);
-		font->chars[i] = char_surf;
 		font->hspacing = font->vspacing = 0;
 		font->monospaced = SDL_FALSE;
 	}
