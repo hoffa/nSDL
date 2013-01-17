@@ -1,23 +1,23 @@
 /*
-    SDL - Simple DirectMedia Layer
-    Copyright (C) 1997-2012 Sam Lantinga
+	SDL - Simple DirectMedia Layer
+	Copyright (C) 1997-2012 Sam Lantinga
 
-    This library is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Lesser General Public
-    License as published by the Free Software Foundation; either
-    version 2.1 of the License, or (at your option) any later version.
+	This library is free software; you can redistribute it and/or
+	modify it under the terms of the GNU Lesser General Public
+	License as published by the Free Software Foundation; either
+	version 2.1 of the License, or (at your option) any later version.
 
-    This library is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Lesser General Public License for more details.
+	This library is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+	You should have received a copy of the GNU Lesser General Public
+	License along with this library; if not, write to the Free Software
+	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-    Sam Lantinga
-    slouken@libsdl.org
+	Sam Lantinga
+	slouken@libsdl.org
 */
 
 /** @file SDL_video.h
@@ -94,31 +94,31 @@ typedef struct SDL_PixelFormat {
  *  which, if not NULL, contains the raw pixel data for the surface.
  */
 typedef struct SDL_Surface {
-	Uint32 flags;				/**< Read-only */
-	SDL_PixelFormat *format;		/**< Read-only */
-	int w, h;				/**< Read-only */
-	Uint16 pitch;				/**< Read-only */
-	void *pixels;				/**< Read-write */
-	int offset;				/**< Private */
+	Uint32 flags;               /**< Read-only */
+	SDL_PixelFormat *format;        /**< Read-only */
+	int w, h;               /**< Read-only */
+	Uint16 pitch;               /**< Read-only */
+	void *pixels;               /**< Read-write */
+	int offset;             /**< Private */
 
 	/** Hardware-specific surface info */
 	struct private_hwdata *hwdata;
 
 	/** clipping information */
-	SDL_Rect clip_rect;			/**< Read-only */
-	Uint32 unused1;				/**< for binary compatibility */
+	SDL_Rect clip_rect;         /**< Read-only */
+	Uint32 unused1;             /**< for binary compatibility */
 
 	/** Allow recursive locks */
-	Uint32 locked;				/**< Private */
+	Uint32 locked;              /**< Private */
 
 	/** info for fast blit mapping to other surfaces */
-	struct SDL_BlitMap *map;		/**< Private */
+	struct SDL_BlitMap *map;        /**< Private */
 
 	/** format version, bumped at every change to invalidate blit maps */
-	unsigned int format_version;		/**< Private */
+	unsigned int format_version;        /**< Private */
 
 	/** Reference count -- used when freeing surface */
-	int refcount;				/**< Read-mostly */
+	int refcount;               /**< Read-mostly */
 } SDL_Surface;
 
 /** @name SDL_Surface Flags
@@ -128,38 +128,38 @@ typedef struct SDL_Surface {
 
 /** Available for SDL_CreateRGBSurface() or SDL_SetVideoMode() */
 /*@{*/
-#define SDL_SWSURFACE	0x00000000	/**< Surface is in system memory */
-#define SDL_HWSURFACE	0x00000001	/**< Surface is in video memory */
-#define SDL_ASYNCBLIT	0x00000004	/**< Use asynchronous blits if possible */
+#define SDL_SWSURFACE   0x00000000  /**< Surface is in system memory */
+#define SDL_HWSURFACE   0x00000001  /**< Surface is in video memory */
+#define SDL_ASYNCBLIT   0x00000004  /**< Use asynchronous blits if possible */
 /*@}*/
 
 /** Available for SDL_SetVideoMode() */
 /*@{*/
-#define SDL_ANYFORMAT	0x10000000	/**< Allow any video depth/pixel-format */
-#define SDL_HWPALETTE	0x20000000	/**< Surface has exclusive palette */
-#define SDL_DOUBLEBUF	0x40000000	/**< Set up double-buffered video mode */
-#define SDL_FULLSCREEN	0x80000000	/**< Surface is a full screen display */
+#define SDL_ANYFORMAT   0x10000000  /**< Allow any video depth/pixel-format */
+#define SDL_HWPALETTE   0x20000000  /**< Surface has exclusive palette */
+#define SDL_DOUBLEBUF   0x40000000  /**< Set up double-buffered video mode */
+#define SDL_FULLSCREEN  0x80000000  /**< Surface is a full screen display */
 #define SDL_OPENGL      0x00000002      /**< Create an OpenGL rendering context */
-#define SDL_OPENGLBLIT	0x0000000A	/**< Create an OpenGL rendering context and use it for blitting */
-#define SDL_RESIZABLE	0x00000010	/**< This video mode may be resized */
-#define SDL_NOFRAME	0x00000020	/**< No window caption or edge frame */
+#define SDL_OPENGLBLIT  0x0000000A  /**< Create an OpenGL rendering context and use it for blitting */
+#define SDL_RESIZABLE   0x00000010  /**< This video mode may be resized */
+#define SDL_NOFRAME 0x00000020  /**< No window caption or edge frame */
 /*@}*/
 
 /** Used internally (read-only) */
 /*@{*/
-#define SDL_HWACCEL	0x00000100	/**< Blit uses hardware acceleration */
-#define SDL_SRCCOLORKEY	0x00001000	/**< Blit uses a source color key */
-#define SDL_RLEACCELOK	0x00002000	/**< Private flag */
-#define SDL_RLEACCEL	0x00004000	/**< Surface is RLE encoded */
-#define SDL_SRCALPHA	0x00010000	/**< Blit uses source alpha blending */
-#define SDL_PREALLOC	0x01000000	/**< Surface uses preallocated memory */
+#define SDL_HWACCEL 0x00000100  /**< Blit uses hardware acceleration */
+#define SDL_SRCCOLORKEY 0x00001000  /**< Blit uses a source color key */
+#define SDL_RLEACCELOK  0x00002000  /**< Private flag */
+#define SDL_RLEACCEL    0x00004000  /**< Surface is RLE encoded */
+#define SDL_SRCALPHA    0x00010000  /**< Blit uses source alpha blending */
+#define SDL_PREALLOC    0x01000000  /**< Surface uses preallocated memory */
 /*@}*/
 
 /*@}*/
 
 /** Evaluates to true if the surface needs to be locked before access */
-#define SDL_MUSTLOCK(surface)	\
-  (surface->offset ||		\
+#define SDL_MUSTLOCK(surface)   \
+  (surface->offset ||       \
   ((surface->flags & (SDL_HWSURFACE|SDL_ASYNCBLIT|SDL_RLEACCEL)) != 0))
 
 /** typedef for private surface blitting functions */
@@ -169,82 +169,82 @@ typedef int (*SDL_blit)(struct SDL_Surface *src, SDL_Rect *srcrect,
 
 /** Useful for determining the video hardware capabilities */
 typedef struct SDL_VideoInfo {
-	Uint32 hw_available :1;	/**< Flag: Can you create hardware surfaces? */
-	Uint32 wm_available :1;	/**< Flag: Can you talk to a window manager? */
+	Uint32 hw_available :1; /**< Flag: Can you create hardware surfaces? */
+	Uint32 wm_available :1; /**< Flag: Can you talk to a window manager? */
 	Uint32 UnusedBits1  :6;
 	Uint32 UnusedBits2  :1;
-	Uint32 blit_hw      :1;	/**< Flag: Accelerated blits HW --> HW */
-	Uint32 blit_hw_CC   :1;	/**< Flag: Accelerated blits with Colorkey */
-	Uint32 blit_hw_A    :1;	/**< Flag: Accelerated blits with Alpha */
-	Uint32 blit_sw      :1;	/**< Flag: Accelerated blits SW --> HW */
-	Uint32 blit_sw_CC   :1;	/**< Flag: Accelerated blits with Colorkey */
-	Uint32 blit_sw_A    :1;	/**< Flag: Accelerated blits with Alpha */
-	Uint32 blit_fill    :1;	/**< Flag: Accelerated color fill */
+	Uint32 blit_hw      :1; /**< Flag: Accelerated blits HW --> HW */
+	Uint32 blit_hw_CC   :1; /**< Flag: Accelerated blits with Colorkey */
+	Uint32 blit_hw_A    :1; /**< Flag: Accelerated blits with Alpha */
+	Uint32 blit_sw      :1; /**< Flag: Accelerated blits SW --> HW */
+	Uint32 blit_sw_CC   :1; /**< Flag: Accelerated blits with Colorkey */
+	Uint32 blit_sw_A    :1; /**< Flag: Accelerated blits with Alpha */
+	Uint32 blit_fill    :1; /**< Flag: Accelerated color fill */
 	Uint32 UnusedBits3  :16;
-	Uint32 video_mem;	/**< The total amount of video memory (in K) */
-	SDL_PixelFormat *vfmt;	/**< Value: The format of the video surface */
-	int    current_w;	/**< Value: The current video mode width */
-	int    current_h;	/**< Value: The current video mode height */
+	Uint32 video_mem;   /**< The total amount of video memory (in K) */
+	SDL_PixelFormat *vfmt;  /**< Value: The format of the video surface */
+	int    current_w;   /**< Value: The current video mode width */
+	int    current_h;   /**< Value: The current video mode height */
 } SDL_VideoInfo;
 
 
 /** @name Overlay Formats
  *  The most common video overlay formats.
  *  For an explanation of these pixel formats, see:
- *	http://www.webartz.com/fourcc/indexyuv.htm
+ *  http://www.webartz.com/fourcc/indexyuv.htm
  *
  *  For information on the relationship between color spaces, see:
  *  http://www.neuro.sfc.keio.ac.jp/~aly/polygon/info/color-space-faq.html
  */
 /*@{*/
-#define SDL_YV12_OVERLAY  0x32315659	/**< Planar mode: Y + V + U  (3 planes) */
-#define SDL_IYUV_OVERLAY  0x56555949	/**< Planar mode: Y + U + V  (3 planes) */
-#define SDL_YUY2_OVERLAY  0x32595559	/**< Packed mode: Y0+U0+Y1+V0 (1 plane) */
-#define SDL_UYVY_OVERLAY  0x59565955	/**< Packed mode: U0+Y0+V0+Y1 (1 plane) */
-#define SDL_YVYU_OVERLAY  0x55595659	/**< Packed mode: Y0+V0+Y1+U0 (1 plane) */
+#define SDL_YV12_OVERLAY  0x32315659    /**< Planar mode: Y + V + U  (3 planes) */
+#define SDL_IYUV_OVERLAY  0x56555949    /**< Planar mode: Y + U + V  (3 planes) */
+#define SDL_YUY2_OVERLAY  0x32595559    /**< Packed mode: Y0+U0+Y1+V0 (1 plane) */
+#define SDL_UYVY_OVERLAY  0x59565955    /**< Packed mode: U0+Y0+V0+Y1 (1 plane) */
+#define SDL_YVYU_OVERLAY  0x55595659    /**< Packed mode: Y0+V0+Y1+U0 (1 plane) */
 /*@}*/
 
 /** The YUV hardware video overlay */
 typedef struct SDL_Overlay {
-	Uint32 format;				/**< Read-only */
-	int w, h;				/**< Read-only */
-	int planes;				/**< Read-only */
-	Uint16 *pitches;			/**< Read-only */
-	Uint8 **pixels;				/**< Read-write */
+	Uint32 format;              /**< Read-only */
+	int w, h;               /**< Read-only */
+	int planes;             /**< Read-only */
+	Uint16 *pitches;            /**< Read-only */
+	Uint8 **pixels;             /**< Read-write */
 
 	/** @name Hardware-specific surface info */
-        /*@{*/
+		/*@{*/
 	struct private_yuvhwfuncs *hwfuncs;
 	struct private_yuvhwdata *hwdata;
-        /*@{*/
+		/*@{*/
 
 	/** @name Special flags */
-        /*@{*/
-	Uint32 hw_overlay :1;	/**< Flag: This overlay hardware accelerated? */
+		/*@{*/
+	Uint32 hw_overlay :1;   /**< Flag: This overlay hardware accelerated? */
 	Uint32 UnusedBits :31;
-        /*@}*/
+		/*@}*/
 } SDL_Overlay;
 
 
 /** Public enumeration for setting the OpenGL window attributes. */
 typedef enum {
-    SDL_GL_RED_SIZE,
-    SDL_GL_GREEN_SIZE,
-    SDL_GL_BLUE_SIZE,
-    SDL_GL_ALPHA_SIZE,
-    SDL_GL_BUFFER_SIZE,
-    SDL_GL_DOUBLEBUFFER,
-    SDL_GL_DEPTH_SIZE,
-    SDL_GL_STENCIL_SIZE,
-    SDL_GL_ACCUM_RED_SIZE,
-    SDL_GL_ACCUM_GREEN_SIZE,
-    SDL_GL_ACCUM_BLUE_SIZE,
-    SDL_GL_ACCUM_ALPHA_SIZE,
-    SDL_GL_STEREO,
-    SDL_GL_MULTISAMPLEBUFFERS,
-    SDL_GL_MULTISAMPLESAMPLES,
-    SDL_GL_ACCELERATED_VISUAL,
-    SDL_GL_SWAP_CONTROL
+	SDL_GL_RED_SIZE,
+	SDL_GL_GREEN_SIZE,
+	SDL_GL_BLUE_SIZE,
+	SDL_GL_ALPHA_SIZE,
+	SDL_GL_BUFFER_SIZE,
+	SDL_GL_DOUBLEBUFFER,
+	SDL_GL_DEPTH_SIZE,
+	SDL_GL_STENCIL_SIZE,
+	SDL_GL_ACCUM_RED_SIZE,
+	SDL_GL_ACCUM_GREEN_SIZE,
+	SDL_GL_ACCUM_BLUE_SIZE,
+	SDL_GL_ACCUM_ALPHA_SIZE,
+	SDL_GL_STEREO,
+	SDL_GL_MULTISAMPLEBUFFERS,
+	SDL_GL_MULTISAMPLESAMPLES,
+	SDL_GL_ACCELERATED_VISUAL,
+	SDL_GL_SWAP_CONTROL
 } SDL_GLattr;
 
 /** @name flags for SDL_SetPalette() */
@@ -255,28 +255,57 @@ typedef enum {
 
 /* Public TI-Nspire-specific stuff */
 #ifdef __TINSPIRE__
+
 #define NSP_FONT_NUMCHARS   256
 #define NSP_FONT_WIDTH  8
 #define NSP_FONT_HEIGHT 8
 
 typedef struct nSDL_Font {
-    SDL_Surface *chars[NSP_FONT_NUMCHARS];
-    Uint8 char_width[NSP_FONT_NUMCHARS];
-    int hspacing, vspacing;
-    Uint32 flags;
+	SDL_Surface *chars[NSP_FONT_NUMCHARS];
+	Uint8 char_width[NSP_FONT_NUMCHARS];
+	int hspacing, vspacing;
+	SDL_bool monospaced;
 } nSDL_Font;
 
-nSDL_Font *nSDL_LoadFont(int font_index, Uint32 color, Uint32 flags);
+nSDL_Font *nSDL_LoadFont(int font_index, Uint8 r, Uint8 g, Uint8 b);
 void nSDL_SetFontSpacing(nSDL_Font *font, int hspacing, int vspacing);
-void nSDL_SetFontFlags(nSDL_Font *font, Uint32 flags);
+void nSDL_EnableFontMonospaced(nSDL_Font *font, SDL_bool toggle);
 void nSDL_FreeFont(nSDL_Font *font);
 int nSDL_DrawString(SDL_Surface *surface, nSDL_Font *font,
 		    int x, int y, const char *format, ...);
-int nSDL_DrawStringInRect(SDL_Surface *surface, nSDL_Font *font,
-			  SDL_Rect *rect, const char *format, ...);
 int nSDL_GetStringWidth(nSDL_Font *font, const char *s);
 int nSDL_GetStringHeight(nSDL_Font *font, const char *s);
 SDL_Surface *nSDL_LoadImage(Uint16 *data);
+int nSDL_EnableRelativePaths(char **argv);
+
+#define NSP_PIXEL_ADDR(origin, x, y, pitch, bpp) ((Uint8 *)origin + ((x) * (bpp)) + ((y) * (pitch)))
+
+#define PXL(bpp) NSP_PIXEL_ADDR(surface->pixels, x, y, surface->pitch, bpp)
+
+static __inline__ __attribute__((always_inline))
+Uint32 nSDL_GetPixel(SDL_Surface *surface, int x, int y)
+{
+	switch ( surface->format->BytesPerPixel ) {
+		case 2: return(*(Uint16 *)PXL(2));
+		case 1: return(*PXL(1));
+		case 4: return(*(Uint32 *)PXL(4));
+		case 3: SDL_Unsupported();
+		default: return(0);
+	}
+}
+
+static __inline__ __attribute__((always_inline))
+void nSDL_SetPixel(SDL_Surface *surface, int x, int y, Uint32 color)
+{
+	switch ( surface->format->BytesPerPixel ) {
+		case 2: *(Uint16 *)PXL(2) = (Uint16)color; return;
+		case 1: *PXL(1) = (Uint8)color; return;
+		case 4: *(Uint32 *)PXL(4) = (Uint32)color; return;
+		case 3: SDL_Unsupported();
+		default: return;
+	}
+}
+
 #endif
 
 /* Function prototypes */
@@ -615,7 +644,7 @@ extern DECLSPEC void SDLCALL SDL_UnlockSurface(SDL_Surface *surface);
 extern DECLSPEC SDL_Surface * SDLCALL SDL_LoadBMP_RW(SDL_RWops *src, int freesrc);
 
 /** Convenience macro -- load a surface from a file */
-#define SDL_LoadBMP(file)	SDL_LoadBMP_RW(SDL_RWFromFile(file, "rb"), 1)
+#define SDL_LoadBMP(file)   SDL_LoadBMP_RW(SDL_RWFromFile(file, "rb"), 1)
 
 /**
  * Save a surface to a seekable SDL data source (memory or file.)
@@ -709,54 +738,54 @@ extern DECLSPEC SDL_Surface * SDLCALL SDL_ConvertSurface
  *
  * RGBA->RGB:
  *     SDL_SRCALPHA set:
- * 	alpha-blend (using alpha-channel).
- * 	SDL_SRCCOLORKEY ignored.
+ *  alpha-blend (using alpha-channel).
+ *  SDL_SRCCOLORKEY ignored.
  *     SDL_SRCALPHA not set:
- * 	copy RGB.
- * 	if SDL_SRCCOLORKEY set, only copy the pixels matching the
- * 	RGB values of the source colour key, ignoring alpha in the
- * 	comparison.
+ *  copy RGB.
+ *  if SDL_SRCCOLORKEY set, only copy the pixels matching the
+ *  RGB values of the source colour key, ignoring alpha in the
+ *  comparison.
  * 
  * RGB->RGBA:
  *     SDL_SRCALPHA set:
- * 	alpha-blend (using the source per-surface alpha value);
- * 	set destination alpha to opaque.
+ *  alpha-blend (using the source per-surface alpha value);
+ *  set destination alpha to opaque.
  *     SDL_SRCALPHA not set:
- * 	copy RGB, set destination alpha to source per-surface alpha value.
+ *  copy RGB, set destination alpha to source per-surface alpha value.
  *     both:
- * 	if SDL_SRCCOLORKEY set, only copy the pixels matching the
- * 	source colour key.
+ *  if SDL_SRCCOLORKEY set, only copy the pixels matching the
+ *  source colour key.
  * 
  * RGBA->RGBA:
  *     SDL_SRCALPHA set:
- * 	alpha-blend (using the source alpha channel) the RGB values;
- * 	leave destination alpha untouched. [Note: is this correct?]
- * 	SDL_SRCCOLORKEY ignored.
+ *  alpha-blend (using the source alpha channel) the RGB values;
+ *  leave destination alpha untouched. [Note: is this correct?]
+ *  SDL_SRCCOLORKEY ignored.
  *     SDL_SRCALPHA not set:
- * 	copy all of RGBA to the destination.
- * 	if SDL_SRCCOLORKEY set, only copy the pixels matching the
- * 	RGB values of the source colour key, ignoring alpha in the
- * 	comparison.
+ *  copy all of RGBA to the destination.
+ *  if SDL_SRCCOLORKEY set, only copy the pixels matching the
+ *  RGB values of the source colour key, ignoring alpha in the
+ *  comparison.
  * 
  * RGB->RGB: 
  *     SDL_SRCALPHA set:
- * 	alpha-blend (using the source per-surface alpha value).
+ *  alpha-blend (using the source per-surface alpha value).
  *     SDL_SRCALPHA not set:
- * 	copy RGB.
+ *  copy RGB.
  *     both:
- * 	if SDL_SRCCOLORKEY set, only copy the pixels matching the
- * 	source colour key.
+ *  if SDL_SRCCOLORKEY set, only copy the pixels matching the
+ *  source colour key.
  *
  * If either of the surfaces were in video memory, and the blit returns -2,
  * the video memory was lost, so it should be reloaded with artwork and 
  * re-blitted:
  * @code
- *	while ( SDL_BlitSurface(image, imgrect, screen, dstrect) == -2 ) {
- *		while ( SDL_LockSurface(image) < 0 )
- *			Sleep(10);
- *		-- Write image pixels to image->pixels --
- *		SDL_UnlockSurface(image);
- *	}
+ *  while ( SDL_BlitSurface(image, imgrect, screen, dstrect) == -2 ) {
+ *      while ( SDL_LockSurface(image) < 0 )
+ *          Sleep(10);
+ *      -- Write image pixels to image->pixels --
+ *      SDL_UnlockSurface(image);
+ *  }
  * @endcode
  *
  * This happens under DirectX 5.0 when the system switches away from your
@@ -950,7 +979,7 @@ typedef enum {
 	SDL_GRAB_QUERY = -1,
 	SDL_GRAB_OFF = 0,
 	SDL_GRAB_ON = 1,
-	SDL_GRAB_FULLSCREEN	/**< Used internally */
+	SDL_GRAB_FULLSCREEN /**< Used internally */
 } SDL_GrabMode;
 /**
  * This function allows you to set and query the input grab state of
@@ -966,7 +995,7 @@ extern DECLSPEC SDL_GrabMode SDLCALL SDL_WM_GrabInput(SDL_GrabMode mode);
 
 /** @internal Not in public API at the moment - do not use! */
 extern DECLSPEC int SDLCALL SDL_SoftStretch(SDL_Surface *src, SDL_Rect *srcrect,
-                                    SDL_Surface *dst, SDL_Rect *dstrect);
+									SDL_Surface *dst, SDL_Rect *dstrect);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

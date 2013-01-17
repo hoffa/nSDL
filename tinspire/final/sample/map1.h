@@ -24,6 +24,7 @@
 
 #define MAP1_NUM_TILES 24
 
+/* Every character is mapped to a certain tile, as you might have guessed. */
 static char *map1_data[MAP1_HEIGHT] = {
     "NMNMNMNMNMNMNMNMNMNM",
     "OABAACABAAAAADAAABAO",
@@ -41,6 +42,8 @@ static char *map1_data[MAP1_HEIGHT] = {
     "LKLKLKLKLKLKLKLKLKLK"
 };
 
+/* This structure defines which tiles are walkable and which aren't. It could
+   have been made much simpler but it would've been much less flexible. */
 tile_attrib_t map1_tile_attrib[MAP1_NUM_TILES] = {
     {SDL_TRUE},  /* A */
     {SDL_TRUE},  /* B */

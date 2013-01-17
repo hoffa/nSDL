@@ -28,7 +28,7 @@
 /* General platform specific identifiers */
 #include "SDL_platform.h"
 
-#define NSDL_VERSION	"1.0.2"
+#define NSDL_VERSION	"1.1.0"
 #define NSP_HALT_ON_ERROR	1
 
 #if 0
@@ -42,7 +42,7 @@
 
 #if NSP_DEBUG_BUILD
 #define NSP_DEBUG(fmt, args...) \
-	fprintf(stderr, "[nSDL] %s():%d: " fmt "\n", __FUNCTION__, __LINE__, ## args)
+	fprintf(stderr, "[nSDL] %s(): " fmt "\n", __FUNCTION__, ## args)
 #else
 #define NSP_DEBUG(fmt, args...) (void)0
 #endif
@@ -95,13 +95,6 @@
 /* Enable assembly routines */
 #define SDL_ASSEMBLY_ROUTINES	1
 
-/* Font flags */
-#define NSDL_FONTCFG_NONE	0
-#define NSDL_FONTCFG_TEXTWRAP	(1 << 0)
-#define NSDL_FONTCFG_AUTOSIZE	(1 << 1)
-#define NSDL_FONTCFG_FORMAT	(1 << 2)
-#define NSDL_FONTCFG_DEFAULT	(NSDL_FONTCFG_TEXTWRAP | NSDL_FONTCFG_AUTOSIZE | NSDL_FONTCFG_FORMAT)
-
 /* Fonts; needs to match nsp_font_charmaps in SDL_tinspirefonts.c */
 enum {
 	NSDL_FONT_THIN = 0,
@@ -109,7 +102,7 @@ enum {
 	NSDL_FONT_VGA,
 	NSDL_FONT_FANTASY,
 	NSDL_FONT_TINYTYPE,
-	NSDL_NUMFONTS
+	NSP_NUMFONTS
 };
 
 #endif /* _SDL_config_tinspire_h */

@@ -69,6 +69,9 @@ void init_map(char **data,
     map.tile_attrib = tile_attrib;
 }
 
+/* This function isn't actually used, but if BMP images were used, load_bmp()
+   would load the BMP image and convert it to an optimized format (read: same
+   pixel format as the display). */
 SDL_Surface *load_bmp(const char *file) {
     SDL_Surface *tmp, *image;
     tmp = SDL_LoadBMP(file);
@@ -155,7 +158,7 @@ void handle_keydown(SDLKey key) {
         case SDLK_RIGHT:
             move_player(RIGHT);
             break;
-        case SDLK_KP_ENTER:
+        case SDLK_KP_ENTER: /* This corresponds to the "click button" on the TI-Nspire. */
         case SDLK_RETURN:
             if(player.x == 14 && player.y == 8 && player.direction == UP)
                 num_moves = 1337;
@@ -170,6 +173,7 @@ void handle_keydown(SDLKey key) {
 
 int main(void) {
     init();
+    /* quit() takes care of freeing the next two images. */
     init_player(10, 7, DOWN, nSDL_LoadImage(image_link));
     init_map(map1_data, MAP1_WIDTH, MAP1_HEIGHT, MAP1_NUM_TILES,
              nSDL_LoadImage(image_tileset), map1_tile_attrib);
