@@ -280,15 +280,15 @@ int nSDL_EnableRelativePaths(char **argv);
 
 #define NSP_PIXEL_ADDR(origin, x, y, pitch, bpp) ((Uint8 *)origin + ((x) * (bpp)) + ((y) * (pitch)))
 
-#define __P(bpp) NSP_PIXEL_ADDR(surface->pixels, x, y, surface->pitch, bpp)
+#define PXL(bpp) NSP_PIXEL_ADDR(surface->pixels, x, y, surface->pitch, bpp)
 
 static __inline__ __attribute__((always_inline))
 Uint32 nSDL_GetPixel(SDL_Surface *surface, int x, int y)
 {
 	switch ( surface->format->BytesPerPixel ) {
-		case 2: return(*(Uint16 *)__P(2));
-		case 1: return(*__P(1));
-		case 4: return(*(Uint32 *)__P(4));
+		case 2: return(*(Uint16 *)PXL(2));
+		case 1: return(*PXL(1));
+		case 4: return(*(Uint32 *)PXL(4));
 		case 3: SDL_Unsupported();
 		default: return(0);
 	}
@@ -298,9 +298,9 @@ static __inline__ __attribute__((always_inline))
 void nSDL_SetPixel(SDL_Surface *surface, int x, int y, Uint32 color)
 {
 	switch ( surface->format->BytesPerPixel ) {
-		case 2: *(Uint16 *)__P(2) = (Uint16)color; return;
-		case 1: *__P(1) = (Uint8)color; return;
-		case 4: *(Uint32 *)__P(4) = (Uint32)color; return;
+		case 2: *(Uint16 *)PXL(2) = (Uint16)color; return;
+		case 1: *PXL(1) = (Uint8)color; return;
+		case 4: *(Uint32 *)PXL(4) = (Uint32)color; return;
 		case 3: SDL_Unsupported();
 		default: return;
 	}

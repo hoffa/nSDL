@@ -3,27 +3,10 @@
 #include "SDL_tinspirevideo.h"
 #include "SDL_tinspirefonts.h"
 
-static unsigned char *nsp_font_charmaps[] = {
-	nsp_font_thin,
-	nsp_font_space,
-	nsp_font_vga,
-	nsp_font_fantasy,
-	nsp_font_tinytype
-};
-
-static SDL_bool charmap_relocated = SDL_FALSE;
-
 nSDL_Font *nSDL_LoadFont(int font_index, Uint8 r, Uint8 g, Uint8 b)
 {
-	unsigned char *charmap;
 	nSDL_Font *font;
 	int i, j, k;
-
-	if ( ! charmap_relocated ) {
-		nl_relocdata((unsigned *)nsp_font_charmaps, SDL_arraysize(nsp_font_charmaps));
-		charmap_relocated = SDL_TRUE;
-	}
-	charmap = nsp_font_charmaps[font_index];
 
 	font = SDL_malloc(sizeof(*font));
 	if ( font == NULL ) {
@@ -48,7 +31,7 @@ nSDL_Font *nSDL_LoadFont(int font_index, Uint8 r, Uint8 g, Uint8 b)
 		SDL_LockSurface(tmp);
 		for ( j = 0; j < NSP_FONT_HEIGHT; ++j )
 			for ( k = 0; k < NSP_FONT_WIDTH; ++k ) {
-				if ( charmap[offset + j] & (1 << (NSP_FONT_WIDTH - k - 1)) ) { /* "Pixel" set */
+				if ( nsp_font_charmaps[font_index][offset + j] & (1 << (NSP_FONT_WIDTH - k - 1)) ) { /* "Pixel" set */
 					if ( k > max_width ) {
 						font->char_width[i] = k + 1;
 						max_width = k;
@@ -103,6 +86,7 @@ int nSDL_DrawString(SDL_Surface *surface, nSDL_Font *font,
 	length = (int)strlen(buf);
 	pos.x = x;
 	pos.y = y;
+	NSP_DEBUG("\"%s\" at (%d, %d)", buf, pos.x, pos.y);
 
 	for ( i = 0; i < length; ++i ) {
 		int c = buf[i];
@@ -111,6 +95,7 @@ int nSDL_DrawString(SDL_Surface *surface, nSDL_Font *font,
 			pos.y += NSP_FONT_HEIGHT + font->vspacing;
 		} else {
 			SDL_Rect rect;
+			rect.x = rect.y = 0;
 			rect.w = font->char_width[c];
 			rect.h = NSP_FONT_HEIGHT;
 			if ( SDL_BlitSurface(font->chars[c], &rect, surface, &pos) == -1 )

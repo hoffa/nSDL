@@ -42,7 +42,7 @@
 
 #if NSP_DEBUG_BUILD
 #define NSP_DEBUG(fmt, args...) \
-	fprintf(stderr, "[nSDL] %s():%d: " fmt "\n", __FUNCTION__, __LINE__, ## args)
+	fprintf(stderr, "[nSDL] %s(): " fmt "\n", __FUNCTION__, ## args)
 #else
 #define NSP_DEBUG(fmt, args...) (void)0
 #endif
@@ -102,7 +102,7 @@ enum {
 	NSDL_FONT_VGA,
 	NSDL_FONT_FANTASY,
 	NSDL_FONT_TINYTYPE,
-	NSDL_NUMFONTS
+	NSP_NUMFONTS
 };
 
 #endif /* _SDL_config_tinspire_h */

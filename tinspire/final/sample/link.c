@@ -30,13 +30,13 @@ void init(void) {
         printf("Couldn't initialize SDL: %s\n", SDL_GetError());
         exit(EXIT_FAILURE);
     }
-    screen = SDL_SetVideoMode(300, 200, 16, SDL_SWSURFACE);
+    screen = SDL_SetVideoMode(320, 240, is_cx ? 16 : 8, SDL_SWSURFACE);
     if(screen == NULL) {
         printf("Couldn't initialize display: %s\n", SDL_GetError());
         SDL_Quit();
         exit(EXIT_FAILURE);
     }
-    SDL_ShowCursor(0);
+    SDL_ShowCursor(SDL_DISABLE);
 }
 
 void quit(void) {
@@ -48,7 +48,7 @@ void quit(void) {
 void init_player(int x, int y, dir_t direction, SDL_Surface *sprite) {
     SDL_SetColorKey(sprite,
                     SDL_SRCCOLORKEY | SDL_RLEACCEL,
-                    SDL_MapRGB(screen->format, 255, 0, 255));
+                    SDL_MapRGB(sprite->format, 255, 0, 255));
     player.x = x;
     player.y = y;
     player.direction = direction;
@@ -103,10 +103,9 @@ void draw_tile_map(void) {
 
 void draw_info(void) {
     SDL_Rect rect = {0, 224, 320, 16};
-    SDL_FillRect(screen, &rect, SDL_MapRGB(screen->format, 202, 237, 244));
+    SDL_FillRect(screen, &rect, SDL_MapRGB(screen->format, 32, 0, 0));
     nSDL_DrawString(screen, font, 4, 228, "Moves: %d", num_moves);
-    nSDL_DrawString(screen,
-                    font,
+    nSDL_DrawString(screen, font,
                     SCREEN_WIDTH - nSDL_GetStringWidth(font, "nSDL " NSDL_VERSION) - 4, 228,
                     "nSDL " NSDL_VERSION);
 }
@@ -156,9 +155,9 @@ void handle_keydown(SDLKey key) {
         case SDLK_RIGHT:
             move_player(RIGHT);
             break;
+        case SDLK_KP_ENTER:
         case SDLK_RETURN:
-            if(player.x == 14 && player.y == 8
-            && player.direction == UP)
+            if(player.x == 14 && player.y == 8 && player.direction == UP)
                 num_moves = 1337;
             break;
         case SDLK_ESCAPE:
@@ -172,20 +171,11 @@ void handle_keydown(SDLKey key) {
 int main(void) {
     init();
     init_player(10, 7, DOWN, nSDL_LoadImage(image_link));
-    init_map(map1_data,
-             MAP1_WIDTH, MAP1_HEIGHT,
-             MAP1_NUM_TILES,
-             nSDL_LoadImage(image_tileset),
-             map1_tile_attrib);
-    if(player.sprite == NULL)
+    init_map(map1_data, MAP1_WIDTH, MAP1_HEIGHT, MAP1_NUM_TILES,
+             nSDL_LoadImage(image_tileset), map1_tile_attrib);
+    if (player.sprite == NULL || map.tileset == NULL)
         return EXIT_FAILURE;
-    if(map.tileset == NULL) {
-        SDL_FreeSurface(player.sprite);
-        return EXIT_FAILURE;
-    }
-    font = nSDL_LoadFont(NSDL_FONT_TINYTYPE,
-                         SDL_MapRGB(screen->format, 0, 0, 0),
-                         NSDL_FONTCFG_DEFAULT);
+    font = nSDL_LoadFont(NSDL_FONT_TINYTYPE, 255, 255, 255);
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
     while(!done) {
         SDL_Event event;
