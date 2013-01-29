@@ -26,7 +26,7 @@ nSDL_Font *nSDL_LoadFont(int font_index, Uint8 r, Uint8 g, Uint8 b)
 		}
 		color = SDL_MapRGB(tmp->format, r, g, b);
 		SDL_FillRect(tmp, NULL, ! color);
-		SDL_SetColorKey(tmp, SDL_SRCCOLORKEY | SDL_RLEACCEL, ! color);
+		SDL_SetColorKey(tmp, SDL_SRCCOLORKEY, ! color);
 		font->char_width[i] = NSP_FONT_WIDTH;
 		SDL_LockSurface(tmp);
 		for ( j = 0; j < NSP_FONT_HEIGHT; ++j )
