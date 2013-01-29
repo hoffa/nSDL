@@ -41,7 +41,7 @@ CX: http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.ddi0271d/Babehih
 
 void SDL_StartTicks(void)
 {
-	// *(volatile unsigned *)0x900B0018 &= ~(1 << 11); /* Disable bus access */
+	*(volatile unsigned *)0x900B0018 &= ~(1 << 11); /* Enable bus access */
 	if ( is_cx ) {
 		value = (unsigned *)0x900C0004;
 		control = (unsigned *)0x900C0008;
