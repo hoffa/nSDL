@@ -252,7 +252,7 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 }
 
 #define NSP_MAP_RGB(r, g, b)	(this->hidden->cx ? (((r / 8) << 11) | ((g / 4) << 5) | (b / 8)) \
-		    				  : ((r + g + b) / 48))
+		    				  : ((r + (2 * g) + b) / 64))
 
 static int NSP_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
 {
