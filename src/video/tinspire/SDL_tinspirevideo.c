@@ -251,14 +251,14 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 	}
 }
 
-#define NSP_MAP_RGB_PALETTE(r, g, b)	(this->hidden->cx ? (((r / 8) << 11) | ((g / 4) << 5) | (b / 8)) \
-		    					  : ((r + (2 * g) + b) / 64))
+#define NSP_MAP_RGB(r, g, b)	(this->hidden->cx ? (((r / 8) << 11) | ((g / 4) << 5) | (b / 8)) \
+		    				  : ((r + g + b) / 48))
 
 static int NSP_SetColors(_THIS, int firstcolor, int ncolors, SDL_Color *colors)
 {
 	int i;
 	for ( i = firstcolor; i < firstcolor + ncolors; ++i )
-		nsp_palette[i] = NSP_MAP_RGB_PALETTE(colors[i].r, colors[i].g, colors[i].b);
+		nsp_palette[i] = NSP_MAP_RGB(colors[i].r, colors[i].g, colors[i].b);
 	return(1);
 }
 
