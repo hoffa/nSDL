@@ -185,7 +185,7 @@ static SDL_Surface *NSP_SetVideoMode(_THIS, SDL_Surface *current,
 
 #define NSP_DRAW_LOOP(code) do { \
 	while ( rows-- ) { \
-		int j = 0, k = 0; \
+		j = 0, k = 0; \
 		code \
 		src_addr += src_skip; \
 		dst_addr += dst_skip; \
@@ -196,7 +196,7 @@ static void NSP_UpdateRects(_THIS, int numrects, SDL_Rect *rects)
 {
 	int src_skip = SDL_VideoSurface->pitch;
 	int dst_skip = this->hidden->cx ? (2 * SCREEN_WIDTH) : (SCREEN_WIDTH / 2);
-	int i;
+	int i, j, k;
 
 	for ( i = 0; i < numrects; ++i ) {
 		SDL_Rect *rect = &rects[i];
