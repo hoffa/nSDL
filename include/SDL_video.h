@@ -256,9 +256,11 @@ typedef enum {
 /* Public TI-Nspire-specific stuff */
 #ifdef __TINSPIRE__
 
-#define NSP_FONT_NUMCHARS   256
-#define NSP_FONT_WIDTH  8
-#define NSP_FONT_HEIGHT 8
+#define NSDL_DISPLAY_BPP	(is_cx ? 16 : 8)
+
+#define NSP_FONT_NUMCHARS	256
+#define NSP_FONT_WIDTH		8
+#define NSP_FONT_HEIGHT		8
 
 typedef struct nSDL_Font {
 	SDL_Surface *chars[NSP_FONT_NUMCHARS];
