@@ -159,16 +159,6 @@ int SDL_VideoInit (const char *driver_name, Uint32 flags)
 	SDL_PixelFormat vformat;
 	Uint32 video_flags;
 
-#ifdef __TINSPIRE__
-	/* NSP_bootstrap has to be at index 0 */
-	nl_relocdata((unsigned *)bootstrap, SDL_arraysize(bootstrap));
-	nl_relocdata((unsigned *)&bootstrap[0]->name, 1);
-	nl_relocdata((unsigned *)&bootstrap[0]->desc, 1);
-	nl_relocdata((unsigned *)&bootstrap[0]->available, 1);
-	nl_relocdata((unsigned *)&bootstrap[0]->create, 1);
-	NSP_DEBUG("Initializing nSDL %s (built %s %s)", NSDL_VERSION, __DATE__, __TIME__);
-#endif /* __TINSPIRE__ */
-
 	/* Toggle the event thread flags, based on OS requirements */
 #if defined(MUST_THREAD_EVENTS)
 	flags |= SDL_INIT_EVENTTHREAD;

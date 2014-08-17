@@ -2368,10 +2368,6 @@ static const struct blit_table *normal_blit[] = {
 	normal_blit_1, normal_blit_2, normal_blit_3, normal_blit_4
 };
 
-#ifdef __TINSPIRE__
-static SDL_bool nsp_reallocated = SDL_FALSE;
-#endif
-
 /* Mask matches table, or table entry is zero */
 #define MASKOK(x, y) (((x) == (y)) || ((y) == 0x00000000))
 
@@ -2383,21 +2379,6 @@ SDL_loblit SDL_CalculateBlitN(SDL_Surface *surface, int blit_index)
 	const struct blit_table *table;
 	int which;
 	SDL_loblit blitfun;
-
-#ifdef __TINSPIRE__
-    if ( ! nsp_reallocated ) {
-        int i, nb2_size = SDL_arraysize(normal_blit_2);
-        nl_relocdata((unsigned *)normal_blit_2, nb2_size);
-        for ( i = 0; i < nb2_size; ++i )
-            nl_relocdata((unsigned *)&normal_blit_2[i].blitfunc, 1);
-        nl_relocdata((unsigned *)normal_blit_3, 1);
-        nl_relocdata((unsigned *)&normal_blit_3[0].blitfunc, 1);
-        nl_relocdata((unsigned *)normal_blit_4, 1);
-        nl_relocdata((unsigned *)&normal_blit_4[0].blitfunc, 1);
-        nl_relocdata((unsigned *)normal_blit, SDL_arraysize(normal_blit));
-        nsp_reallocated = SDL_TRUE;
-    }
-#endif
 
 	/* Set up data for choosing the blit */
 	sdata = surface->map->sw_data;

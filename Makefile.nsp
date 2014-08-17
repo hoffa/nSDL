@@ -4,7 +4,7 @@ RANLIB = arm-none-eabi-ranlib
 STRIP = arm-none-eabi-strip
 
 INCLUDE = -I include
-CFLAGS = -Wall -Wextra -Ofast
+CFLAGS = -Wall -Wextra -Ofast -Wno-unused-parameter
 
 TARGET = libSDL.a
 CONFIG_H = include/SDL_config.h

@@ -139,7 +139,6 @@ void NSP_InitOSKeymap(_THIS)
 	nspk_keymap[NSP_KEY_E] =	KEY_NSPIRE_E;
 	nspk_keymap[NSP_KEY_VAR] =	KEY_NSPIRE_VAR;
 	nspk_keymap[NSP_KEY_D] =	KEY_NSPIRE_D;
-	nspk_keymap[NSP_KEY_CAPS] =	KEY_NSPIRE_CAPS;
 	nspk_keymap[NSP_KEY_DEL] =	KEY_NSPIRE_DEL;
 	nspk_keymap[NSP_KEY_LTHAN] =	KEY_NSPIRE_LTHAN;
 	nspk_keymap[NSP_KEY_FLAG] =	KEY_NSPIRE_FLAG;
@@ -212,7 +211,6 @@ void NSP_InitOSKeymap(_THIS)
 	sdlk_keymap[NSP_KEY_APOSTROPHE] = SDLK_QUOTE;
 	sdlk_keymap[NSP_KEY_RP] =	SDLK_RIGHTPAREN;
 	sdlk_keymap[NSP_KEY_LP] =	SDLK_LEFTPAREN;
-	sdlk_keymap[NSP_KEY_CAPS] =	SDLK_CAPSLOCK;
 	sdlk_keymap[NSP_KEY_DEL] =	SDLK_BACKSPACE;
 	sdlk_keymap[NSP_KEY_ESC] =	SDLK_ESCAPE;
 	sdlk_keymap[NSP_KEY_TAB] =	SDLK_TAB;

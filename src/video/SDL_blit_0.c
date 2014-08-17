@@ -440,21 +440,9 @@ static SDL_loblit colorkey_blit[] = {
     NULL, BlitBto1Key, BlitBto2Key, BlitBto3Key, BlitBto4Key
 };
 
-#ifdef __TINSPIRE__
-static SDL_bool nsp_reallocated = SDL_FALSE;
-#endif
-
 SDL_loblit SDL_CalculateBlit0(SDL_Surface *surface, int blit_index)
 {
 	int which;
-
-#ifdef __TINSPIRE__
-	if ( ! nsp_reallocated ) {
-		nl_relocdata((unsigned *)bitmap_blit, SDL_arraysize(bitmap_blit));
-		nl_relocdata((unsigned *)colorkey_blit, SDL_arraysize(colorkey_blit));
-		nsp_reallocated = SDL_TRUE;
-	}
-#endif
 
 	if ( surface->format->BitsPerPixel != 1 ) {
 		/* We don't support sub 8-bit packed pixel modes */

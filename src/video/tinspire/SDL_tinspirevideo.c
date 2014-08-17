@@ -97,7 +97,7 @@ VideoBootStrap NSP_bootstrap = {
 
 static int NSP_VideoInit(_THIS, SDL_PixelFormat *vformat)
 {
-	this->hidden->cx = (int)is_cx;
+	this->hidden->cx = (int) has_colors;
 	this->info.current_w = SCREEN_WIDTH;
 	this->info.current_h = SCREEN_HEIGHT;
 
