@@ -30,8 +30,6 @@ Andreas Schiffler -- aschiffler at ferzkopp dot net
 #ifndef _SDL_rotozoom_h
 #define _SDL_rotozoom_h
 
-#include <fdlibm.h>
-
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C" {

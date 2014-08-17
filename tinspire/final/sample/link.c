@@ -30,7 +30,7 @@ void init(void) {
         printf("Couldn't initialize SDL: %s\n", SDL_GetError());
         exit(EXIT_FAILURE);
     }
-    screen = SDL_SetVideoMode(320, 240, is_cx ? 16 : 8, SDL_SWSURFACE);
+    screen = SDL_SetVideoMode(320, 240, has_colors ? 16 : 8, SDL_SWSURFACE);
     if(screen == NULL) {
         printf("Couldn't initialize display: %s\n", SDL_GetError());
         SDL_Quit();
@@ -60,7 +60,6 @@ void init_map(char **data,
               int num_tiles,
               SDL_Surface *tileset,
               tile_attrib_t *tile_attrib) {
-    nl_relocdata((unsigned *)data, height);
     map.data = data;
     map.width = width;
     map.height = height;
