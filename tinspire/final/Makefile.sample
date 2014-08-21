@@ -1,22 +1,49 @@
-SOURCES = foo.c bar.c
-TARGET = sample.tns
-OBJECTS = $(SOURCES:.c=.o)
+DEBUG = FALSE
 
-CC = nspire-gcc
-LD = nspire-ld
-OBJCOPY = arm-none-eabi-objcopy
-CFLAGS = -Wall -Wextra -Ofast
+GCC = nspire-gcc
+AS  = nspire-as
+GXX = nspire-g++
+LD  = nspire-ld
+GENZEHN = genzehn
+
+GCCFLAGS = -Wall -W -marm
 LDFLAGS =
-LIBS = -lSDL
+ZEHNFLAGS = --name "sample"
 
-all: $(TARGET)
+ifeq ($(DEBUG),FALSE)
+	GCCFLAGS += -Os
+else
+	GCCFLAGS += -O0 -g
+endif
 
-$(TARGET): $(OBJECTS)
-	$(LD) $(LDFLAGS) $^ $(LIBS) -o $(@:.tns=.elf)
-	$(OBJCOPY) -O binary $(@:.tns=.elf) $(TARGET)
+OBJS = $(patsubst %.c, %.o, $(shell find . -name \*.c))
+OBJS += $(patsubst %.cpp, %.o, $(shell find . -name \*.cpp))
+OBJS += $(patsubst %.S, %.o, $(shell find . -name \*.S))
+EXE = sample
+DISTDIR = .
+vpath %.tns $(DISTDIR)
+vpath %.elf $(DISTDIR)
 
-.c.o:
-	$(CC) $(CFLAGS) -c $< -o $@
+all: $(EXE).prg.tns
+
+%.o: %.c
+	$(GCC) $(GCCFLAGS) -c $<
+
+%.o: %.cpp
+	$(GXX) $(GCCFLAGS) -c $<
+	
+%.o: %.S
+	$(AS) -c $<
+
+$(EXE).elf: $(OBJS)
+	mkdir -p $(DISTDIR)
+	$(LD) $^ -o $(DISTDIR)/$@ $(LDFLAGS)
+
+$(EXE).tns: $(EXE).elf
+	$(GENZEHN) --input $(DISTDIR)/$^ --output $(DISTDIR)/$@ $(ZEHNFLAGS)
+
+$(EXE).prg.tns: $(EXE).tns
+	make-prg $(DISTDIR)/$^ $(DISTDIR)/$@
 
 clean:
-	rm -f $(OBJECTS) $(TARGET:.tns=.elf) $(TARGET)
+	rm -f *.o $(DISTDIR)/$(EXE).tns $(DISTDIR)/$(EXE).elf $(DISTDIR)/$(EXE).prg.tns

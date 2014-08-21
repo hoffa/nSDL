@@ -27,9 +27,6 @@ Andreas Schiffler -- aschiffler at ferzkopp dot net
 
 */
 
-#include <os.h>
-#include <fdlibm.h>
-
 #include "SDL_gfxPrimitives.h"
 #include "SDL_rotozoom.h"
 #include "SDL_gfxPrimitives_font.h"

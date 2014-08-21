@@ -42,7 +42,7 @@ CX: http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.ddi0271d/Babehih
 void SDL_StartTicks(void)
 {
 	*(volatile unsigned *)0x900B0018 &= ~(1 << 11); /* Enable bus access */
-	if ( is_cx ) {
+	if ( has_colors ) {
 		value = (unsigned *)0x900C0004;
 		control = (unsigned *)0x900C0008;
 		*(volatile unsigned *)0x900C0080 = 0xA; /* "[...] on the CX to specify the 32768Hz clock as the source for the First Timer" */
@@ -59,7 +59,7 @@ void SDL_StartTicks(void)
 
 Uint32 SDL_GetTicks (void)
 {
-	if ( is_cx )
+	if ( has_colors )
 		return((start - *value) / 33);
 	else {
 		tick_sum += *value;

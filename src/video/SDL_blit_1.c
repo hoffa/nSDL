@@ -491,22 +491,11 @@ static SDL_loblit one_blitkey[] = {
         NULL, Blit1to1Key, Blit1to2Key, Blit1to3Key, Blit1to4Key
 };
 
-#ifdef __TINSPIRE__
-static SDL_bool nsp_reallocated = SDL_FALSE;
-#endif
-
 SDL_loblit SDL_CalculateBlit1(SDL_Surface *surface, int blit_index)
 {
 	int which;
 	SDL_PixelFormat *dstfmt;
 
-#ifdef __TINSPIRE__
-	if ( ! nsp_reallocated ) {
-		nl_relocdata((unsigned *)one_blit, SDL_arraysize(one_blit));
-		nl_relocdata((unsigned *)one_blitkey, SDL_arraysize(one_blitkey));
-		nsp_reallocated = SDL_TRUE;
-	}
-#endif
 	dstfmt = surface->map->dst->format;
 	if ( dstfmt->BitsPerPixel < 8 ) {
 		which = 0;
