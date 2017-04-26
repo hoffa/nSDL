@@ -18,6 +18,10 @@ Features:
 
 ![](http://i.imgur.com/ltvwD3U.png)
 
+## Download
+
+[Download nSDL 1.1.1](https://github.com/hoffa/nSDL/archive/1.1.1.zip) (January 2013)
+
 ## Build
 
 ```
