@@ -1,6 +1,8 @@
 # nSDL
 
-nSDL is a port of the cross-platform SDL library for TI-Nspire calculators. Not in active development.
+nSDL is a port of the cross-platform [SDL library](https://www.libsdl.org/) for [TI-Nspire calculators](https://en.wikipedia.org/wiki/TI-Nspire_series).
+
+Not in active development.
 
 ### Features
 
@@ -13,13 +15,14 @@ nSDL is a port of the cross-platform SDL library for TI-Nspire calculators. Not 
 
 ### Screenshots
 
-![](http://i.imgur.com/JKGzx.png)
+![](http://i.imgur.com/JKGzx.png) ![](http://i.imgur.com/jNLLz.png)
 
-![](http://i.imgur.com/jNLLz.png)
-
-![](http://i.imgur.com/V6KWP.png)
-
-![](http://i.imgur.com/ONKjZ.png)
+![](http://i.imgur.com/V6KWP.png) ![](http://i.imgur.com/ONKjZ.png)
 
 ![](http://i.imgur.com/ltvwD3U.png)
 
+### Compiling
+
+```
+make -f Makefile.nsp
+```
