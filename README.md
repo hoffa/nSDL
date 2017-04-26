@@ -1,11 +1,8 @@
 # nSDL
 
-nSDL is a port of the cross-platform [SDL library](https://www.libsdl.org/) for [TI-Nspire calculators](https://en.wikipedia.org/wiki/TI-Nspire_series).
+nSDL is a port of the cross-platform [SDL library](https://www.libsdl.org/) for [TI-Nspire calculators](https://en.wikipedia.org/wiki/TI-Nspire_series). Not in active development.
 
-Not in active development.
-
-### Features
-
+Features:
 * All TI-Nspire models supported with a single binary
 * Very fast and stable buffered drawing
 * Supports 8- and 16-bit display bit depth with resolution up to 320 × 240
@@ -13,7 +10,7 @@ Not in active development.
 * Load images [directly from the executable](https://github.com/hoffa/nSDL/wiki/NTI-specification)
 * Ports of [SDL_image and SDL_gfx](https://github.com/hoffa/nSDL/wiki/Additional-libraries) available
 
-### Screenshots
+## Screenshots
 
 ![](http://i.imgur.com/JKGzx.png) ![](http://i.imgur.com/jNLLz.png)
 
@@ -21,7 +18,7 @@ Not in active development.
 
 ![](http://i.imgur.com/ltvwD3U.png)
 
-### Compiling
+## Build
 
 ```
 make -f Makefile.nsp
